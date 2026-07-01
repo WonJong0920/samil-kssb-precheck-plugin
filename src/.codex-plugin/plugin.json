@@ -1,0 +1,6 @@
+{
+  "name": "samil-kssb-precheck",
+  "version": "0.1.0",
+  "description": "A Codex-native skill workflow for generating a consultant-reviewable KSSB evidence gap precheck report from customer-provided or publicly verifiable source materials. 삼일회계법인의 공개 ESG·지속가능성 공시 자문 맥락을 바탕으로 설계한 AX 해커톤 제출용 Codex 플러그인이며, 감사·인증·준수 판단을 대체하지 않는 컨설턴트 검수용 사전검토 보조 도구다.",
+  "skills": "./skills/"
+}

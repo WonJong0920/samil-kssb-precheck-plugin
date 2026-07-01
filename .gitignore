@@ -1,0 +1,16 @@
+# 사전 존재 세션 로깅 인프라 — 플러그인 산출물과 분리(커밋 제외)
+log-hooks/
+
+# Python 캐시(참고 엔진 관련, 신규 repo엔 코드 없음)
+__pycache__/
+*.pyc
+
+# OS/편집기
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 로그 산출물(디렉터리는 .gitkeep으로 유지)
+logs/*
+!logs/.gitkeep
