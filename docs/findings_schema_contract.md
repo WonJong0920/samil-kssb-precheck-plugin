@@ -47,6 +47,21 @@ Skill은 KSSB 4대 영역 사전검토 결과를 이 계약 형식의 **구조�
 - `not_verifiable` 판정은 **`missing_info` 최소 1개 + `customer_questions` 최소 1개 필수**.
 - 즉 확인 불가 항목은 반드시 부족 정보 명시와 고객 확인 질문으로 이어진다. 미공시로 단정하지 않는다.
 
+## customer_questions 필드 계약 (스키마 강제)
+렌더러가 `report_template.md`의 질문 열(질문사유·관련근거·우선순위·요청자료·후속조치)을 안정적으로 렌더할 수 있도록,
+각 `customer_question`은 아래 필드를 **모두 필수**로 갖는다. 항목ID·항목명은 상위 `finding_item`(`item_id`·`requirement_title`)에서 파생한다.
+
+| 스키마 필드 | customer_question_rules.md 열 | 규칙 |
+|---|---|---|
+| `question` | 질문 | 비어 있지 않음 |
+| `reason` | 질문사유 | 비어 있지 않음 |
+| `related_evidence` | 관련근거 | 근거 앵커 요약. 없으면 `"해당 없음"` |
+| `priority` | 우선순위 | `high`/`medium`/`low` (상/중/하로 렌더) |
+| `requested_material` | 요청자료 | 비어 있지 않음 |
+| `follow_up_action` | 후속조치 | 비어 있지 않음 |
+
+- 이 계약으로 질문 자체만 있고 사유·요청자료·관련근거·후속조치가 빠진 findings는 **schema-valid가 되지 않는다.**
+
 ## conflict_or_interpretation_needed → human review 연결 규칙 (스키마 강제)
 - `conflict_or_interpretation_needed` 판정은 **`human_review_required: true` + `human_review_note`(비어 있지 않음) 필수**.
 - 상충·해석 필요 항목은 자동 해소하지 않고 사람 검수로 넘긴다.
@@ -91,3 +106,4 @@ Skill은 KSSB 4대 영역 사전검토 결과를 이 계약 형식의 **구조�
   - `missing_info`를 문자열 배열로 정의하고, `not_verifiable`뿐 아니라 `out_of_scope_or_not_applicable`의 **적용 제외 사유**도 담도록 역할을 확장했다(판정별 사유의 단일 필드화).
   - `customer_questions[].priority`는 안정성을 위해 `high`/`medium`/`low` 코드로 정의했다(문서 표기 시 상/중/하로 변환 가능).
   - 판정별 필수 조건은 JSON Schema `allOf` + `if/then`으로 인코딩했다.
+  - **Cycle 2B Patch(Codex Major 대응)**: `customer_question`에 `related_evidence`(관련근거)·`follow_up_action`(후속조치) 필드를 추가하고, `reason`·`related_evidence`·`priority`·`requested_material`·`follow_up_action`을 **필수화**했다. `customer_question_rules.md`·`report_template.md`의 질문 열 구조와 스키마 계약을 정합시켜, 렌더러가 질문 열을 안정적으로 렌더하도록 한다.

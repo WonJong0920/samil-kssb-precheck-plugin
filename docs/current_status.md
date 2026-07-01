@@ -1,7 +1,14 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
-- **Cycle 2B** — Findings Schema Contract 확정. 렌더러·validator 코드·Hook/MCP·샘플 실행 없음.
+- **Cycle 2B (+ Patch)** — Findings Schema Contract 확정 후 Codex Schema Review(CONDITIONAL PASS) Major 지적 보정.
+  렌더러·validator 코드·Hook/MCP·샘플 실행 없음.
+
+## Cycle 2B Patch (Codex Schema Review 대응)
+- Codex 판정: **CONDITIONAL PASS**(`docs/reviews/codex_cycle2b_schema_review.md`).
+- Major 해소: `customer_question` 스키마 계약을 질문 규칙·보고서 템플릿과 정합 — `related_evidence`·`follow_up_action` 필드 추가 + 실무 필드 필수화.
+- 갱신: schema/example/contract, customer_question_rules·completion_checklist 정합 보강. 완료 보고 `docs/cycle2b_patch_completion_report.md`.
+- Minor(수동 검증 규칙: source_id cross-ref·모드↔라벨 정합 등)는 이미 계약 문서에 명시. 향후 경량 검증 단계에서 우선 처리(보류).
 
 ## 사이클 이력 (요약)
 - **Cycle 1** — Skill-first Codex 플러그인 1차 골격. Codex 독립 리뷰 **PASS**(`docs/reviews/codex_cycle1_independent_review.md`). Minor: submission.zip 원본 로그 포함.

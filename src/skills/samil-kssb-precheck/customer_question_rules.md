@@ -27,6 +27,11 @@
 | 요청자료 | 고객에게 요청할 구체 자료(예: 이사회 규정, 산정 명세, 데이터표) |
 | 후속조치 | 자료 수령 후 컨설턴트가 할 일(예: 원문 대조 후 상충 해소 확인) |
 
+> **findings 스키마 필드 매핑**: 항목ID·항목명은 상위 finding_item(`item_id`·`requirement_title`)에서 파생하며,
+> 질문 객체(`customer_question`)의 필드는 질문=`question`, 질문사유=`reason`, 관련근거=`related_evidence`(없으면 "해당 없음"),
+> 우선순위=`priority`(high/medium/low), 요청자료=`requested_material`, 후속조치=`follow_up_action`이다.
+> 이 6개 필드는 스키마에서 **모두 필수**다(`docs/findings_schema_contract.md`).
+
 ## 3. 우선순위 기준(권장)
 
 - **상**: 정량 핵심 지표 누락(온실가스 배출량, 에너지 사용량), 상충 근거, 거버넌스 감독 책임 미확인.

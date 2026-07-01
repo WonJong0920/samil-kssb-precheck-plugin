@@ -35,6 +35,7 @@
 - [ ] 각 항목이 `judgment_code`와 review_mode에 맞는 `judgment_label`을 함께 가진다.
 - [ ] `evidence_confirmed`·`partial_evidence_needs_supplement`에 `evidence_anchors` ≥ 1(각 `quote` 비어있지 않음).
 - [ ] `not_verifiable`에 `missing_info`와 `customer_questions`가 연결되었다.
+- [ ] 각 `customer_question`이 필수 6필드(`question`·`reason`·`related_evidence`·`priority`·`requested_material`·`follow_up_action`)를 갖췄다(관련근거 없으면 "해당 없음").
 - [ ] `conflict_or_interpretation_needed`에 `human_review_required: true`와 `human_review_note`가 있다.
 - [ ] `out_of_scope_or_not_applicable`에 적용 제외 사유(`missing_info`)가 있다.
 - [ ] `evidence_anchors[].source_id`가 `source_documents`의 식별자를 참조한다(수동 확인).

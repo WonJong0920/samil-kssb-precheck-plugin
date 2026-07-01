@@ -169,21 +169,41 @@
     "customer_question": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["question"],
+      "required": [
+        "question",
+        "reason",
+        "related_evidence",
+        "priority",
+        "requested_material",
+        "follow_up_action"
+      ],
+      "description": "고객 확인 질문. customer_question_rules.md·report_template.md의 질문 열(질문사유·관련근거·우선순위·요청자료·후속조치)을 렌더러가 안정적으로 렌더할 수 있도록 실무 필드를 필수화한다. 항목ID·항목명은 상위 finding_item(item_id·requirement_title)에서 파생한다.",
       "properties": {
-        "question": { "type": "string", "minLength": 1 },
+        "question": { "type": "string", "minLength": 1, "description": "고객에게 물을 실제 질문 문장." },
         "reason": {
           "type": "string",
+          "minLength": 1,
           "description": "질문 사유(어떤 근거가 없거나 부족한가)."
+        },
+        "related_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "관련근거. 연결된 근거 앵커 요약(있으면). 없으면 '해당 없음'."
         },
         "requested_material": {
           "type": "string",
+          "minLength": 1,
           "description": "고객에게 요청할 구체 자료."
+        },
+        "follow_up_action": {
+          "type": "string",
+          "minLength": 1,
+          "description": "후속조치. 자료 수령 후 컨설턴트가 할 일."
         },
         "priority": {
           "type": "string",
           "enum": ["high", "medium", "low"],
-          "description": "우선순위."
+          "description": "우선순위(상/중/하 표기로 렌더 가능)."
         }
       }
     },
