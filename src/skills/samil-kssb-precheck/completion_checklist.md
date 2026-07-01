@@ -30,3 +30,13 @@
 ## 모드 정합성
 - [ ] 입력 모드(고객 제공자료 / 공개자료 검증)에 맞는 판정 라벨 세트를 사용했다.
 - [ ] 근거 표기가 모드("제공자료" / "공개자료")와 일치한다.
+
+## findings 스키마 정합성 (`docs/findings_schema_contract.md`)
+- [ ] 각 항목이 `judgment_code`와 review_mode에 맞는 `judgment_label`을 함께 가진다.
+- [ ] `evidence_confirmed`·`partial_evidence_needs_supplement`에 `evidence_anchors` ≥ 1(각 `quote` 비어있지 않음).
+- [ ] `not_verifiable`에 `missing_info`와 `customer_questions`가 연결되었다.
+- [ ] `conflict_or_interpretation_needed`에 `human_review_required: true`와 `human_review_note`가 있다.
+- [ ] `out_of_scope_or_not_applicable`에 적용 제외 사유(`missing_info`)가 있다.
+- [ ] `evidence_anchors[].source_id`가 `source_documents`의 식별자를 참조한다(수동 확인).
+- [ ] 출처 없는 숫자·보고서 밖 추정·외부 지식 보강이 findings에 없다.
+- [ ] 렌더러가 findings를 재판정하지 않고 형식 변환만 하도록 유지되었다.

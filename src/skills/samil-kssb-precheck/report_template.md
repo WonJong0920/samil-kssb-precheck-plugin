@@ -1,9 +1,11 @@
 # 보고서 템플릿 (Report Template)
 
-Samil KSSB Precheck의 사용자-facing 산출물은 **컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안**이다.
+Samil KSSB Precheck의 사용자-facing 산출물은 **컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안**이며,
+**구조화 findings에서 렌더러가 변환**해 생성한다. 렌더러는 findings를 **재판정하지 않고** 형식 변환만 한다.
+findings 계약은 `docs/findings_schema_contract.md`, 스키마는 `src/schemas/kssb_findings.schema.json`.
 
-> **Cycle 1 주의**: 실제 DOCX/HTML 생성 코드는 구현하지 않는다. 이 문서는 보고서의 **섹션 구성과 내용 규칙**을
-> 규정한다. 실제 파일 생성은 이후 사이클의 과제다.
+> **주의**: 실제 DOCX/HTML 생성 코드는 아직 구현하지 않는다. 이 문서는 보고서의 **섹션 구성과 내용 규칙**을
+> 규정한다. 실제 파일 생성(렌더러)은 이후 사이클의 과제다.
 
 ## 파일 명명 규칙 (출력 정책)
 
@@ -49,7 +51,9 @@ Samil KSSB Precheck의 사용자-facing 산출물은 **컨설턴트 검수용 KS
 
 ## 내용 규칙
 
-- 모든 "근거 확인/일부 근거 확인" 항목에는 근거 앵커가 붙어야 한다(`evidence_mapping_rules.md`).
+- 모든 "근거 확인/일부 근거 확인" 항목에는 근거 앵커가 붙어야 한다(`evidence_mapping_rules.md`, findings `evidence_anchors` ≥ 1).
+- 판정 표기는 findings의 `judgment_label`(review_mode에 맞는 라벨)을 그대로 사용한다. 렌더러는 라벨을 재계산하지 않는다.
 - 금지 표현을 사용하지 않는다(`prohibited_terms.md`).
-- 확인 불가 항목은 반드시 5절 질문과 연결된다.
+- 확인 불가 항목은 반드시 5절 질문과 연결된다(findings `not_verifiable` → `customer_questions`).
+- 상충 또는 해석 필요 항목은 사람 검수 대상으로 표기한다(findings `human_review_required`).
 - plugin/cache/sandbox 내부 경로를 보고서에 노출하지 않는다.

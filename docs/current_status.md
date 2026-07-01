@@ -1,61 +1,33 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
-- **Cycle 2A** — 구현 계획 수립(planning-only). 코드·생성기능·Hook/MCP·샘플 실행·submission 생성 없음.
+- **Cycle 2B** — Findings Schema Contract 확정. 렌더러·validator 코드·Hook/MCP·샘플 실행 없음.
 
-## Cycle 1 결과 (Codex 검증)
-- Codex 독립 리뷰 판정: **PASS**(중대·Major 결함 없음). `docs/reviews/codex_cycle1_independent_review.md`.
-- 유일한 Minor: 최종 `submission.zip`에 원본 무편집 AI 대화 로그 포함 필요 → 패키징 체크리스트에 반영.
+## 사이클 이력 (요약)
+- **Cycle 1** — Skill-first Codex 플러그인 1차 골격. Codex 독립 리뷰 **PASS**(`docs/reviews/codex_cycle1_independent_review.md`). Minor: submission.zip 원본 로그 포함.
+- **Cycle 2A** — 구현 계획 수립(planning-only). Codex Planning Review **PASS**(`docs/reviews/codex_cycle2a_planning_review.md`). Minor: 로그 포함 방식 확정(제출 단계), current_status·decision_log 잔여 Cycle 1 문구 정리.
+- **Cycle 2B** — 본 사이클. 구조화 findings 데이터 계약 확정.
 
-## Cycle 2A 완료 작업
-- 참고 엔진 read-only 재확인: `docx_report.py`가 stdlib `zipfile`만으로 결정적 OOXML DOCX 생성(외부 의존 0), sanitizer 보유.
-- 구현 계획 문서: `docs/planning/cycle2_implementation_plan.md`(10대 질문 옵션·장단점·비확정 제안).
-- 샘플 입력자료 처리 정책: `docs/planning/sample_input_policy.md`.
-- 제출 패키징 체크리스트: `docs/planning/submission_packaging_checklist.md`.
-- 완료 보고: `docs/cycle2a_completion_report.md`. current_status·decision_log 갱신.
-- **실제 구현 코드·Hook/MCP·샘플 PDF·Python 코드 복사 없음.**
+## Cycle 2B 완료 작업
+- Findings 스키마: `src/schemas/kssb_findings.schema.json`(JSON Schema draft-07, 외부 의존 0). `judgment_code`별 source-bound 필수 조건을 `if/then`으로 강제.
+- 예시 findings: `src/schemas/kssb_findings_example.json`(가상 공개 보고서, 4대 영역, 판정 5종 포함, 실제 기업·파일명 미사용).
+- 계약 문서: `docs/findings_schema_contract.md`(생성/소비 주체, 렌더러 재판정 금지, review_mode, judgment_code↔label, source-bound 규칙, 수동 검증 규칙).
+- Skill 문서 최소 정합성 보정: `SKILL.md`, `report_template.md`, `completion_checklist.md`(findings-first 흐름·렌더러 재판정 금지·근거 앵커 필수·확인 불가→질문 반영).
+- current_status·decision_log 정리(Codex Cycle 2A Minor 반영).
+- **렌더러/validator 코드·Hook/MCP·샘플 PDF·Python 코드 복사 없음.**
 
-## Cycle 1 완료 작업(이력)
-- Discover: 기존 1차 작업물(`D:\PrimeBell\AI_Projects\kssb-evidence-gap-auditor`, read-only) 검토.
-- Codex 플러그인 골격 생성: `src/.codex-plugin/plugin.json`(plugin root = `src/`).
-- Skill 본체 및 보조 문서 생성: `src/skills/samil-kssb-precheck/`
-  (SKILL.md + 카탈로그·판정스키마·근거매핑·질문규칙·보고서템플릿·완료체크리스트·금지표현).
-- 참고 엔진 문서: `src/reference/python_engine/README.md`(코드 미포함).
-- 설계 문서: `docs/product_definition.md`, `scope.md`, `architecture.md`, `validation_criteria.md`,
-  `reference_review.md`, `decision_log.md`, `current_status.md`, `cycle1_completion_report.md`.
-- README.md(한국어 중심) 작성, 삼일 고지·제품 경계·산출물 정책 반영.
-- KSSB 4대 영역 MVP, 판정 스키마(모드별), Source-bound Analysis 원칙 반영.
+## 미완료 / 이후 사이클 (의도적 제외)
+- DOCX/HTML 렌더러 구현(구조화 findings 소비).
+- 경량 결정적 검증 단계(수동 검증 규칙 자동화).
+- 샘플 실행·submission.zip 패키징.
+- Hook/MCP는 하드 요건 확정 시에만 재검토.
 
-## 미완료 작업 (Cycle 1 범위 밖 — 의도적 제외)
-- 실제 DOCX/HTML 생성 코드 구현.
-- Hook/MCP 추가.
-- 샘플 고객사 선정 및 실제 보고서 반입.
-- 결정적 검증(regression) 엔진 이식.
+## 보류 (확정하지 않음)
+- **logs 원본 제출 방식**: repo 커밋 vs submission.zip 번들만 — **제출 패키징 단계에서 결정**(현재 미확정).
+- 렌더러 코드 도입 위치·시점, 참고 엔진 재구현 범위.
 
-## Preflight Check 결과
-- **완료**. 필수 파일 전부 존재(아래), 금지 작업 미수행 확인.
-- 필수 파일: plugin.json / SKILL.md + 보조문서 7종 / reference README / README.md /
-  docs 8종 / logs/.gitkeep — 모두 존재.
-- Hook 파일·hooks 설정·MCP·`.mcp.json`을 플러그인(`src/`)에 추가하지 않음.
-- 샘플 고객사 임의 선정하지 않음.
-- 기존 1차 작업물 원본 수정하지 않음.
-- 기본 사용자 흐름이 Python CLI 중심으로 설계되지 않음(Skill-first).
-- 사전 존재 `log-hooks/` 폴더는 `.gitignore`로 커밋 제외(플러그인과 분리).
-- 상세 결과는 `docs/cycle1_completion_report.md` 참조.
-
-## GitHub push 상태
-- git 저장소 초기화 및 initial commit 수행.
-- GitHub repo 생성 및 `main` push 수행(owner: `WonJong0920`, repo: `samil-kssb-precheck-plugin`).
-- 예상 URL: https://github.com/WonJong0920/samil-kssb-precheck-plugin
-- 최종 commit SHA는 자기참조 문제로 본 문서에 고정하지 않으며, 작업 완료 채팅 보고에 별도 기재한다.
-
-> 만약 push가 불가능했다면(gh 미인증 등), 사유와 사용자가 수행할 명령을 이 항목과
-> `docs/cycle1_completion_report.md`에 기록한다. (본 환경에서는 gh 인증 확인됨.)
-
-## ChatGPT 확인 대기 상태
-- Cycle 1 산출물을 GitHub에 push한 뒤 중단한다.
-- Cycle 2 다음 단계는 제안하지 않는다. ChatGPT가 GitHub의 README·docs·src 구조·완료 보고서·commit 상태를
-  직접 확인한 뒤 다음 단계를 결정한다.
-
-## Codex 검증 대기 상태
-- 최종 검증과 PASS/FAIL 판정은 Codex가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
+## GitHub / 검증 상태
+- repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
+- Cycle 2B 산출물 push 후 **ChatGPT 확인 대기**. 다음 단계는 ChatGPT·사용자가 결정한다.
+- 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
+- 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

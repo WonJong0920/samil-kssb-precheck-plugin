@@ -30,10 +30,12 @@ KSSB 공시요구사항별 **확인 근거 / 부족한 정보 / 추가 확인 �
 - **실제 컨설팅 모드**: 고객사가 제공한 보고서/증빙(지속가능경영보고서, 사업보고서, 내부 정책·규정, 데이터표 등).
 - **해커톤 공개자료 검증 모드**: 고객 제공자료를 공개자료(공시된 지속가능경영보고서 등)로 대체.
   - 이 경우 산출물의 근거 표기와 판정 라벨은 "공개자료" 기준으로 전환한다(아래 Judgment schema 참조).
-- 입력은 텍스트로 읽을 수 있는 문서를 전제로 한다. Cycle 1에서는 문서 변환/OCR 실행 코드를 포함하지 않는다.
+- 입력은 텍스트로 읽을 수 있는 문서를 전제로 한다. 현재 범위에서는 문서 변환/OCR 실행 코드를 포함하지 않는다.
 
-> Cycle 1 범위 주의: 이 스킬은 실제 DOCX/HTML 생성 코드나 문서 파서를 실행하지 않는다.
-> 아래 절차는 Codex가 입력 텍스트를 근거로 **사전검토 보고서 초안의 내용을 구성**하기 위한 지침이다.
+> 산출 흐름: 이 스킬은 최종 보고서를 직접 쓰지 않고, 먼저 **구조화 findings**(데이터 계약)를 만든 뒤
+> 렌더러가 그 findings를 **재판정 없이** 대표 문서(DOCX/HTML)로 변환한다. findings 형식은
+> `docs/findings_schema_contract.md` 및 스키마 `src/schemas/kssb_findings.schema.json`을 따른다.
+> 렌더러 구현은 이번 범위 밖이며, 아래 절차는 findings 내용을 근거로 구성하기 위한 지침이다.
 
 ## Source-bound analysis rules (근거 기반 분석 원칙)
 
@@ -61,6 +63,11 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 5. **부족분·질문 생성**: 근거가 없거나 부분적이면, 부족한 정보를 명시하고
    고객 확인 질문·요청자료·후속조치를 생성한다(`customer_question_rules.md`).
 6. **보완 권고**: 필요 시 컨설턴트 관점의 보완 권고를 덧붙인다(확정 표현 금지).
+7. **findings 기록**: 위 결과를 항목별로 구조화 findings에 담는다. `judgment_code`별 필수 조건을 지킨다 —
+   `evidence_confirmed`/`partial_evidence_needs_supplement`는 `evidence_anchors` ≥ 1,
+   `not_verifiable`는 `missing_info` + `customer_questions` 연결,
+   `conflict_or_interpretation_needed`는 `human_review_required` + 사유,
+   `out_of_scope_or_not_applicable`는 적용 제외 사유(`missing_info`). 상세는 `docs/findings_schema_contract.md`.
 
 ## Judgment schema (판정 스키마)
 
@@ -97,7 +104,8 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 
 ## Report structure (보고서 구조)
 
-산출은 **컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안**이다. 구성은 `report_template.md`.
+산출은 **컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안**이며, **구조화 findings에서 렌더러가 변환**한다
+(렌더러는 재판정하지 않는다). 구성은 `report_template.md`. findings 계약은 `docs/findings_schema_contract.md`.
 표준 섹션: 표지·고지 → 검토 개요 → 상태 요약 → 영역별(4대) 항목 결과와 근거 → 고객 확인 질문·요청자료 → 보완 권고 → 한계와 사람 검수 안내.
 
 ## Completion checklist (완료 점검)
@@ -115,7 +123,7 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 - DOCX 생성이 제한될 경우 fallback: `<보고서명>_KSSB_공시근거_사전검토보고서.html`
 - 기본 사용자 흐름에서는 JSON/CSV/manifest/debug log/`_검토근거` 폴더를 **산출물로 요구하지 않는다.**
   (이는 향후 개발/검증/debug mode에서 내부 검증용으로만 사용할 수 있다.)
-- **Cycle 1에서는 실제 DOCX/HTML 생성 코드를 구현하지 않는다.** 본 스킬은 보고서 템플릿과 출력 정책을 규정하고, 내용 초안을 구조화한다.
+- **현재 범위에서는 실제 DOCX/HTML 생성 코드를 구현하지 않는다.** 본 스킬은 구조화 findings와 보고서 템플릿·출력 정책을 규정하고, 렌더러가 findings를 재판정 없이 변환한다.
 - 사용자-facing 안내에 plugin/cache/sandbox 내부 경로를 노출하지 않는다.
 
 ## Human review boundary (사람 검수 경계)

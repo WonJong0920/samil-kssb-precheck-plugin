@@ -1,0 +1,315 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/WonJong0920/samil-kssb-precheck-plugin/src/schemas/kssb_findings.schema.json",
+  "title": "Samil KSSB Precheck - Findings Schema Contract",
+  "description": "Skill이 생성하고 DOCX/HTML 렌더러가 재판정 없이 소비하는 구조화 findings 데이터 계약. Source-bound Analysis 원칙을 판정 코드별 필수 조건으로 강제한다. 렌더러는 이 findings를 형식 변환만 하며 재판정하지 않는다.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["report_meta", "source_documents", "kssb_areas", "human_review_boundary"],
+  "properties": {
+    "report_meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report_title", "review_mode", "disclaimer"],
+      "properties": {
+        "report_title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "대표 문서 제목. 예: 'KSSB 공시근거 사전검토 보고서 (초안)'"
+        },
+        "generated_for": {
+          "type": "string",
+          "description": "검토 대상 주체의 일반 표기. 제품 문서에 고정 고객사명을 쓰지 않는다."
+        },
+        "review_purpose": {
+          "type": "string",
+          "description": "검토 목적. 예: '컨설턴트 검수용 KSSB 공시근거 사전검토'"
+        },
+        "review_mode": {
+          "type": "string",
+          "enum": ["customer_provided_materials", "public_materials_validation"],
+          "description": "입력 모드. 실제 고객자료 또는 해커톤 공개자료 검증."
+        },
+        "created_at": {
+          "type": "string",
+          "description": "생성 시각 문자열(자유 형식 또는 ISO-8601). 결정성 요구 시 고정값 사용 가능."
+        },
+        "disclaimer": {
+          "type": "string",
+          "minLength": 1,
+          "description": "삼일 비공식·감사/인증/준수 판단 대체 아님·컨설턴트 검수용 초안 고지문."
+        }
+      }
+    },
+    "source_documents": {
+      "type": "array",
+      "minItems": 1,
+      "description": "findings의 모든 evidence_anchors.source_id는 이 목록의 source_id를 참조해야 한다(수동 검증 규칙).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "title", "source_mode"],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "문서 식별자. evidence_anchors.source_id가 참조하는 키."
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "문서 제목. 예시는 'Sample KSSB-Structured Public Report'처럼 일반화한다."
+          },
+          "document_type": {
+            "type": "string",
+            "description": "문서 유형. 예: '지속가능경영보고서', '사업보고서'."
+          },
+          "source_mode": {
+            "type": "string",
+            "enum": ["customer_provided", "public"],
+            "description": "자료 출처 모드. review_mode와 정합해야 한다(수동 검증 규칙)."
+          },
+          "provided_by": {
+            "type": "string",
+            "description": "제공 주체 일반 표기."
+          },
+          "date_or_period": {
+            "type": "string",
+            "description": "발행일 또는 대상 기간."
+          },
+          "notes": {
+            "type": "string",
+            "description": "비고."
+          }
+        }
+      }
+    },
+    "kssb_areas": {
+      "type": "array",
+      "minItems": 1,
+      "description": "KSSB 4대 영역 MVP. governance / strategy / risk_management / metrics_and_targets.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["area_id", "area_name", "items"],
+        "properties": {
+          "area_id": {
+            "type": "string",
+            "enum": ["governance", "strategy", "risk_management", "metrics_and_targets"],
+            "description": "영역 식별자."
+          },
+          "area_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "영역명(한국어). 예: '거버넌스'."
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/definitions/finding_item" }
+          }
+        }
+      }
+    },
+    "overall_limitations": {
+      "type": "array",
+      "description": "근거 기반 분석의 전체 한계(표현 차이 누락 가능, 신뢰도는 휴리스틱 등).",
+      "items": { "type": "string" }
+    },
+    "prohibited_terms_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "금지 표현·제품 경계 점검 결과(렌더 전 자기점검). 자동/수동 점검 결과를 기록한다.",
+      "properties": {
+        "performed": { "type": "boolean" },
+        "prohibited_terms_found": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "발견된 금지 표현 목록. 비어 있어야 정상."
+        },
+        "disclaimer_present": {
+          "type": "boolean",
+          "description": "고지문·제품 경계 문구 존재 여부."
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "human_review_boundary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "사람 검수 경계 문구. 산출물은 초안이며 최종 판단은 컨설턴트가 수행한다는 원칙."
+    }
+  },
+  "definitions": {
+    "evidence_anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "quote"],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "source_documents의 source_id를 참조(수동 검증 규칙)."
+        },
+        "page_or_section": {
+          "type": "string",
+          "description": "위치 단서(페이지/섹션/제목 경로/표 식별자)."
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "원문 인용(발췌). 빈 문자열 금지. 자료에 실재하는 문장만."
+        },
+        "relevance_note": {
+          "type": "string",
+          "description": "해당 인용이 요구사항과 어떻게 연결되는지 설명."
+        }
+      }
+    },
+    "customer_question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question"],
+      "properties": {
+        "question": { "type": "string", "minLength": 1 },
+        "reason": {
+          "type": "string",
+          "description": "질문 사유(어떤 근거가 없거나 부족한가)."
+        },
+        "requested_material": {
+          "type": "string",
+          "description": "고객에게 요청할 구체 자료."
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "우선순위."
+        }
+      }
+    },
+    "finding_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "requirement_title",
+        "judgment_code",
+        "judgment_label"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "카탈로그 항목 ID. 예: 'gov-01'."
+        },
+        "requirement_title": { "type": "string", "minLength": 1 },
+        "requirement_description": { "type": "string" },
+        "judgment_code": {
+          "type": "string",
+          "enum": [
+            "evidence_confirmed",
+            "partial_evidence_needs_supplement",
+            "not_verifiable",
+            "conflict_or_interpretation_needed",
+            "out_of_scope_or_not_applicable"
+          ],
+          "description": "판정의 내부 안정 코드(렌더러가 소비하는 기준값)."
+        },
+        "judgment_label": {
+          "type": "string",
+          "enum": [
+            "제공자료상 근거 확인",
+            "공개자료상 근거 확인",
+            "일부 근거 확인, 보완 필요",
+            "제공자료로 확인 불가",
+            "공개자료로 확인 불가",
+            "상충 또는 해석 필요",
+            "검토 범위 외 또는 적용대상 아님"
+          ],
+          "description": "사용자-facing 한국어 라벨. review_mode에 맞는 라벨을 사용한다(수동 검증 규칙)."
+        },
+        "evidence_anchors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/evidence_anchor" },
+          "description": "근거 앵커. '근거 확인'·'일부 근거 확인' 판정은 최소 1개 필수."
+        },
+        "missing_info": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "부족 정보 또는 판정 사유. not_verifiable/out_of_scope 판정에서 최소 1개 필수."
+        },
+        "customer_questions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/customer_question" },
+          "description": "고객 확인 질문. not_verifiable 판정은 최소 1개 필수."
+        },
+        "recommendations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "컨설턴트 관점 보완 권고(확정·보증 표현 금지)."
+        },
+        "human_review_required": {
+          "type": "boolean",
+          "description": "사람 검수 필요 여부. conflict 판정은 true 필수."
+        },
+        "human_review_note": {
+          "type": "string",
+          "description": "사람 검수 사유. conflict 판정은 비어 있지 않아야 함."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "judgment_code": { "const": "evidence_confirmed" } }
+          },
+          "then": {
+            "properties": { "evidence_anchors": { "minItems": 1 } },
+            "required": ["evidence_anchors"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "judgment_code": { "const": "partial_evidence_needs_supplement" } }
+          },
+          "then": {
+            "properties": { "evidence_anchors": { "minItems": 1 } },
+            "required": ["evidence_anchors"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "judgment_code": { "const": "not_verifiable" } }
+          },
+          "then": {
+            "properties": {
+              "missing_info": { "minItems": 1 },
+              "customer_questions": { "minItems": 1 }
+            },
+            "required": ["missing_info", "customer_questions"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "judgment_code": { "const": "conflict_or_interpretation_needed" } }
+          },
+          "then": {
+            "properties": {
+              "human_review_required": { "const": true },
+              "human_review_note": { "type": "string", "minLength": 1 }
+            },
+            "required": ["human_review_required", "human_review_note"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "judgment_code": { "const": "out_of_scope_or_not_applicable" } }
+          },
+          "then": {
+            "properties": { "missing_info": { "minItems": 1 } },
+            "required": ["missing_info"]
+          }
+        }
+      ]
+    }
+  }
+}
