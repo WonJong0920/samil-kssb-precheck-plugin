@@ -16,6 +16,13 @@
 - current_status·decision_log 정리(Codex Cycle 2A Minor 반영).
 - **렌더러/validator 코드·Hook/MCP·샘플 PDF·Python 코드 복사 없음.**
 
+## 문서 템플릿 정비 (Cycle 2B 이후)
+- 반복 사용 양식 추가: `docs/reviews/REVIEW_REPORT_TEMPLATE.md`(공통 리뷰 보고 형식),
+  `docs/templates/`(완료보고·Codex 리뷰 프롬프트·Claude Code 작업 프롬프트·Preflight 체크리스트·decision log 항목·README).
+- 향후 Codex 리뷰는 `REVIEW_REPORT_TEMPLATE.md`를 참고하는 **짧은 프롬프트 방식**으로 전환.
+- 완료 보고: `docs/template_system_completion_report.md`.
+- **Cycle 2B schema/example/contract 및 Skill 문서는 수정하지 않음(검증 대기).**
+
 ## 미완료 / 이후 사이클 (의도적 제외)
 - DOCX/HTML 렌더러 구현(구조화 findings 소비).
 - 경량 결정적 검증 단계(수동 검증 규칙 자동화).
