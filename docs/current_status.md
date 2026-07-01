@@ -1,9 +1,21 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
-- **Cycle 1** — 해커톤 제출 가능한 Codex 플러그인 1차 골격 생성.
+- **Cycle 2A** — 구현 계획 수립(planning-only). 코드·생성기능·Hook/MCP·샘플 실행·submission 생성 없음.
 
-## 완료된 작업
+## Cycle 1 결과 (Codex 검증)
+- Codex 독립 리뷰 판정: **PASS**(중대·Major 결함 없음). `docs/reviews/codex_cycle1_independent_review.md`.
+- 유일한 Minor: 최종 `submission.zip`에 원본 무편집 AI 대화 로그 포함 필요 → 패키징 체크리스트에 반영.
+
+## Cycle 2A 완료 작업
+- 참고 엔진 read-only 재확인: `docx_report.py`가 stdlib `zipfile`만으로 결정적 OOXML DOCX 생성(외부 의존 0), sanitizer 보유.
+- 구현 계획 문서: `docs/planning/cycle2_implementation_plan.md`(10대 질문 옵션·장단점·비확정 제안).
+- 샘플 입력자료 처리 정책: `docs/planning/sample_input_policy.md`.
+- 제출 패키징 체크리스트: `docs/planning/submission_packaging_checklist.md`.
+- 완료 보고: `docs/cycle2a_completion_report.md`. current_status·decision_log 갱신.
+- **실제 구현 코드·Hook/MCP·샘플 PDF·Python 코드 복사 없음.**
+
+## Cycle 1 완료 작업(이력)
 - Discover: 기존 1차 작업물(`D:\PrimeBell\AI_Projects\kssb-evidence-gap-auditor`, read-only) 검토.
 - Codex 플러그인 골격 생성: `src/.codex-plugin/plugin.json`(plugin root = `src/`).
 - Skill 본체 및 보조 문서 생성: `src/skills/samil-kssb-precheck/`
