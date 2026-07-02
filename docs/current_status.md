@@ -1,12 +1,19 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
-- **Cycle 2G** — Codex Marketplace / Local Install Readiness. repo/local marketplace(`.agents/plugins/marketplace.json`) 추가와
-  plugin manifest install-surface metadata 보강, 제출 정책 반영. Public Plugin Directory 등록·공개 배포 아님. validator/renderer/schema 로직 무변경.
+- **Cycle 2G (+ Patch)** — Codex Marketplace / Local Install Readiness. repo/local marketplace 추가·manifest metadata 보강 후,
+  Codex Cycle 2G Review(CONDITIONAL PASS) Major 대응으로 `policy.authentication`을 허용값 `ON_INSTALL`로 보정.
 
-## Cycle 2G 완료 작업
+## Cycle 2G Patch (Codex Marketplace Review 대응)
+- Codex 판정: **CONDITIONAL PASS**(`docs/reviews/codex_cycle2g_marketplace_install_readiness_review.md`). Major: marketplace
+  `policy.authentication` 값 `NONE`이 허용값(`ON_INSTALL`/`ON_USE`) 밖 → install failure 위험.
+- 보정: `.agents/plugins/marketplace.json`의 `authentication`을 `NONE` → **`ON_INSTALL`**(schema 허용·보수적 기본값). 실제 자격증명 요구는 추가하지 않음.
+- 문서 정합: `docs/codex_install_readiness.md`·current_status의 `NONE`/무인증 문구 현행화, `submission_packaging_policy.md` §4.1에 authentication 허용값 점검 추가, decision_log D34(정정).
+- validator/renderer/schema·manifest 핵심 필드·`source.path`(`./src`)·name 정합 무변경. 완료 보고: `docs/cycle2g_patch_marketplace_auth_completion_report.md`.
+
+## Cycle 2G 완료 작업 (Patch 이전 base)
 - 신규 `.agents/plugins/marketplace.json`: 로컬/Repo marketplace 정의. `plugins[].name`=`samil-kssb-precheck`(manifest와 정합),
-  `source.source`=`local`·`source.path`=`./src`(plugin root=src/), `policy`=`installation: AVAILABLE`/`authentication: NONE`(Skill-only·무인증), `category: Productivity`.
+  `source.source`=`local`·`source.path`=`./src`(plugin root=src/), `policy`=`installation: AVAILABLE`/`authentication`(Patch에서 `ON_INSTALL`로 보정), `category: Productivity`.
 - `src/.codex-plugin/plugin.json` metadata 보강: `interface`(displayName·shortDescription·longDescription·developerName·category)·`keywords`·`repository` 추가.
   핵심 4필드(name/version/description/skills) 유지, Hook/MCP/apps/assets 미추가, 제품 경계 문구 유지.
 - 신규 `docs/codex_install_readiness.md`: 위치·경로 요약(marketplace/plugin root/source.path/manifest/skills), 정합성 규칙, local vs public 구분, 수동 확인 절차, GUI 확인은 별도 단계.
@@ -125,6 +132,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2G(marketplace/install readiness) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2G Marketplace / Install Readiness Review.
+- Cycle 2G Patch(marketplace authentication 보정) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2G Patch Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

@@ -82,6 +82,7 @@ Codex Cycle 1 이후 남은 Minor(최종 `submission.zip`에 원본 무편집 AI
 - [ ] `.agents/plugins/marketplace.json` JSON 파싱 성공.
 - [ ] marketplace `plugins[].name`과 manifest `name`이 `samil-kssb-precheck`로 정합.
 - [ ] marketplace `source.path`(`./src`)가 실제 plugin root(=`.codex-plugin/plugin.json`·`skills/` 보유 폴더)를 가리킴.
+- [ ] marketplace `policy.authentication`이 허용값(`ON_INSTALL` 또는 `ON_USE`)이고 `policy.installation`이 허용값(`AVAILABLE` 등)임.
 - [ ] 로컬/Repo marketplace이며 **Public Plugin Directory 등록·공개 배포가 아님**을 확인(문구·metadata 과장 없음). 상세 `docs/codex_install_readiness.md`.
 - [ ] zip 내부 파일 목록(매니페스트) 별도 기록.
 

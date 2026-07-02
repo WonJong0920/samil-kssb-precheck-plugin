@@ -1,6 +1,6 @@
-# 의사결정 기록 (Decision Log) — Cycle 1 ~ 2G
+# 의사결정 기록 (Decision Log) — Cycle 1 ~ 2G Patch
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -271,7 +271,24 @@
 - **Alternatives Considered**: (a) `source.path`를 repo root로 → 기각(plugin root는 `src/`). (b) `authentication: ON_INSTALL` → 기각(무인증 플러그인에 인증 단계 오해). (c) assets/logo·defaultPrompt·capabilities 추가 → 보류(없는 파일·불확실 필드 회피).
 - **Consequences**: 파일 기반 install readiness 확보. 실제 Codex GUI/CLI 설치 확인은 별도 단계. marketplace 파일은 제출 패키징 A분류(repo 커밋+zip).
 - **Status**: 확정(파일 기반). GUI 설치 확인·공개 등록은 범위 밖/보류.
+- **정정(D34)**: 위 (b)의 `authentication: NONE` 선택은 marketplace schema 허용값(`ON_INSTALL`/`ON_USE`) 밖이라 **오류였다.** Codex Cycle 2G Review Major에 따라 D34에서 `ON_INSTALL`로 보정했다.
 - **Related Files**: `.agents/plugins/marketplace.json`, `src/.codex-plugin/plugin.json`, `docs/codex_install_readiness.md`, `docs/submission_packaging_policy.md`, `README.md`, `docs/architecture.md`.
+
+---
+
+# Cycle 2G Patch 결정 (D34) — Marketplace Authentication 허용값 보정
+
+## D34. `policy.authentication`을 `NONE` → `ON_INSTALL`로 보정 (Codex 2G Major 대응)
+- **Date**: 2026-07-02
+- **Context**: Codex Cycle 2G Review(CONDITIONAL PASS) Major — `.agents/plugins/marketplace.json`의 `policy.authentication` 값 `NONE`이
+  plugin-creator 참조 스펙·Codex manual 예시의 허용값(`ON_INSTALL`/`ON_USE`, 기본 `ON_INSTALL`) 밖이라 install surface에서 거부·설치 실패 위험.
+- **Decision**: `authentication`을 `NONE` → **`ON_INSTALL`**로 보정. schema 허용값이자 보수적 기본값이며, 설치 시점 검토/동의 성격에 가깝다.
+  실제 외부 자격증명 요구(MCP/hook/토큰)는 추가하지 않는다 — 값만 schema 허용값으로 정렬한다. D33의 NONE 선택을 정정한다.
+- **Rationale**: Skill-only·무인증 의도라도 marketplace schema 허용값을 따라야 실제 설치가 가능하다. `ON_USE`보다 `ON_INSTALL`이 보수적 기본값.
+- **Alternatives Considered**: (a) `ON_USE` → 기각(사용 시점 인증 성격, 기본값 아님). (b) `authentication` 필드 생략 → 기각(스펙상 policy에 포함 권장·기본값 적용 불확실).
+- **Consequences**: install failure 위험 해소. 실제 자격증명 흐름은 없음(값만 정렬). GUI/CLI 설치 확인은 여전히 별도 단계.
+- **Status**: 확정. GUI 설치 확인·plugin-creator validator schema 재확인은 보류(환경 의존).
+- **Related Files**: `.agents/plugins/marketplace.json`, `docs/codex_install_readiness.md`, `docs/submission_packaging_policy.md`, `docs/current_status.md`, `docs/reviews/codex_cycle2g_marketplace_install_readiness_review.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

@@ -21,7 +21,9 @@
 - **marketplace `source.path`**: plugin root가 repo root가 아니라 `src/`이므로, marketplace entry의 `source.path`는 `./src`로 plugin root를 정확히 가리킨다.
 - **name 정합**: marketplace `plugins[].name` = `samil-kssb-precheck` = plugin manifest `name`.
 - **interface metadata**: install surface에 보이는 이름·설명은 manifest `interface`(displayName/shortDescription/longDescription/developerName/category)와 marketplace `interface.displayName`가 제어한다. 제품 경계(삼일 비공식·감사/인증/준수 대체 아님)를 문구에 유지한다.
-- **policy**: `installation: AVAILABLE`, `authentication: NONE`. 이 플러그인은 Skill-only이며 MCP/hook/외부 인증이 없어 인증 단계가 필요 없다.
+- **policy**: `installation: AVAILABLE`, `authentication: ON_INSTALL`. marketplace schema의 `authentication` 허용값은
+  `ON_INSTALL`·`ON_USE`뿐이며 기본값은 `ON_INSTALL`이다. 이 플러그인은 Skill-only이며 실제 외부 인증(MCP/hook/토큰)이 없지만,
+  schema 허용값을 따라 보수적 기본값 `ON_INSTALL`을 사용한다(실제 자격증명 요구를 추가하지 않는다).
 
 ## Local/Repo marketplace vs Public Plugin Directory
 
