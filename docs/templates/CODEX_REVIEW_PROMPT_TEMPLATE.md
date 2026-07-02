@@ -3,6 +3,9 @@
 > **이 문서는 양식(template)이다.** 향후 Codex 리뷰 프롬프트를 **짧고 일관되게** 작성하기 위한 기본 틀이다.
 > 리뷰 보고 형식을 프롬프트에 길게 반복하지 말고, 아래 한 줄로 위임한다:
 > **"리뷰 보고 형식은 `docs/reviews/REVIEW_REPORT_TEMPLATE.md`를 참고하라."**
+>
+> **먼저 읽기(필수)**: 모든 리뷰 프롬프트는 "먼저 `AGENTS.md`와 `docs/operating_principles.md`를 읽으라"는 지시를 포함한다.
+> Codex는 독립 검증자다. 리뷰는 **`docs/reviews/`** 문서에 남기고, 채팅 보고는 **경로·Verdict·Readiness·Critical/Major/Minor 요약·commit SHA·push 여부**만(장문 금지).
 
 ---
 
@@ -11,6 +14,7 @@
 - **리뷰 목표**: (무엇이 적합한지/정합한지 독립 검증)
 - **대상 repo / branch / commit**: `<repo>` / `<branch>` / `<SHA>`
 - **반드시 확인할 파일**:
+  - `AGENTS.md`, `docs/operating_principles.md` (운영 원칙 — 항상 먼저)
   - `...`
 - **핵심 검토 질문**:
   1. ...

@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2H
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -307,6 +307,23 @@
 - **Consequences**: evidence 문서는 제출 패키징 B분류(민감정보 스캔 후 repo/zip 결정). install verification FAIL/PARTIAL이면 submission.zip 생성 전 보정.
 - **Status**: 확정(문서/양식). 실제 사용자 검증 결과는 evidence로 별도 기록 대기.
 - **Related Files**: `docs/codex_install_verification.md`, `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`, `docs/codex_install_readiness.md`, `docs/submission_packaging_policy.md`.
+
+---
+
+# 운영 원칙 결정 (D36) — Operating Principles Lock
+
+## D36. 에이전트 역할 구분·보고 방식을 repo에 고정
+- **Date**: 2026-07-02
+- **Context**: 여러 Cycle을 거치며 에이전트 간 역할 구분과 보고 방식이 흐려질 위험(작업 수행자가 판정, 검증자가 구현, 장문 채팅 보고로 추적성 저하).
+- **Decision**: `AGENTS.md`(루트 요약·진입)와 `docs/operating_principles.md`(상세)를 신설해 역할을 고정 —
+  Claude Code=작업 수행자(PASS/FAIL 금지·완료 보고 repo 문서·채팅은 경로/SHA/push만), Codex=독립 검증자(PASS/CONDITIONAL PASS/FAIL·리뷰는 `docs/reviews/`·자율 탐색 필수·채팅은 요약만),
+  ChatGPT=작업 분기 판단(구현/최종검증 아님), User=외부 앱/CLI 상태 검증·최종 제출 판단. 실질 Cycle은 Claude Code 작업 → Codex 독립 리뷰 순서.
+  외부 앱/CLI 상태 변경(Codex 설치 확인 등)은 사용자 직접. 이후 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다. 프롬프트 템플릿에 read-first 지시 반영.
+- **Rationale**: 역할 혼선·판정 주체 혼동·추적성 저하 방지. 기능 구현이 아니라 운영 원칙 고정.
+- **Alternatives Considered**: (a) 원칙을 프롬프트마다 반복 → 기각(누락·불일치). (b) current_status에만 기록 → 기각(진입 문서 부재).
+- **Consequences**: 프롬프트가 짧아지고 역할·보고 방식이 일관. 원칙 변경 시 decision_log 기록 후 두 문서 동시 갱신.
+- **Status**: 확정.
+- **Related Files**: `AGENTS.md`, `docs/operating_principles.md`, `docs/templates/CLAUDE_CODE_TASK_PROMPT_TEMPLATE.md`, `docs/templates/CODEX_REVIEW_PROMPT_TEMPLATE.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
