@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -458,6 +458,23 @@
 - **Consequences**: findings에 경로가 들어오면 preflight error로 감지되어 렌더 전에 바로잡게 됨. 근본적 경로 유입 차단은 인테이크(2I-3A) 과제. renderer/delivery/schema/manifest 불변.
 - **Status**: 구현 확정(2I-3 최소 범위). 2I-3A(Kordoc/OCR/인테이크) 미착수.
 - **Related Files**: `src/validators/kssb_findings_validator.py`, `tests/test_findings_validator.py`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
+
+---
+
+# Cycle 2I-3A 기록 (D45) — Kordoc Feasibility Spike / Approval Gate 계획
+
+## D45. Kordoc을 승인 게이트 뒤의 optional/pluggable intake 후보로 문서화(설치·실행 없음)
+- **Date**: 2026-07-02
+- **Context**: 남은 인테이크 품질(표/수치/위치·스캔 OCR)을 개선하려면 외부 도구(Kordoc) feasibility가 필요하나, 설치·MCP·OCR은 사용자 환경 변경·데이터 유출·라이선스 리스크가 있어 승인·검증 전 도입 금지.
+- **Decision**: `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md` 작성 — Kordoc을 **optional/pluggable 후보**로 유지(hard dependency 금지),
+  승인 게이트(오프라인·무-egress·라이선스·결정성·DEI 매핑·Skill-first·재현성 기록), 샘플 유형별 spike 시나리오, 성공/실패 기준, evidence 기록 요건(정확한 버전·명령·README 확인일·public README 일치),
+  DEI↔evidence_anchor 매핑 검증(판정 미생성·schema 미변경), **OCR provider 별도 승인 게이트**, MCP/설정·로컬 경로 repo 커밋 금지, 실패 fallback을 정의.
+  **이번 사이클은 문서만**(코드/테스트/manifest/marketplace/MCP 설정 무변경, Kordoc 설치·실행·PDF 재실행 없음).
+- **Rationale**: 도입 리스크를 승인·검증 뒤로 게이팅해 Skill-first·결정성·무-egress·경계를 보호. 실제 판단은 사용자/ChatGPT가 evidence 기반으로.
+- **Consequences**: 승인 시 사용자 로컬 spike → evidence(민감정보 제거) → 도입 여부 판단. 실패 시 현행 인테이크 fallback 유지.
+- **Status**: 계획 확정. spike 수행·Kordoc 도입 미착수(사용자 승인 대기).
+- **부수 정리(C2I3-MIN-01)**: `cycle2i_3_document_intake_evidence_quality_plan.md` 서문의 "계획만/미구현" stale 문구를 "처음 계획 push → 이후 guardrail 구현(D44)" 진행 이력으로 정리.
+- **Related Files**: `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

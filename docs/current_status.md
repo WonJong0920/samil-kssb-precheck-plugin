@@ -6,7 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2I-3 (+ 최소 guardrail 구현)** — 계획 §11의 **validator 내부 경로 스캔 확장**을 detect-only로 구현.
+- **Cycle 2I-3A (계획)** — Kordoc Feasibility Spike / Approval Gate **문서화**(설치·실행 아님, 코드 무변경).
+  Kordoc을 **optional/pluggable intake 후보**로 유지(본체 hard dependency 아님)하고, 사용자 승인 전 확인 조건(오프라인·무-egress·라이선스·재현성·경계),
+  샘플 유형별 spike 시나리오·성공/실패 기준·evidence 기록 요건(정확한 버전·명령·README 확인일), DEI↔evidence_anchor 매핑 검증, OCR 별도 승인 게이트,
+  MCP/설정·로컬 경로 repo 커밋 금지, 실패 fallback을 정의. 계획: `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`.
+  Codex 2I-3 minor(C2I3-MIN-01: 계획 문서 stale 서문) 정리. **Kordoc 설치/MCP/OCR/PDF 재실행 없음.**
+
+## 이전 Cycle: Cycle 2I-3 (+ 최소 guardrail 구현)
+- 계획 §11의 **validator 내부 경로 스캔 확장**을 detect-only로 구현(`_PATH_PATTERNS`에 `/home/`·`/var/folders/`·`[\\/]Temp[\\/]`·env-var 추가).
   `_PATH_PATTERNS`에 `/home/`·`/var/folders/`·`[\\/]Temp[\\/]`·`%(TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)%` 추가 →
   findings 값의 로컬/임시/계정 경로 노출을 렌더 전 preflight에서 `path.internal_exposure`(error)로 감지. renderer/delivery/schema 불변, detect-only 유지, valid example error 0(오탐 없음).
   검증: 검증기 26/26, 렌더러 스모크 22/22, 전달 33/33 PASS. 완료 보고: `docs/cycle2i_3_minimal_validator_guardrail_completion_report.md`. Kordoc/OCR/PDF 재실행 없음(2I-3A 유지).

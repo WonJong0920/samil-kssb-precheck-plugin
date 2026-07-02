@@ -3,8 +3,9 @@
 > **성격**: 계획 문서. 이번 사이클은 **설계 + 구현 가능 범위 판단 + 작은 guardrail 제안**이다.
 > **하지 않는 것**: Kordoc 설치·MCP setup·npx/npm/pip·OCR provider·외부 vision 호출·실제 HFG/K-water PDF 재실행·
 > 문서 인테이크 엔진 대규모 구현·Document Evidence Index를 확정 schema로 강제 도입·marketplace/manifest 변경·submission.zip.
-> Kordoc은 후속 **2I-3A feasibility spike 후보**로만 다룬다. 운영 원칙은 `AGENTS.md`·`docs/operating_principles.md`.
-> **이번 push는 계획 문서(설계)만** 포함하며, 아래 §11의 최소 validator guardrail은 **검토 후 착수 대기(미구현)**다.
+> Kordoc은 후속 **2I-3A feasibility spike 후보**로만 다룬다(계획: `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`). 운영 원칙은 `AGENTS.md`·`docs/operating_principles.md`.
+> **진행 이력**: 이 문서는 **처음에 계획(설계)만** push한 뒤, 검토를 거쳐 §11의 **최소 validator guardrail을 별도 커밋으로 구현 완료**했다
+> (완료 보고 `docs/cycle2i_3_minimal_validator_guardrail_completion_report.md`, decision_log D43=계획·D44=구현). §11 참조.
 
 ## 1. 작업 목적
 
