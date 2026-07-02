@@ -33,6 +33,7 @@
 | **원본 무편집 AI 대화 로그**(Claude Code·Codex·ChatGPT) | **B**(zip 포함은 필수, repo 커밋 여부는 §2 기준으로 제출 단계 결정) | Codex Cycle 1 Minor. 최종 zip에는 반드시 포함, repo 커밋은 민감성 검토 후 결정. |
 | 생성 DOCX/HTML 대표 문서 | **C**(필요 시 zip 포함은 §3 샘플 정책) | `.gitignore`로 repo 제외. findings에서 재생성 가능. |
 | 실제 샘플 실행 산출물(문서·validator 결과·smoke 출력) | **B/C**(§3) | 저작권·식별정보 검토 후 제출 단계 결정. |
+| Codex install verification **evidence**(채운 결과 문서) | **B**(repo 커밋 vs zip-only는 제출 단계 민감정보 스캔 후 결정) | 로컬 경로·계정 식별정보·토큰 없어야 함(`docs/codex_install_verification.md` §11). 양식은 A. |
 | 원본 PDF·공개 샘플 원자료 | **E**(원칙) | 저작권·용량·재현성 문제. repo 미포함. zip 포함은 저작권 확인된 경우로 한정하되 원칙 제외. |
 | 로컬 절대경로·`cache`·`sandbox`·`plugin/cache`·`AppData` 노출 파일 | **E** | 내부 경로 노출 금지. 제출 전 스캔. |
 | API 키·토큰·자격증명·개인정보성 파일 | **E** | 보안. 절대 포함 금지. |
@@ -84,6 +85,10 @@ Codex Cycle 1 이후 남은 Minor(최종 `submission.zip`에 원본 무편집 AI
 - [ ] marketplace `source.path`(`./src`)가 실제 plugin root(=`.codex-plugin/plugin.json`·`skills/` 보유 폴더)를 가리킴.
 - [ ] marketplace `policy.authentication`이 허용값(`ON_INSTALL` 또는 `ON_USE`)이고 `policy.installation`이 허용값(`AVAILABLE` 등)임.
 - [ ] 로컬/Repo marketplace이며 **Public Plugin Directory 등록·공개 배포가 아님**을 확인(문구·metadata 과장 없음). 상세 `docs/codex_install_readiness.md`.
+- [ ] **사용자 직접 Codex install verification evidence 확인**: `docs/codex_install_verification.md` 절차로 실제 app/CLI에서 확인하고,
+      결과를 `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`로 기록했는지 확인(§7 판정 PASS/PARTIAL/FAIL).
+- [ ] install verification evidence에 로컬 절대경로·계정 식별정보·토큰 등 민감정보가 없음을 확인(있으면 `[REDACTED]` 처리 후에만 포함).
+- [ ] install verification이 **FAIL/PARTIAL이면 submission.zip 생성 전에 Patch/보정 후 재검증**(FAIL 상태로 제출물 생성 금지).
 - [ ] zip 내부 파일 목록(매니페스트) 별도 기록.
 
 ### 4.2 문서 / 제품 경계

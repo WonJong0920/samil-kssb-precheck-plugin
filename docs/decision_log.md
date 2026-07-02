@@ -1,6 +1,6 @@
-# 의사결정 기록 (Decision Log) — Cycle 1 ~ 2G Patch
+# 의사결정 기록 (Decision Log) — Cycle 1 ~ 2H
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -289,6 +289,24 @@
 - **Consequences**: install failure 위험 해소. 실제 자격증명 흐름은 없음(값만 정렬). GUI/CLI 설치 확인은 여전히 별도 단계.
 - **Status**: 확정. GUI 설치 확인·plugin-creator validator schema 재확인은 보류(환경 의존).
 - **Related Files**: `.agents/plugins/marketplace.json`, `docs/codex_install_readiness.md`, `docs/submission_packaging_policy.md`, `docs/current_status.md`, `docs/reviews/codex_cycle2g_marketplace_install_readiness_review.md`.
+
+---
+
+# Cycle 2H 결정 (D35) — User-led Codex Install Verification Kit
+
+## D35. 실제 Codex 설치 확인은 사용자 직접 수행, Claude Code는 검증 kit만 제공
+- **Date**: 2026-07-02
+- **Context**: Cycle 2G Patch Review PASS 이후 남은 주요 보류사항은 실제 Codex GUI/CLI plugin browser에서 marketplace 표시·설치·활성화·
+  새 thread 사용 확인. 그러나 이 확인은 사용자의 로컬 Codex 설정·plugin enabled 상태·계정/앱 상태를 바꿀 수 있다.
+- **Decision**: Claude Code는 실제 Codex app/CLI를 **조작하지 않는다.** 대신 사용자가 직접 검증하도록 절차 문서
+  `docs/codex_install_verification.md`와 결과 기록 양식 `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`를 제공한다.
+  실제 설치 성공을 주장하지 않으며, install readiness·제출 정책 문서에 "사용자 직접 검증 단계"임을 명시한다.
+- **Rationale**: 외부 앱/계정 상태 변경은 사용자 환경 종속·비가역 리스크가 있어 에이전트가 대신 수행하면 안 된다. 파일 기반 readiness는
+  이미 완료됐으므로, 남은 것은 사용자 확인 절차·evidence 표준화다.
+- **Alternatives Considered**: (a) Claude Code가 실제 install/enable 시도 → 기각(외부 상태 변경·금지). (b) 설치 성공을 문서로 단정 → 기각(미검증 주장 금지).
+- **Consequences**: evidence 문서는 제출 패키징 B분류(민감정보 스캔 후 repo/zip 결정). install verification FAIL/PARTIAL이면 submission.zip 생성 전 보정.
+- **Status**: 확정(문서/양식). 실제 사용자 검증 결과는 evidence로 별도 기록 대기.
+- **Related Files**: `docs/codex_install_verification.md`, `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`, `docs/codex_install_readiness.md`, `docs/submission_packaging_policy.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

@@ -1,8 +1,20 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
+- **Cycle 2H** — User-led Codex Install Verification Kit. 실제 Codex app/CLI 설치 확인은 사용자 환경 상태를 바꾸므로
+  Claude Code가 대신 수행하지 않고, **사용자가 직접 검증**할 절차 문서·evidence 양식을 제공. 문서/양식 중심(코드·로직 무변경).
+
+## Cycle 2H 완료 작업
+- 신규 `docs/codex_install_verification.md`: 사용자 직접 검증 절차(목적·repo 구조 요약·local vs public·준비사항·CLI/GUI 절차·새 thread 사용·성공/실패 기준·오류/외부 상태 기록·민감정보 금지·repo 반영 방법).
+- 신규 `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`: 확인 개요·사전 파일 상태·CLI/GUI 결과·새 thread 결과·외부 상태 변경·판정(PASS/PARTIAL/FAIL). 상단 민감정보 금지 안내.
+- `docs/codex_install_readiness.md` 보강: "파일 기반 readiness 완료 / 실제 app·CLI 확인은 사용자 직접 수행 대기(설치 성공 미주장)", verification 문서·evidence 양식 참조, `ON_INSTALL`은 실제 자격증명 미추가 재확인.
+- `docs/submission_packaging_policy.md` 보강: install verification evidence를 B분류(제출 단계 민감정보 스캔 후 repo/zip 결정)로 추가, §4.1 preflight에 evidence 확인·민감정보 없음·FAIL 시 제출 전 보정 항목 추가.
+- **Claude Code는 실제 Codex app/CLI를 조작하지 않음.** 실제 설치 확인은 사용자 직접 수행 대기.
+- 완료 보고: `docs/cycle2h_user_led_install_verification_kit_completion_report.md`.
+
+## 이전 Cycle: Cycle 2G (+ Patch)
 - **Cycle 2G (+ Patch)** — Codex Marketplace / Local Install Readiness. repo/local marketplace 추가·manifest metadata 보강 후,
-  Codex Cycle 2G Review(CONDITIONAL PASS) Major 대응으로 `policy.authentication`을 허용값 `ON_INSTALL`로 보정.
+  `policy.authentication`을 허용값 `ON_INSTALL`로 보정(D34). Codex Cycle 2G Patch Review **PASS**(`docs/reviews/codex_cycle2g_patch_marketplace_auth_review.md`).
 
 ## Cycle 2G Patch (Codex Marketplace Review 대응)
 - Codex 판정: **CONDITIONAL PASS**(`docs/reviews/codex_cycle2g_marketplace_install_readiness_review.md`). Major: marketplace
@@ -132,6 +144,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2G Patch(marketplace authentication 보정) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2G Patch Review.
+- Cycle 2H(user-led install verification kit) push 후 **ChatGPT 확인 대기** + **사용자 직접 Codex 설치 검증 대기**. 다음 단계는 Codex Cycle 2H Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.
