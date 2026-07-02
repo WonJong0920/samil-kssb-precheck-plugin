@@ -22,7 +22,8 @@
 - Skill path: `src/skills/samil-kssb-precheck/`
 - marketplace JSON 문법 확인: (예: `python -m json.tool .agents/plugins/marketplace.json` → OK/실패)
 - manifest JSON 문법 확인: (예: `python -m json.tool src/.codex-plugin/plugin.json` → OK/실패)
-- name 정합(marketplace `plugins[].name` == manifest `name` == `samil-kssb-precheck`):
+- name 정합(marketplace `plugins[].name` == manifest `name` == `samil-kssb-precheck`, machine name 유지):
+- 표시명 기대값(manifest `interface.displayName` == **Samil KSSB Precheck Plugin**):
 - policy 확인(`installation: AVAILABLE`, `authentication: ON_INSTALL`):
 
 ## 3. Codex CLI 확인 결과
@@ -30,6 +31,8 @@
 - plugin/marketplace 인터페이스 접근 가능 여부:
 - marketplace 표시 여부:
 - plugin 표시 여부:
+- plugin 표시명 확인(기대값 **Samil KSSB Precheck Plugin**; 목록에서 축약됐으면 detail의 full display name 기록):
+- machine name 확인(기대값 `samil-kssb-precheck` 유지):
 - plugin detail 열림 여부:
 - install/enable 성공 여부:
 - enabled 상태 확인:
@@ -39,6 +42,8 @@
 - Plugins 화면 접근 가능 여부:
 - marketplace/source 표시 여부:
 - plugin 표시 여부:
+- plugin 표시명 확인(기대값 **Samil KSSB Precheck Plugin**; 목록에서 축약됐으면 detail의 full display name 기록):
+- machine name 확인(기대값 `samil-kssb-precheck` 유지):
 - plugin detail 열림 여부:
 - install/enable 성공 여부:
 - enabled 상태 확인:

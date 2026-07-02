@@ -21,8 +21,13 @@
 | Plugin manifest | `src/.codex-plugin/plugin.json` (plugin root의 `.codex-plugin/plugin.json`, 필수 entry point) |
 | Skill path | `./skills/` → `src/skills/samil-kssb-precheck/` (plugin root 기준) |
 | marketplace `source.path` | `./src` (marketplace root 기준 상대경로 → plugin root) |
-| marketplace `plugins[].name` / manifest `name` | `samil-kssb-precheck` (정합) |
+| marketplace `plugins[].name` / manifest `name` | `samil-kssb-precheck` (내부 machine name, 정합) |
+| 사용자-facing 표시명(display name) | **Samil KSSB Precheck Plugin** (manifest `interface.displayName`) |
 | `policy` | `installation: AVAILABLE`, `authentication: ON_INSTALL` (schema 허용값; 실제 외부 자격증명 요구 아님) |
+
+> **표시명 vs machine name**: Codex app/CLI 화면에 보여야 할 사용자-facing 표시명은 **Samil KSSB Precheck Plugin**이다.
+> 내부 machine name은 `samil-kssb-precheck`로 **유지**된다(변경되지 않는다). 화면 폭에 따라 표시명이 축약될 수 있으므로,
+> 목록에서 이름이 잘려 보이면 **plugin detail 화면에서 full display name(Samil KSSB Precheck Plugin)을 확인**한다.
 
 공식 문서 기준: 플러그인은 **plugin root** 기준으로 구성하고, plugin root 아래 `.codex-plugin/plugin.json`이 필수 entry point다.
 repo marketplace는 `$REPO_ROOT/.agents/plugins/marketplace.json`에 두고, marketplace `source.path`는 marketplace root 기준 상대경로로 plugin folder를 가리킨다.
@@ -55,8 +60,8 @@ repo marketplace는 `$REPO_ROOT/.agents/plugins/marketplace.json`에 두고, mar
 1. repo root에서 Codex CLI를 실행한다.
 2. plugin/marketplace 탐색 인터페이스(예: plugin browser 또는 `/plugins` 계열)에 접근한다.
 3. 이 repo의 repo/local marketplace가 표시되는지 확인한다.
-4. `samil-kssb-precheck` plugin이 목록에 표시되는지 확인한다.
-5. plugin detail(이름·설명·category 등 install surface metadata)이 열리는지 확인한다.
+4. plugin(표시명 **Samil KSSB Precheck Plugin**, machine name `samil-kssb-precheck`)이 목록에 표시되는지 확인한다.
+5. plugin detail(표시명·설명·category 등 install surface metadata)이 열리고, full display name이 **Samil KSSB Precheck Plugin**인지 확인한다.
 6. install 또는 enable을 수행한다(사용자 판단). 성공/실패와 오류 메시지를 기록한다.
 7. enabled 상태가 반영되는지 확인한다.
 8. 각 단계의 성공/실패·오류 메시지를 evidence template §3에 기록한다.
@@ -65,8 +70,9 @@ repo marketplace는 `$REPO_ROOT/.agents/plugins/marketplace.json`에 두고, mar
 
 1. Codex app의 Plugins(또는 동등) 화면에 접근한다.
 2. repo/local marketplace source가 표시되는지 확인한다.
-3. `samil-kssb-precheck` plugin이 표시되는지 확인한다.
+3. plugin(표시명 **Samil KSSB Precheck Plugin**, machine name `samil-kssb-precheck`)이 표시되는지 확인한다.
 4. plugin detail이 열리고 install surface metadata(displayName/description/category)가 의도대로 보이는지 확인한다.
+   목록에서 이름이 축약됐다면 detail 화면에서 full display name **Samil KSSB Precheck Plugin**을 확인한다.
 5. install 또는 enable을 수행한다. 성공/실패·오류 메시지를 기록한다.
 6. enabled 상태를 확인한다.
 7. 각 단계 결과를 evidence template §4에 기록한다.
@@ -80,7 +86,7 @@ repo marketplace는 `$REPO_ROOT/.agents/plugins/marketplace.json`에 두고, mar
 
 ## 8. 성공 기준
 
-- marketplace/source가 표시되고, `samil-kssb-precheck` plugin이 목록·detail에 표시된다.
+- marketplace/source가 표시되고, plugin(표시명 **Samil KSSB Precheck Plugin**, machine name `samil-kssb-precheck`)이 목록·detail에 표시된다.
 - install/enable이 오류 없이 완료되고 enabled 상태가 반영된다.
 - 새 thread 사용 요청에서 Skill/plugin이 사용되는 정황이 확인된다.
 - 위가 모두 충족되면 PASS, 일부만 충족되면 PARTIAL, 표시/설치 자체가 실패하면 FAIL로 기록한다.

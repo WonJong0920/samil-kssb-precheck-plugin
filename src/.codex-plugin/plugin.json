@@ -6,7 +6,7 @@
   "repository": "https://github.com/WonJong0920/samil-kssb-precheck-plugin",
   "keywords": ["kssb", "esg", "sustainability-disclosure", "evidence-precheck", "consultant-draft"],
   "interface": {
-    "displayName": "Samil KSSB Precheck (사전검토 보조)",
+    "displayName": "Samil KSSB Precheck Plugin",
     "shortDescription": "컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안 생성. 삼일 비공식·감사/인증/준수 판단 대체 아님.",
     "longDescription": "고객 제공자료(또는 해커톤 공개자료)만을 근거로 KSSB 4대 영역(거버넌스·전략·위험관리·지표 및 목표) 공시요구별 확인 근거·부족 정보·고객 확인 질문·요청자료·보완 권고를 구조화하여 컨설턴트 검수용 사전검토 보고서 초안을 생성하는 Codex-native Skill 워크플로우다. 사용자-facing 진입점은 Skill 하나이며, findings 검증기(detect-only preflight)와 렌더러(재판정 없는 형식 변환기)는 내부 구성요소다. 삼일회계법인의 공식 제품·내부 도구가 아니며 감사·인증·준수 판단을 대체하지 않는다. AX 해커톤 제출용.",
     "developerName": "WonJong0920",

@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2H
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -324,6 +324,27 @@
 - **Consequences**: 프롬프트가 짧아지고 역할·보고 방식이 일관. 원칙 변경 시 decision_log 기록 후 두 문서 동시 갱신.
 - **Status**: 확정.
 - **Related Files**: `AGENTS.md`, `docs/operating_principles.md`, `docs/templates/CLAUDE_CODE_TASK_PROMPT_TEMPLATE.md`, `docs/templates/CODEX_REVIEW_PROMPT_TEMPLATE.md`.
+
+---
+
+# Cycle 2H Patch 결정 (D37) — Plugin Display Name Alignment
+
+## D37. 사용자-facing 표시명을 "Samil KSSB Precheck Plugin"으로 정렬(machine name 불변)
+- **Date**: 2026-07-02
+- **Context**: 사용자 화면의 `Local KSSB Plugins / local-kssb-plugins` 항목은 **이전 파이썬 기반 local plugin**으로 확인되어 현재 플러그인과
+  혼동 가능성이 있다. 현재 플러그인의 사용자-facing 표시명을 의도한 공식 이름으로 **선제 정렬**할 필요(기존 `interface.displayName`="Samil KSSB Precheck (사전검토 보조)").
+  이번 Patch는 naming consistency 보정이며 **Codex app/CLI discovery 문제를 해결하지 않는다**(현재 대상 플러그인의 실제 표시 여부는 미확인).
+- **Decision**: manifest `interface.displayName`을 `Samil KSSB Precheck Plugin`으로, marketplace `interface.displayName`을
+  `Samil KSSB Precheck Plugin — Local/Repo Marketplace`로 정렬. **machine name·구조·정책은 변경하지 않는다** —
+  `name`=`samil-kssb-precheck`, marketplace `plugins[0].name`, `source.path`=`./src`, `skills`=`./skills/`,
+  `policy.installation`=`AVAILABLE`, `policy.authentication`=`ON_INSTALL`, plugin root=`src/` 유지(D33/D34 정합값 불변).
+- **Rationale**: display metadata만 조정해 사용자-facing 이름 명확화. discovery 구조·정합값은 이미 Codex 리뷰 PASS를 받았으므로 흔들지 않는다.
+  제품 경계(삼일 비공식·감사/인증/준수 대체 아님·컨설턴트 검수용 초안·해커톤 제출용)는 short/long description에서 유지.
+- **Alternatives Considered**: (a) machine name까지 변경 → 기각(정합·설치 구조 파괴). (b) 표시명 그대로 → 기각(사용자-facing 이름 불명확).
+- **Consequences**: install verification 문서·evidence template에 표시명 기대값과 machine name 유지·축약 시 detail 확인 안내 추가. 실제 설치 검증은 사용자 직접 항목.
+  **다음 별도 이슈는 marketplace registration/discovery 확인**(현재 플러그인이 실제로 app/CLI에 표시·설치되는지).
+- **Status**: 확정(display metadata naming consistency). 실제 Codex app/CLI 표시·설치·discovery 확인은 사용자 직접 검증 대기(미확인).
+- **Related Files**: `src/.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `docs/codex_install_verification.md`, `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

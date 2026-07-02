@@ -6,6 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2H (+ Patch)** — User-led Codex Install Verification Kit 이후, plugin 사용자-facing 표시명을
+  **Samil KSSB Precheck Plugin**으로 정렬(display name alignment). machine name·source·path·policy는 불변.
+
+## Cycle 2H Patch (Plugin Display Name Alignment)
+- 사용자 화면의 `Local KSSB Plugins / local-kssb-plugins` 항목은 **이전 파이썬 기반 local plugin**으로 확인되어, 현재 플러그인과 혼동 가능성이 있다.
+  이에 현재 플러그인의 사용자-facing 표시명을 **Samil KSSB Precheck Plugin**으로 **선제 정렬**한다(naming consistency 보정).
+- 이번 Patch는 **discovery 문제를 해결하지 않으며**, 현재 대상 플러그인의 실제 app/CLI 표시 여부는 **아직 미확인**이다(별도 사용자 직접 검증 항목).
+- 변경: manifest `interface.displayName` → `Samil KSSB Precheck Plugin`, marketplace `interface.displayName` → `Samil KSSB Precheck Plugin — Local/Repo Marketplace`.
+- **불변(이전 리뷰 정합값 유지)**: machine `name`=`samil-kssb-precheck`, marketplace `plugins[0].name`, `source.path`=`./src`, `skills`=`./skills/`,
+  `policy.installation`=`AVAILABLE`, `policy.authentication`=`ON_INSTALL`, plugin root=`src/`, manifest/Skill 경로.
+- 문서: `codex_install_verification.md`·evidence template에 표시명 기대값(+machine name 유지·축약 시 detail에서 full name 확인) 반영.
+- 실제 Codex app/CLI install/enable 최종 검증은 **여전히 사용자 직접 수행 항목**. 완료 보고: `docs/cycle2h_patch_plugin_display_name_completion_report.md`.
+
+## 이전 Cycle: Cycle 2H (base)
 - **Cycle 2H** — User-led Codex Install Verification Kit. 실제 Codex app/CLI 설치 확인은 사용자 환경 상태를 바꾸므로
   Claude Code가 대신 수행하지 않고, **사용자가 직접 검증**할 절차 문서·evidence 양식을 제공. 문서/양식 중심(코드·로직 무변경).
 
@@ -149,6 +163,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2H(user-led install verification kit) push 후 **ChatGPT 확인 대기** + **사용자 직접 Codex 설치 검증 대기**. 다음 단계는 Codex Cycle 2H Review.
+- Cycle 2H Patch(plugin display name alignment) push 후 **ChatGPT 확인 대기** + **사용자 직접 Codex 설치 검증 대기**. 다음 단계는 Codex Cycle 2H Patch Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.
