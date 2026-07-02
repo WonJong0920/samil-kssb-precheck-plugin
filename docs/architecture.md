@@ -21,10 +21,14 @@ Samil KSSB Precheck Plugin/
 │   │       ├── report_template.md      # 보고서 섹션 구성·출력 정책
 │   │       ├── completion_checklist.md # 보고서 초안 자기점검
 │   │       └── prohibited_terms.md     # 금지/권장 표현
+│   ├── schemas/                        # findings 데이터 계약(JSON Schema draft-07) + 예시
+│   ├── validators/                     # 내부: findings detect-only preflight 검증기(표준 라이브러리)
+│   ├── renderers/                      # 내부: findings → DOCX/HTML 형식 변환기(표준 라이브러리)
 │   └── reference/
 │       └── python_engine/
 │           └── README.md               # 기존 Python 엔진 참고 문서(코드 미포함)
-├── docs/                               # 설계·검증·현황·의사결정·완료보고 문서
+├── tests/                              # 재사용 검증기·렌더러 점검(표준 라이브러리)
+├── docs/                               # 설계·검증·현황·의사결정·완료보고·workflow_usage
 ├── logs/
 │   └── .gitkeep
 └── README.md
@@ -35,7 +39,9 @@ Samil KSSB Precheck Plugin/
   (repo 루트가 아님). 기존 1차 작업물과 동일한 마켓플레이스 제출 관례를 따른다.
 - **plugin.json은 보수적 최소 구성**: `name`/`version`/`description`/`skills` 4개 필드만 사용한다
   (기존 1차 작업물이 실제로 채택·검증한 형태). 불확실한 필드를 임의로 추가하지 않는다.
-- **Skill-first 노출**: `src/skills/samil-kssb-precheck/`가 본체이며, 실행 엔진 코드가 없다.
+- **Skill-first 노출**: `src/skills/samil-kssb-precheck/`가 사용자-facing 본체다. 검증기·렌더러는 스킬 워크플로우가
+  사용하는 **내부 구성요소**이며(표준 라이브러리, 외부 의존 0), 사용자가 직접 실행하는 Python CLI가 아니다.
+  참고 파이프라인을 실행 본체로 회귀시키지 않는다.
 - **후보 구조에서 변경한 점**: 권장 후보 구조를 거의 그대로 채택했다. 단
   `reference/python_engine/`에는 실제 Python 코드를 두지 않고 **참고 README만** 배치했다
   (코드 복사·이동 금지, 원본은 D 드라이브 read-only). 이는 Python CLI 회귀와 원본 수정 리스크를 함께 차단한다.
@@ -45,6 +51,17 @@ Samil KSSB Precheck Plugin/
 - `version`: `0.1.0`
 - `description`: 컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 생성 Skill workflow(영문 + 한국어 고지 포함).
 - `skills`: `./skills/`
+
+## Workflow 구성요소 (Skill → 검증 → 렌더 → 사람 검수)
+사용자-facing 진입점은 스킬 하나이며, 스킬 절차가 아래 내부 단계를 잇는다. 상세·경계는 `docs/workflow_usage.md`.
+
+1. **Skill(판단 엔진)** — source-bound 구조화 findings 생성(단일 source of truth). 계약: `src/schemas/kssb_findings.schema.json`.
+2. **Validator(detect-only preflight 게이트)** — `src/validators/kssb_findings_validator.py`. findings를 재판정 없이 점검해
+   구조적 위험을 감지·보고만 한다(findings 미변경). 표준 라이브러리, `jsonschema`는 있으면 선택 사용.
+3. **Renderer(형식 변환기)** — `src/renderers/kssb_report_renderer.py`. 동일 findings를 재판정 없이 DOCX/HTML로 결정적 변환.
+4. **사람 검수** — 산출물은 초안. 컨설턴트가 검수·수정·확정.
+
+원칙: 단일 소스 파생, 재판정 금지, Skill-first(검증기·렌더러는 내부 구성요소), 사람 검수 경계 유지.
 
 ## 보고서 템플릿 구조
 - 대표 산출물 1개 원칙: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(fallback `.html`).
@@ -59,7 +76,7 @@ Samil KSSB Precheck Plugin/
 | 구분 | 기존 1차 작업물 | 신규 Cycle 1 |
 |---|---|---|
 | 사용자-facing 본체 | Python CLI(`run_audit.py`) | Codex Skill(`SKILL.md`) |
-| 실행 의존성 | Python 3.10+ 런타임 | 없음(Skill 지침) |
+| 실행 의존성 | Python 3.10+ 런타임 | 외부 패키지 0(내부 검증기·렌더러는 Python 표준 라이브러리) |
 | 기본 산출물 | DOCX + 검토근거 세트(JSON/CSV/MD) | 대표 문서 1개(DOCX, fallback HTML) |
 | 판정 표기 | 내부 enum(SUPPORTED 등) | 한국어 라벨(근거 확인 등) |
 | OCR/문서변환 | 파이프라인 포함 | Cycle 1 미포함 |

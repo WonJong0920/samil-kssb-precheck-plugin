@@ -38,16 +38,23 @@ KSSB 공시요구와 일일이 대조해 "근거가 확인되는 항목 / 부족
 - **반복 가능한 절차**: 자유 프롬프트가 아니라 고정된 업무 절차(카탈로그·판정 스키마·질문 규칙)를 따른다.
 - **제품 경계 준수**: 감사·인증·준수 확정 표현을 금지하고 컨설턴트 검수를 전제한다.
 
-## 작동 방식
+## 작동 방식 (워크플로우)
 
-1. 입력 자료(고객 제공자료 또는 공개자료)를 근거로 KSSB **4대 영역**(거버넌스·전략·위험관리·지표 및 목표)
-   공시요구 항목을 점검한다.
-2. 각 항목에 대해 원문 근거를 찾아 **판정 라벨**을 부여한다(근거 확인 / 일부 근거 확인, 보완 필요 /
-   확인 불가 / 상충 또는 해석 필요 / 검토 범위 외).
-3. 확인 불가·부족·상충 항목은 **고객 확인 질문·요청자료·후속조치**로 전환한다.
-4. 결과를 **컨설턴트 검수용 사전검토 보고서 초안**으로 구조화한다.
+사용자-facing 진입점은 **Skill 하나**다. 스킬 절차가 아래 내부 단계를 잇는다(사용자는 Python·PATH·CLI를 의식하지 않는다).
 
-상세 절차: [src/skills/samil-kssb-precheck/SKILL.md](src/skills/samil-kssb-precheck/SKILL.md)
+1. **findings 생성 (Skill = 판단 엔진)**: 입력 자료(고객 제공자료 또는 공개자료)를 근거로 KSSB **4대 영역**
+   (거버넌스·전략·위험관리·지표 및 목표) 공시요구 항목별 **판정 라벨**(근거 확인 / 일부 근거 확인, 보완 필요 /
+   확인 불가 / 상충 또는 해석 필요 / 검토 범위 외)·근거 앵커·부족정보·**고객 확인 질문·요청자료·후속조치**·권고를
+   source-bound **구조화 findings**로 만든다.
+2. **preflight 검증 (Validator = detect-only 게이트)**: 표준 라이브러리 검증기가 findings를 **재판정 없이** 점검한다
+   (구조 필수 필드·근거 참조·모드↔라벨 정합·source-bound 규칙·금지 표현·내부 경로). findings를 고치지 않고 감지·보고만 한다.
+3. **렌더 (Renderer = 형식 변환기)**: 렌더러가 동일 findings를 **재판정 없이** 대표 DOCX/HTML로 결정적 변환한다.
+4. **사람 검수**: 산출물은 **초안**이며 컨설턴트가 검수·수정·확정한다.
+
+검증기·렌더러는 스킬 워크플로우의 **내부 구성요소**다(사용자-facing Python CLI가 아니다).
+
+상세 절차: [src/skills/samil-kssb-precheck/SKILL.md](src/skills/samil-kssb-precheck/SKILL.md) ·
+흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md)
 
 ## 산출물 정책
 
@@ -69,9 +76,13 @@ KSSB 공시요구와 일일이 대조해 "근거가 확인되는 항목 / 부족
 Samil KSSB Precheck Plugin/
 ├── src/
 │   ├── .codex-plugin/plugin.json          # Codex 플러그인 매니페스트 (plugin root = src/)
-│   ├── skills/samil-kssb-precheck/         # Skill 본체 + 보조 문서
+│   ├── skills/samil-kssb-precheck/         # Skill 본체 + 보조 문서 (사용자-facing 진입점)
+│   ├── schemas/                            # findings 데이터 계약(JSON Schema) + 예시
+│   ├── validators/                         # 내부: findings detect-only preflight 검증기(표준 라이브러리)
+│   ├── renderers/                          # 내부: findings → DOCX/HTML 형식 변환기(표준 라이브러리)
 │   └── reference/python_engine/README.md   # 기존 Python 엔진 참고(코드 미포함)
-├── docs/                                    # 설계·검증·현황·의사결정·완료보고
+├── tests/                                   # 재사용 검증기·렌더러 점검(표준 라이브러리)
+├── docs/                                    # 설계·검증·현황·의사결정·완료보고·workflow_usage
 ├── logs/.gitkeep
 └── README.md
 ```
@@ -82,15 +93,18 @@ Samil KSSB Precheck Plugin/
 [docs/reference_review.md](docs/reference_review.md) ·
 [docs/cycle1_completion_report.md](docs/cycle1_completion_report.md)
 
-## Cycle 1 현재 상태
+## 현재 구현 상태
 
-- 해커톤 제출 구조의 Codex 플러그인 **1차 골격**을 생성했다(Skill-first).
-- KSSB 4대 영역 MVP의 사전검토 구조·판정 체계·근거 매핑·질문 생성 원칙을 문서로 고정했다.
-- 실제 DOCX/HTML 생성 코드, Hook/MCP, 샘플 고객사 선정은 이번 사이클에 포함하지 않았다.
-- 상세: [docs/current_status.md](docs/current_status.md)
+Skill-first 구조를 유지하며, findings 데이터 계약과 내부 워크플로우 구성요소를 구현했다.
 
-## ChatGPT 확인 대기 상태
+- **findings 데이터 계약**: `src/schemas/kssb_findings.schema.json`(JSON Schema draft-07, 외부 의존 0) + 계약 문서 `docs/findings_schema_contract.md`.
+- **검증기(내부, detect-only)**: `src/validators/kssb_findings_validator.py` — findings를 재판정 없이 preflight 점검(표준 라이브러리).
+- **렌더러(내부, 형식 변환기)**: `src/renderers/kssb_report_renderer.py` — findings를 재판정 없이 DOCX/HTML로 결정적 변환(표준 라이브러리).
+- **재사용 점검**: `tests/`(표준 라이브러리, 출력은 repo 밖 임시 폴더). 새 외부 의존성 없음.
+- 실제 샘플 PDF 분석·OCR·문서 파싱·Hook/MCP·submission.zip은 포함하지 않는다.
+- 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md) · 상세: [docs/current_status.md](docs/current_status.md)
 
-- 본 Cycle 1은 GitHub push 후 **ChatGPT 확인 대기 상태**로 종료된다.
-- 다음 단계 판단은 ChatGPT가 GitHub의 README·docs·src 구조·완료 보고서·commit 상태를 직접 확인한 뒤 수행한다.
+## 검증 / 확인 대기
+
+- 각 사이클은 GitHub push 후 **ChatGPT 확인 대기 상태**로 종료된다.
 - 최종 검증과 PASS/FAIL 판정은 **Codex**가 수행한다.

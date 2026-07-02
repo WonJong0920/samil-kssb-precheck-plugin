@@ -31,6 +31,11 @@
 - [ ] 입력 모드(고객 제공자료 / 공개자료 검증)에 맞는 판정 라벨 세트를 사용했다.
 - [ ] 근거 표기가 모드("제공자료" / "공개자료")와 일치한다.
 
+## 워크플로우 (findings → 검증 → 렌더 → 사람 검수)
+- [ ] findings가 검증기 preflight(`src/validators/kssb_findings_validator.py`, detect-only)에서 error 0건이다.
+- [ ] 대표 문서를 렌더러(`src/renderers/kssb_report_renderer.py`)가 동일 findings에서 재판정 없이 생성했다.
+- [ ] 검증기·렌더러를 사용자-facing CLI가 아니라 스킬 워크플로우의 내부 단계로 다뤘다(`docs/workflow_usage.md`).
+
 ## findings 스키마 정합성 (`docs/findings_schema_contract.md`)
 - [ ] 각 항목이 `judgment_code`와 review_mode에 맞는 `judgment_label`을 함께 가진다.
 - [ ] `evidence_confirmed`·`partial_evidence_needs_supplement`에 `evidence_anchors` ≥ 1(각 `quote` 비어있지 않음).

@@ -1,8 +1,24 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
+- **Cycle 2E** — Skill Workflow Wiring / Usage Contract 정리(문서 정합, 코드 변경 없음).
+  findings → 검증기 preflight(detect-only) → 렌더러 형식 변환(재판정 없음) → 사람 검수 흐름을
+  Skill 문서·README·architecture·completion_checklist·current_status에 일관 반영. 사용 계약 문서 `docs/workflow_usage.md` 추가.
+
+## Cycle 2E 완료 작업
+- `SKILL.md`: 산출 흐름 blockquote에 검증→렌더→사람 검수 반영, "Workflow" 절 신설(내부 구성요소 명시), Output policy의
+  "렌더러 미구현" 잔여 문구 현행화, 완료 점검에 검증기 preflight error 0건 조건 추가.
+- 신규 `docs/workflow_usage.md`: findings→검증→렌더→사람 검수 사용 계약, 구성요소 경계 표, 내부/검증용 실행(사용자 흐름 아님), 산출물·경계 정책.
+- `README.md`: 작동 방식을 워크플로우로 현행화, 저장소 구조에 schemas/validators/renderers/tests 추가, 스테일 "Cycle 1 현재 상태"를 현재 구현 상태로 교체.
+- `docs/architecture.md`: 저장소 트리 갱신, "Workflow 구성요소" 절 추가, Skill-first 노출 문구를 내부 구성요소 반영으로 정정, 실행 의존성 행 현행화.
+- `completion_checklist.md`: "워크플로우" 점검 그룹(검증기 preflight·렌더러 생성·내부 구성요소 취급) 추가.
+- 코드(validator/renderer/schema)·테스트는 **변경하지 않음**. Preflight로 기존 테스트 통과 재확인.
+- 완료 보고: `docs/cycle2e_workflow_wiring_completion_report.md`.
+
+## 이전 Cycle: Cycle 2D (+ Patch)
 - **Cycle 2D (+ Patch)** — 경량 검증/가드레일 추가 후, Codex Cycle 2D Validation Review(CONDITIONAL PASS)
   Major 대응. `jsonschema` 없는 표준 라이브러리 fallback 모드에서도 schema-required 중첩 구조 누락을 error로 감지하도록 보강.
+  Codex Cycle 2D Patch Review **PASS**(`docs/reviews/codex_cycle2d_patch_review.md`).
 
 ## Cycle 2D Patch (Codex Validation Review 대응)
 - Codex 판정: **CONDITIONAL PASS**(`docs/reviews/codex_cycle2d_validation_review.md`). Major: fallback 모드에서
@@ -72,9 +88,8 @@
 
 ## 미완료 / 이후 사이클 (의도적 제외)
 - 인용 실재성(quote가 실제 입력 자료 원문인지)은 자동 검출 불가 → 사람 검수 유지(경량 검증 밖).
-- 렌더러·검증기를 Skill 절차에 실제 배선(호출 지점 확정)·산업별 지표 확장.
-- 실제 샘플(PDF/OCR/문서 파싱) 실행·submission.zip 패키징.
-- Hook/MCP는 하드 요건 확정 시에만 재검토.
+- workflow는 **문서상 사용 계약**으로 정합(Cycle 2E). 런타임 자동 배선(Hook/MCP 등)은 하드 요건 확정 시에만 재검토.
+- 실제 샘플(PDF/OCR/문서 파싱) 실행·submission.zip 패키징·산업별 지표 확장.
 
 ## 보류 (확정하지 않음)
 - **logs 원본 제출 방식**: repo 커밋 vs submission.zip 번들만 — **제출 패키징 단계에서 결정**(현재 미확정).
@@ -82,6 +97,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2D Patch(validator fallback 보강) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2D Patch Review.
+- Cycle 2E(workflow wiring 문서 정합) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2E Workflow Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

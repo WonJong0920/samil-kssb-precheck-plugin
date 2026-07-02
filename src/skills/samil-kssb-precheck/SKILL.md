@@ -32,10 +32,12 @@ KSSB 공시요구사항별 **확인 근거 / 부족한 정보 / 추가 확인 �
   - 이 경우 산출물의 근거 표기와 판정 라벨은 "공개자료" 기준으로 전환한다(아래 Judgment schema 참조).
 - 입력은 텍스트로 읽을 수 있는 문서를 전제로 한다. 현재 범위에서는 문서 변환/OCR 실행 코드를 포함하지 않는다.
 
-> 산출 흐름: 이 스킬은 최종 보고서를 직접 쓰지 않고, 먼저 **구조화 findings**(데이터 계약)를 만든 뒤
-> 렌더러가 그 findings를 **재판정 없이** 대표 문서(DOCX/HTML)로 변환한다. findings 형식은
+> 산출 흐름(워크플로우): 이 스킬은 최종 보고서를 직접 쓰지 않고, 먼저 **구조화 findings**(데이터 계약)를 만든 뒤
+> ① 검증기가 findings를 **재판정 없이** preflight 점검(detect-only)하고 ② 렌더러가 findings를 **재판정 없이**
+> 대표 문서(DOCX/HTML)로 변환한 다음 ③ 컨설턴트가 검수한다. findings 형식은
 > `docs/findings_schema_contract.md` 및 스키마 `src/schemas/kssb_findings.schema.json`을 따른다.
-> 렌더러 구현은 이번 범위 밖이며, 아래 절차는 findings 내용을 근거로 구성하기 위한 지침이다.
+> 검증기·렌더러는 스킬 워크플로우가 사용하는 **내부 구성요소**이며, 아래 절차는 findings 내용을 근거로 구성하기 위한 지침이다.
+> 전체 흐름은 아래 "Workflow" 절과 `docs/workflow_usage.md` 참조.
 
 ## Source-bound analysis rules (근거 기반 분석 원칙)
 
@@ -102,6 +104,23 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 - 각 질문은 다음 필드를 갖춘다: 항목ID · 항목명 · 질문 · 질문사유 · 관련근거 · 우선순위 · 요청자료 · 후속조치.
 - 상세 규칙은 `customer_question_rules.md`.
 
+## Workflow (findings → 검증 → 렌더 → 사람 검수)
+
+사용자-facing 진입점은 **이 스킬 하나**다. 스킬 절차가 아래 내부 단계를 잇는다. 사용자는 Python·PATH·CLI를 의식하지 않는다.
+
+1. **findings 생성 (스킬 = 판단 엔진)**: 위 4대 영역 절차로 항목별 판정·근거 앵커·부족정보·고객 질문·권고를
+   `judgment_code`별 source-bound 필수 조건에 맞춰 구조화 findings로 만든다(단일 source of truth).
+2. **preflight 검증 (검증기 = detect-only 게이트)**: `src/validators/kssb_findings_validator.py`가 findings를
+   **재판정 없이** 점검한다 — 구조 필수 필드·source_id cross-reference·모드↔라벨 정합·source-bound 조건부 규칙·
+   빈 quote·질문 필수 6필드·금지 표현·내부 경로 노출. 검증기는 findings를 **고치지 않고 문제를 감지·보고만** 한다.
+   error가 있으면 findings를 먼저 바로잡은 뒤 렌더한다.
+3. **렌더 (렌더러 = 형식 변환기)**: `src/renderers/kssb_report_renderer.py`가 동일 findings를 **재판정 없이**
+   대표 DOCX와 HTML fallback으로 변환한다(단일 소스 파생, 결정적 출력).
+4. **사람 검수**: 산출물은 초안이며 컨설턴트가 검수·수정·확정한다. 확인 불가·상충 항목은 사람 검토로 넘긴다.
+
+검증기·렌더러는 **내부 워크플로우 구성요소**다(사용자-facing Python CLI가 아니다). 상세는 각 폴더 README와
+`docs/workflow_usage.md` 참조.
+
 ## Report structure (보고서 구조)
 
 산출은 **컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안**이며, **구조화 findings에서 렌더러가 변환**한다
@@ -111,6 +130,7 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 ## Completion checklist (완료 점검)
 
 보고서 초안을 마무리하기 전 `completion_checklist.md`의 항목을 점검한다(근거 앵커 누락, 금지 표현, 확인 불가–질문 연결 등).
+findings는 렌더 전 검증기 preflight(위 Workflow 2단계)에서 error 0건이어야 한다.
 
 ## Prohibited expressions (금지 표현)
 
@@ -123,7 +143,9 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 - DOCX 생성이 제한될 경우 fallback: `<보고서명>_KSSB_공시근거_사전검토보고서.html`
 - 기본 사용자 흐름에서는 JSON/CSV/manifest/debug log/`_검토근거` 폴더를 **산출물로 요구하지 않는다.**
   (이는 향후 개발/검증/debug mode에서 내부 검증용으로만 사용할 수 있다.)
-- **현재 범위에서는 실제 DOCX/HTML 생성 코드를 구현하지 않는다.** 본 스킬은 구조화 findings와 보고서 템플릿·출력 정책을 규정하고, 렌더러가 findings를 재판정 없이 변환한다.
+- 대표 문서 생성은 렌더러(`src/renderers/kssb_report_renderer.py`, 표준 라이브러리 기반 내부 구성요소)가
+  findings를 재판정 없이 변환해 수행한다. 렌더 전 검증기가 findings를 detect-only로 preflight 점검한다(위 Workflow 절).
+  본 스킬은 구조화 findings와 보고서 템플릿·출력 정책을 규정하는 판단 엔진이며, 사용자-facing 진입점은 스킬 하나다.
 - 사용자-facing 안내에 plugin/cache/sandbox 내부 경로를 노출하지 않는다.
 
 ## Human review boundary (사람 검수 경계)
