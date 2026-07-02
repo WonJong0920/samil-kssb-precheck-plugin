@@ -6,11 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2I-0** — 두 실사용 테스트(Run A Hana / Run B K-water) baseline **문제 분석 전용**(코드·판정 없음).
-  문제를 **실행 단계 문제**(문서 인테이크/OCR 부재·표 수치 복원 실패·실행 로그 및 로컬 경로 노출·DOCX 미생성)와
-  **산출물 퀄리티 문제**(내부 코드명 노출·원문 인용/위치 단서 부족·요약형)로 분리. 경계(감사/인증/준수 대체 아님)는 유지 관찰.
-  개선 우선순위 6단계·다음 수정 사이클(2I-1/2I-2/2I-3) 제안. 분석 문서: `docs/cycle2i_baseline_execution_output_problem_analysis.md`.
-  **실제 수정 미착수**, 다음은 Codex Review.
+- **Cycle 2I-0 (+ Addendum)** — baseline 문제 분석에 이어 **구현계획 문서화**(구현 아님, 판정 없음).
+  개선 순서 **2I-1(실행 배선/로그·경로 분리·대표 문서 생성) → 2I-2(표현 품질: 코드→한글 라벨·인용/위치) → 2I-3(인테이크/표 fallback 설계) ∥ 2I-3A(Kordoc feasibility spike)** 제안.
+  **Kordoc**은 사용자 승인 후 로컬 MCP/CLI 설치 가능한 **인테이크 후보**로만 반영(본체 hard dependency 아님, 미설치·미실행).
+  표·이미지 판독용 **Document Evidence Index**를 schema 변경 없이 상위 설계로 제안(판정 생성 아님, 근거 재료만).
+  계획 문서: `docs/planning/cycle2i_remediation_implementation_plan.md`. **실제 수정·설치 미착수**, 다음은 Codex Review(분석+계획 문서).
+
+## 이전 Cycle: Cycle 2I-0 baseline
+- 두 실사용 테스트(Run A Hana / Run B K-water)를 실행 단계 문제·산출물 품질 문제로 분리 분석. 경계 유지 관찰. 문서: `docs/cycle2i_baseline_execution_output_problem_analysis.md`.
 
 ## 이전 Cycle
 - **Cycle 2H (+ Patch, + Install/Smoke Evidence)** — display name 정렬 후, **사용자 직접 Codex CLI discovery + 새 thread smoke test 확인 완료**를

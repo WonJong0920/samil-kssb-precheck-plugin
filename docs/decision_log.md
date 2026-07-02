@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2H
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -375,6 +375,22 @@
 - **Consequences**: 개선 우선순위(로그↔보고서 분리·경로 비노출 → 대표 문서 생성 → 코드→한글 라벨 → 인용/위치 → OCR/표 fallback → 질문 구체화)와 다음 사이클(2I-1/2I-2/2I-3) 제안. 착수는 확인 후.
 - **Status**: 분석 기록 확정. 실제 수정 미착수.
 - **Related Files**: `docs/cycle2i_baseline_execution_output_problem_analysis.md`.
+
+---
+
+# Cycle 2I-0 Addendum 기록 (D40) — Remediation 구현계획 + Kordoc feasibility
+
+## D40. baseline 문제 기반 개선 순서·Kordoc feasibility·Document Evidence Index를 계획으로 문서화(구현·설치 미착수)
+- **Date**: 2026-07-02
+- **Context**: baseline 분석(D39) 이후, 개선 실행 순서와 Cycle 2I-3의 PDF/OCR/표 문제 보완을 위한 Kordoc(외부 문서파싱 도구) 도입 방향 검토 요청.
+- **Decision**: `docs/planning/cycle2i_remediation_implementation_plan.md`에 개선 순서
+  **2I-1(실행 배선/로그·경로 분리·기존 renderer로 대표 문서 생성) → 2I-2(표현 품질) → 2I-3(인테이크/표 fallback 설계) ∥ 2I-3A(Kordoc feasibility spike)**를 제안.
+  **Kordoc은 사용자 승인 후 로컬 MCP/CLI 설치 가능한 인테이크 후보로만** 반영하고 **plugin 본체 hard dependency로 고정하지 않음**(pluggable, 부재 시 현행 경로 유지).
+  표·이미지 판독용 **Document Evidence Index**(findings 상위 중간 산출물 개념)를 schema/코드 변경 없이 상위 설계로만 제안 — **판정을 만들지 않고 근거 후보·위치·품질 신호만** 제공(재판정 아님).
+- **Rationale**: 새 의존성 없이 즉시 가능한 실행 배선/표현 품질을 먼저, 외부 의존·복잡한 인테이크는 격리 spike로 통제. 사용자 승인 없는 설치·외부 전송·로컬 설정 커밋 위험을 계획에 명시적으로 차단.
+- **Consequences**: 이번 사이클은 **구현·설치·MCP setup·`.mcp.json`·OCR 사용 없음.** Codex Review 대상은 분석 문서 + 이 계획 문서 + 상태/결정. 착수는 확인 후.
+- **Status**: 계획 기록 확정. 실제 수정·설치 미착수.
+- **Related Files**: `docs/planning/cycle2i_remediation_implementation_plan.md`, `docs/cycle2i_baseline_execution_output_problem_analysis.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
