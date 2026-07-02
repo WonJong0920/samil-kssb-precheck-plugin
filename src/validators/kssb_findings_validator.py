@@ -10,7 +10,10 @@
 - 렌더러는 여전히 형식 변환기이며, 이 검증기는 별도 단계다(렌더러의 재판정을 유발하지 않는다).
 
 검증 규칙(요약):
-1. 구조 필수 필드(report_meta/source_documents/kssb_areas/human_review_boundary, finding_item 핵심 필드).
+1. 구조 필수 필드(report_meta/source_documents/kssb_areas/human_review_boundary 및 중첩 required 필드:
+   source_documents[].title/source_mode, kssb_areas[].area_id/area_name/items, finding_item 핵심 필드).
+   jsonschema가 없는 표준 라이브러리 fallback 모드에서도 이 핵심 required 구조 누락을 error로 감지한다
+   (full JSON Schema 대체가 아니라 Cycle 2E preflight gate용 핵심 구조 보강).
 2. `evidence_anchors[].source_id` ↔ `source_documents[].source_id` cross-reference.
 3. `review_mode` ↔ `source_documents[].source_mode` 정합.
 4. `judgment_code` ↔ `judgment_label` ↔ `review_mode` 정합(모드별 라벨 표 강제).
@@ -198,12 +201,39 @@ def _check_source_modes(f: dict, review_mode: str, issues: list[Issue]) -> None:
             issues.append(Issue("error", "source_doc.type", f"source_documents[{i}]", "객체가 아닙니다."))
             continue
         loc = f"source_documents[{i}]"
+        # schema-required 중첩 필드(source_id·title·source_mode). fallback 모드에서도 누락을 error로 감지.
         if not _is_nonempty_str(sd.get("source_id")):
-            issues.append(Issue("error", "source_doc.source_id", f"{loc}.source_id", "source_id가 비어 있습니다."))
+            issues.append(Issue("error", "source_doc.source_id", f"{loc}.source_id", "source_id가 비어 있거나 없습니다."))
+        if not _is_nonempty_str(sd.get("title")):
+            issues.append(Issue("error", "source_doc.title", f"{loc}.title", "title이 비어 있거나 없습니다(필수)."))
         sm = _s(sd.get("source_mode"))
-        if expected and sm and sm != expected:
+        if not sm:
+            issues.append(Issue("error", "source_doc.source_mode", f"{loc}.source_mode",
+                                "source_mode가 비어 있거나 없습니다(필수)."))
+        elif expected and sm != expected:
             issues.append(Issue("error", "mode.source_mode_mismatch", f"{loc}.source_mode",
                                 f"review_mode='{review_mode}'는 source_mode='{expected}'를 기대하지만 '{sm}'."))
+
+
+def _check_area_structure(f: dict, issues: list[Issue]) -> None:
+    """kssb_areas의 schema-required 중첩 구조(area_id·area_name·items)를 fallback 모드에서도 감지한다."""
+    for ai, area in enumerate(f.get("kssb_areas") or []):
+        loc = f"kssb_areas[{ai}]"
+        if not isinstance(area, dict):
+            issues.append(Issue("error", "area.type", loc, "객체가 아닙니다."))
+            continue
+        if not _is_nonempty_str(area.get("area_id")):
+            issues.append(Issue("error", "area.area_id", f"{loc}.area_id", "area_id가 비어 있거나 없습니다(필수)."))
+        if not _is_nonempty_str(area.get("area_name")):
+            issues.append(Issue("error", "area.area_name", f"{loc}.area_name", "area_name이 비어 있거나 없습니다(필수)."))
+        items = area.get("items")
+        if not isinstance(items, list) or len(items) < 1:
+            issues.append(Issue("error", "area.items", f"{loc}.items",
+                                "items 배열이 비어 있거나 없습니다(최소 1개 필수)."))
+        else:
+            for ii, item in enumerate(items):
+                if not isinstance(item, dict):
+                    issues.append(Issue("error", "item.type", f"{loc}.items[{ii}]", "객체가 아닙니다."))
 
 
 def _iter_items(f: dict) -> Iterator[tuple[str, dict]]:
@@ -220,10 +250,10 @@ def _check_items(f: dict, review_mode: str, source_ids: set[str], issues: list[I
     for loc, item in _iter_items(f):
         code = _s(item.get("judgment_code"))
         label = _s(item.get("judgment_label"))
-        # 핵심 필드
-        for req in ("item_id", "requirement_title"):
+        # 핵심 필드(finding_item schema-required: item_id·requirement_title·judgment_code·judgment_label)
+        for req in ("item_id", "requirement_title", "judgment_label"):
             if not _is_nonempty_str(item.get(req)):
-                issues.append(Issue("error", "item.field", f"{loc}.{req}", f"{req}가 비어 있습니다."))
+                issues.append(Issue("error", "item.field", f"{loc}.{req}", f"{req}가 비어 있거나 없습니다."))
         if code not in VALID_JUDGMENT_CODES:
             issues.append(Issue("error", "item.judgment_code", f"{loc}.judgment_code",
                                 f"알 수 없는 judgment_code: '{code}'."))
@@ -356,6 +386,7 @@ def validate_findings(findings: Any, prohibited_terms_path: Path | None = None,
     }
 
     _check_source_modes(findings, review_mode, issues)
+    _check_area_structure(findings, issues)
     _check_items(findings, review_mode, source_ids, issues)
 
     prohibited, warn = _load_prohibited_terms(prohibited_terms_path)

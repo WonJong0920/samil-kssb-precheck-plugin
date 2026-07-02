@@ -1,10 +1,20 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
-- **Cycle 2D** — findings·렌더러 산출물에 대한 **경량 결정적 검증/가드레일** 추가(validation/guardrail only).
-  검증기는 detect-only(재판정·findings 보정 없음). OCR·PDF 파싱·Hook/MCP·submission.zip 없음.
+- **Cycle 2D (+ Patch)** — 경량 검증/가드레일 추가 후, Codex Cycle 2D Validation Review(CONDITIONAL PASS)
+  Major 대응. `jsonschema` 없는 표준 라이브러리 fallback 모드에서도 schema-required 중첩 구조 누락을 error로 감지하도록 보강.
 
-## Cycle 2D 완료 작업
+## Cycle 2D Patch (Codex Validation Review 대응)
+- Codex 판정: **CONDITIONAL PASS**(`docs/reviews/codex_cycle2d_validation_review.md`). Major: fallback 모드에서
+  `source_documents[].title/source_mode`, `kssb_areas[].area_id/area_name/items` 등 중첩 required 누락 미감지.
+- 보강: `_check_source_modes`에 title·source_mode 필수 존재 검사 추가, `_check_area_structure` 신규(area_id·area_name·items),
+  `_check_items`에 judgment_label 필수 검사 추가. 전부 detect-only(findings 미변경). full JSON Schema 대체가 아니라
+  Cycle 2E preflight gate용 핵심 required 구조 보강(README/docstring 정합).
+- 테스트: fallback 누락 6건 + valid example fallback 0건 케이스 추가(`tests/test_findings_validator.py` 19건).
+- Preflight: schema/example 문법 OK, 검증기 CLI RC0, validator 19/19 PASS, renderer smoke 22/22 PASS, 새 외부 의존성 없음.
+- 완료 보고: `docs/cycle2d_patch_validation_completion_report.md`.
+
+## Cycle 2D 완료 작업 (Patch 이전 base)
 - 검증기: `src/validators/kssb_findings_validator.py`(표준 라이브러리만, `jsonschema`는 있으면 선택 사용).
   구조 필수 필드, `source_id` cross-reference, review_mode↔source_mode↔judgment_label 정합,
   source-bound 조건부 규칙, evidence quote 빈값, customer_questions 필수 6필드, 금지 표현 스캔(고지·경계 필드 제외),
@@ -72,6 +82,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2D 검증/가드레일 push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2D Validation Review.
+- Cycle 2D Patch(validator fallback 보강) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2D Patch Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

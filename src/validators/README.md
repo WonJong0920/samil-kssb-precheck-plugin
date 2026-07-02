@@ -12,7 +12,11 @@
 
 ## 검증 규칙
 
-1. 구조 필수 필드(report_meta / source_documents / kssb_areas / human_review_boundary, finding_item 핵심 필드).
+1. 구조 필수 필드 — 최상위(report_meta / source_documents / kssb_areas / human_review_boundary)와
+   **중첩 required 필드**(source_documents[].title·source_mode, kssb_areas[].area_id·area_name·items,
+   finding_item의 item_id·requirement_title·judgment_code·judgment_label). `jsonschema`가 없는 표준
+   라이브러리 fallback 모드에서도 이 **핵심** required 구조 누락을 error로 감지한다. 단 이는 full JSON Schema
+   검증 대체가 아니라 Cycle 2E preflight gate용 핵심 구조 보강이다(전체 스키마 제약을 모두 재현하지는 않는다).
 2. `evidence_anchors[].source_id` ↔ `source_documents[].source_id` **cross-reference**.
 3. `review_mode` ↔ `source_documents[].source_mode` 정합.
 4. `judgment_code` ↔ `judgment_label` ↔ `review_mode` 정합(계약의 모드별 라벨 표 강제).

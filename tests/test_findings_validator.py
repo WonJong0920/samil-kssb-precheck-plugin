@@ -32,6 +32,11 @@ def codes(findings) -> set[str]:
     return {i.code for i in V.validate_findings(findings) if i.severity == "error"}
 
 
+def codes_fallback(findings) -> set[str]:
+    """jsonschema 미사용(표준 라이브러리 fallback) 경로에서의 error 코드 집합."""
+    return {i.code for i in V.validate_findings(findings, use_jsonschema=False) if i.severity == "error"}
+
+
 def main() -> int:
     base = json.loads(EXAMPLE.read_text(encoding="utf-8"))
 
@@ -92,7 +97,43 @@ def main() -> int:
     f["kssb_areas"][0]["items"][0]["evidence_anchors"][0]["page_or_section"] = r"C:\Users\me\report.pdf"
     check("내부 경로 노출 검출", "path.internal_exposure" in codes(f))
 
-    # 12. detect-only: 검증이 findings를 변경하지 않음
+    # --- Cycle 2D Patch: 표준 라이브러리 fallback 모드의 schema-required 중첩 구조 누락 감지 ---
+    # (Codex Cycle 2D Major: use_jsonschema=False에서 아래 누락이 error로 잡히지 않던 공백 보강)
+
+    # 0'. valid example은 fallback 모드에서도 error 0건 유지
+    check("valid example fallback error 0건", not codes_fallback(base), sorted(codes_fallback(base)))
+
+    # 12. source_documents[].title 누락
+    f = copy.deepcopy(base)
+    f["source_documents"][0].pop("title", None)
+    check("source_doc.title 누락 검출(fallback)", "source_doc.title" in codes_fallback(f))
+
+    # 13. source_documents[].source_mode 누락
+    f = copy.deepcopy(base)
+    f["source_documents"][0].pop("source_mode", None)
+    check("source_doc.source_mode 누락 검출(fallback)", "source_doc.source_mode" in codes_fallback(f))
+
+    # 14. kssb_areas[].area_id 누락
+    f = copy.deepcopy(base)
+    f["kssb_areas"][0].pop("area_id", None)
+    check("area.area_id 누락 검출(fallback)", "area.area_id" in codes_fallback(f))
+
+    # 15. kssb_areas[].area_name 누락
+    f = copy.deepcopy(base)
+    f["kssb_areas"][0].pop("area_name", None)
+    check("area.area_name 누락 검출(fallback)", "area.area_name" in codes_fallback(f))
+
+    # 16. kssb_areas[].items 누락
+    f = copy.deepcopy(base)
+    f["kssb_areas"][0].pop("items", None)
+    check("area.items 누락 검출(fallback)", "area.items" in codes_fallback(f))
+
+    # 17. finding_item.judgment_label 누락
+    f = copy.deepcopy(base)
+    f["kssb_areas"][0]["items"][0].pop("judgment_label", None)
+    check("judgment_label 누락 검출(fallback)", "item.field" in codes_fallback(f))
+
+    # 18. detect-only: 검증이 findings를 변경하지 않음
     snapshot = json.dumps(base, ensure_ascii=False, sort_keys=True)
     V.validate_findings(base)
     check("detect-only(입력 미변경)", json.dumps(base, ensure_ascii=False, sort_keys=True) == snapshot)
