@@ -6,7 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2I-3 (계획 문서 push)** — Document Intake / Evidence Quality / Kordoc Feasibility Boundary **설계 계획**.
+- **Cycle 2I-3 (+ 최소 guardrail 구현)** — 계획 §11의 **validator 내부 경로 스캔 확장**을 detect-only로 구현.
+  `_PATH_PATTERNS`에 `/home/`·`/var/folders/`·`[\\/]Temp[\\/]`·`%(TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)%` 추가 →
+  findings 값의 로컬/임시/계정 경로 노출을 렌더 전 preflight에서 `path.internal_exposure`(error)로 감지. renderer/delivery/schema 불변, detect-only 유지, valid example error 0(오탐 없음).
+  검증: 검증기 26/26, 렌더러 스모크 22/22, 전달 33/33 PASS. 완료 보고: `docs/cycle2i_3_minimal_validator_guardrail_completion_report.md`. Kordoc/OCR/PDF 재실행 없음(2I-3A 유지).
+
+## 이전 Cycle: Cycle 2I-3 계획
+- Document Intake / Evidence Quality 설계 계획(DEI 문서 수준 제안, Kordoc 2I-3A spike 분리). 계획: `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
   남은 리스크(인테이크 품질·표/스캔 수치·findings 값 로컬 경로 유입·Kordoc/OCR 승인 게이트)를 정리하고,
   표·이미지 판독용 **Document Evidence Index를 문서 수준(비-schema)**으로 제안(판정 생성 아님, `evidence_anchor` 매핑).
   로컬 경로 차단은 **upstream validator(detect-only)**에서, renderer/delivery는 재작성 금지 원칙 정리.

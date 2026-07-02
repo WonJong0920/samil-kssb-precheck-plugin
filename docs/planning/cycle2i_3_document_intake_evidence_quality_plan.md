@@ -127,7 +127,7 @@ delivery 전달 경계 유지 · 새 의존성 없음 · 테스트 가능 · 2I-
   `%APPDATA%`·`%LOCALAPPDATA%`. (한글 ESG 공시 텍스트에 등장 가능성이 낮아 오탐 위험 낮음.)
 - `tests/test_findings_validator.py`에 신규 토큰 검출 케이스 3~4건 추가, valid example 0 error 불변식 유지.
 - **범위**: validator 파일 + 테스트만. renderer/delivery/schema/manifest 불변.
-> 이 push에는 위 guardrail을 **포함하지 않는다**(계획 검토 우선). 승인 후 별도 커밋으로 반영한다.
+> **구현 완료**(별도 커밋). `_PATH_PATTERNS`에 `/home/`·`/var/folders/`·`[\\/]Temp[\\/]`·`%(TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)%` 추가, 테스트 7건 추가(26/26 PASS). 완료 보고: `docs/cycle2i_3_minimal_validator_guardrail_completion_report.md`.
 
 ## 12. 2I-3A로 분리해야 할 작업
 

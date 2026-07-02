@@ -138,6 +138,41 @@ def main() -> int:
     V.validate_findings(base)
     check("detect-only(입력 미변경)", json.dumps(base, ensure_ascii=False, sort_keys=True) == snapshot)
 
+    # --- Cycle 2I-3: findings 값의 로컬/임시/계정 경로 노출 스캔 확장(detect-only) ---
+
+    # 19. POSIX 홈 경로 /home/<user>/ 감지
+    f = copy.deepcopy(base)
+    f["kssb_areas"][0]["items"][0]["evidence_anchors"][0]["page_or_section"] = "/home/alice/reports/hfg.pdf"
+    check("경로 노출 검출: /home/<user>/", "path.internal_exposure" in codes(f))
+
+    # 20. macOS 임시 폴더 /var/folders/ 감지
+    f = copy.deepcopy(base)
+    f["kssb_areas"][0]["items"][0]["evidence_anchors"][0]["relevance_note"] = "/var/folders/xy/abc123/T/extract.txt 참조"
+    check("경로 노출 검출: /var/folders/", "path.internal_exposure" in codes(f))
+
+    # 21. Windows 환경변수 경로 참조 %TEMP% / %USERPROFILE% 감지
+    f = copy.deepcopy(base)
+    f["source_documents"][0]["notes"] = r"%TEMP%\sm_extract.txt"
+    check("경로 노출 검출: %TEMP%", "path.internal_exposure" in codes(f))
+    f = copy.deepcopy(base)
+    f["source_documents"][0]["notes"] = r"%USERPROFILE%\Desktop\report.pdf"
+    check("경로 노출 검출: %USERPROFILE%", "path.internal_exposure" in codes(f))
+
+    # 22. 임시 폴더 \Temp\ 감지(AppData 밖)
+    f = copy.deepcopy(base)
+    f["kssb_areas"][0]["items"][0]["evidence_anchors"][0]["relevance_note"] = r"D:\work\Temp\out.md"
+    check("경로 노출 검출: \\Temp\\", "path.internal_exposure" in codes(f))
+
+    # 23. valid example은 확장 후에도 error 0 유지(오탐 없음)
+    check("valid example 확장 후 error 0 유지", not codes(base), sorted(codes(base)))
+
+    # 24. detect-only: 경로 포함 findings 검증도 입력을 변경하지 않음
+    f = copy.deepcopy(base)
+    f["source_documents"][0]["notes"] = "/home/bob/x.pdf"
+    snap2 = json.dumps(f, ensure_ascii=False, sort_keys=True)
+    V.validate_findings(f)
+    check("detect-only(경로 포함 입력 미변경)", json.dumps(f, ensure_ascii=False, sort_keys=True) == snap2)
+
     failed = [r for r in _results if not r[1]]
     print(f"\n총 {len(_results)}건 중 실패 {len(failed)}건")
     return 1 if failed else 0

@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -442,6 +442,22 @@
 - **Consequences**: 계획 검토(및 Codex Review) 후 §11 guardrail을 별도 커밋으로 반영. 실제 인테이크/Kordoc/OCR은 2I-3A.
 - **Status**: 계획 확정. guardrail 구현·2I-3A 미착수.
 - **Related Files**: `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`, `src/validators/kssb_findings_validator.py`(향후 guardrail 대상), `docs/planning/cycle2i_remediation_implementation_plan.md`.
+
+---
+
+# Cycle 2I-3 결정 (D44) — Minimal Validator Path-Exposure Guardrail 구현
+
+## D44. findings 값의 로컬/임시/계정 경로 노출 스캔을 detect-only로 소폭 확장
+- **Date**: 2026-07-02
+- **Context**: 2I-2 리뷰 §8·2I-3 계획 §6/§11 — findings 값에 로컬 경로가 들어오면 대표 문서 본문에 남을 수 있음. 렌더러는 재작성 금지이므로 **upstream validator**에서 감지해야 함.
+- **Decision**: validator의 기존 내부 경로 스캔(`_PATH_PATTERNS`)에 보수적 토큰 추가 —
+  `/home/`, `/var/folders/`, `[\\/]Temp[\\/]`, `%(TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)%`. detect-only·error(`path.internal_exposure`) 유지, findings 미변경.
+  `tests/test_findings_validator.py`에 검출·불변식·detect-only 케이스 7건 추가(19→26).
+- **Rationale**: 새 기능이 아니라 패턴 목록 확장이라 최소·안전. 추가 토큰은 한글 공시 본문 등장 가능성이 낮아 오탐 위험 낮음(valid example error 0 유지). renderer/delivery는 내용 스크럽하지 않는 경계 유지.
+- **Alternatives Considered**: (a) renderer/delivery에서 본문 경로 스크럽 → 기각(재작성/경계 위반). (b) 더 공격적 패턴(예: 임의 `%...%`) → 기각(오탐↑).
+- **Consequences**: findings에 경로가 들어오면 preflight error로 감지되어 렌더 전에 바로잡게 됨. 근본적 경로 유입 차단은 인테이크(2I-3A) 과제. renderer/delivery/schema/manifest 불변.
+- **Status**: 구현 확정(2I-3 최소 범위). 2I-3A(Kordoc/OCR/인테이크) 미착수.
+- **Related Files**: `src/validators/kssb_findings_validator.py`, `tests/test_findings_validator.py`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

@@ -76,15 +76,20 @@ CUSTOMER_QUESTION_FIELDS = [
 # 금지 표현 스캔에서 제외하는 필드 키(고지·경계·한계는 감사/인증/준수를 negation으로 언급하므로 오탐 방지).
 PROHIBITED_SCAN_EXCLUDED_KEYS = {"disclaimer", "human_review_boundary", "overall_limitations", "notes"}
 
-# 내부 경로 노출 스캔 패턴(문서 본문에 절대 등장하면 안 되는 토큰).
+# 내부 경로 노출 스캔 패턴(문서 본문에 절대 등장하면 안 되는 토큰). IGNORECASE로 컴파일한다.
+# 한글 ESG 공시 텍스트에 등장 가능성이 낮은 로컬/임시/계정 경로 토큰만 보수적으로 추가한다(오탐 최소화).
 _PATH_PATTERNS = [
     r"[A-Za-z]:[\\/]",       # C:\ 또는 C:/
-    r"/Users/", r"Users[\\]",
+    r"/Users/", r"Users[\\]",   # macOS/Windows 사용자 홈
+    r"/home/",               # POSIX(Linux) 사용자 홈
     r"\.codex", r"\.claude",
-    r"AppData",
+    r"AppData",              # Windows AppData(%APPDATA%/%LOCALAPPDATA% 포함)
     r"sandbox",
     r"plugins?[\\/]cache", r"plugin[\\/]cache",
-    r"/tmp/", r"node_modules",
+    r"/tmp/", r"/var/folders/",   # 임시 폴더(POSIX / macOS)
+    r"[\\/]Temp[\\/]",       # \Temp\ 또는 /temp/ 등 임시 폴더(AppData 밖)
+    r"%(?:TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA)%",   # Windows 환경변수 경로 참조
+    r"node_modules",
 ]
 _PATH_RE = re.compile("|".join(_PATH_PATTERNS), re.IGNORECASE)
 
