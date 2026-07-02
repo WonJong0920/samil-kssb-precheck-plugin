@@ -36,11 +36,26 @@ Human review (사람 검수)
 - **재판정 금지**: 검증기·렌더러는 `judgment_code`/`judgment_label`을 소비만 하고 다시 계산하지 않는다.
 - **Skill-first**: 사용자는 스킬만 호출한다. 검증기·렌더러의 CLI는 **내부/검증용**이며 기본 사용자 흐름이 아니다.
 
+## 전달 계약 (Delivery contract, Cycle 2I-1)
+
+전달 배선기 `src/renderers/kssb_report_delivery.py`(내부 구성요소)가 **findings → preflight(detect-only) → 대표 문서 →
+사용자-facing 요약**을 잇는다. 핵심은 **사용자-facing 최종 보고와 내부 실행 로그의 분리**다.
+
+- **대표 문서 보장·우선순위**: DOCX → HTML → Markdown. DOCX 생성이 제한돼도 HTML·Markdown fallback은 항상 생성되며,
+  `render_report()`가 `primary`/`primary_format`으로 대표 문서를 지정한다. 파일명은 `<보고서명>_KSSB_공시근거_사전검토보고서.{docx|html|md}`.
+- **사용자-facing 요약(안전)**: 대표 문서 **파일명 + 표시 경로**(repo 하위면 상대경로, 아니면 파일명만), fallback 안내,
+  preflight 요약(건수만), **사람 검수 고지**, **감사·인증·준수 대체 아님 경계 고지**를 담는다. **로컬 절대경로·계정명·임시경로·validator raw 출력·스크립트 로그는 포함하지 않는다**(표시 경로 sanitize + 2차 redaction).
+- **내부/사용자 분리**: `deliver()`는 `user_summary`(안전)와 `outputs`/`preflight.issues`/`internal_notes`(전체 경로·이슈, 내부)를 **분리 반환**한다.
+  CLI는 `user_summary`만 stdout에 출력하고, 내부 상세는 `--debug` 시에만 stderr에 출력한다.
+- **경계 유지**: 배선기는 재판정하지 않는다(validator=detect-only, renderer=형식 변환). 확인 불가를 미공시/부적합으로 단정하지 않는다.
+
 ## 내부/검증용 실행 (개발·CI 참고, 사용자 흐름 아님)
 
 ```
+python src/renderers/kssb_report_delivery.py <findings.json> -o <out>   # findings→preflight→대표 문서→사용자 요약(stdout)
+python src/renderers/kssb_report_delivery.py <findings.json> -o <out> --debug   # 내부 상세는 stderr로 분리
 python src/validators/kssb_findings_validator.py <findings.json>   # detect-only, error 시 종료코드 1
-python src/renderers/kssb_report_renderer.py <findings.json> -o <out>   # DOCX + HTML fallback
+python src/renderers/kssb_report_renderer.py <findings.json> -o <out>   # DOCX + HTML + Markdown fallback
 ```
 
 재사용 점검 스크립트(표준 라이브러리, 출력은 repo 밖 임시 폴더):
@@ -48,11 +63,12 @@ python src/renderers/kssb_report_renderer.py <findings.json> -o <out>   # DOCX +
 ```
 python tests/test_findings_validator.py   # 검증기 점검
 python tests/smoke_test_renderer.py       # 렌더러 스모크
+python tests/test_delivery_wiring.py      # 전달 배선 end-to-end 스모크
 ```
 
 ## 산출물 정책
 
-- 기본 산출물: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(fallback `.html`) 대표 문서 1개.
+- 기본 산출물: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(fallback `.html`, `.md`) 대표 문서 1개(우선순위 DOCX→HTML→Markdown).
 - JSON/CSV/manifest/`_검토근거` 폴더는 기본 산출물이 아니다(내부 개발/검증용 가능성만).
 - 생성 문서는 커밋 대상이 아니며 findings에서 결정적으로 재생성 가능하다(`.gitignore` 산출물 제외).
 - plugin/cache/sandbox 내부 경로를 산출물·사용자 안내에 노출하지 않는다.

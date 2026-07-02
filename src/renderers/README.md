@@ -1,8 +1,12 @@
 # Renderers (findings → 대표 문서 형식 변환기)
 
-이 폴더는 Skill `samil-kssb-precheck` 워크플로우가 사용하는 **내부 형식 변환기**를 담는다.
+이 폴더는 Skill `samil-kssb-precheck` 워크플로우가 사용하는 **내부 형식 변환기**와 **전달 배선기**를 담는다.
 사용자-facing 진입점은 Skill 하나이며, 렌더러는 Skill이 만든 **구조화 findings**를
-**재판정 없이** 대표 DOCX와 HTML fallback으로 바꾸는 단계일 뿐이다. 사용자는 Python/PATH를 의식하지 않는다.
+**재판정 없이** 대표 DOCX/HTML/Markdown으로 바꾸는 단계일 뿐이다. 사용자는 Python/PATH를 의식하지 않는다.
+
+- `kssb_report_renderer.py` — findings → DOCX/HTML/Markdown 형식 변환기(재판정 없음).
+- `kssb_report_delivery.py` — findings → validator preflight(detect-only) → renderer → **사용자-facing 요약** 배선기.
+  사용자 요약과 내부 상세(전체 경로·validator 이슈)를 분리하고, 로컬 절대경로·계정명을 비노출한다. 전달 계약: `docs/workflow_usage.md`.
 
 ## 포지셔닝
 
@@ -13,7 +17,7 @@
 ## 계약
 
 - 입력: `docs/findings_schema_contract.md` / `src/schemas/kssb_findings.schema.json` 형식의 findings JSON.
-- 출력 파일명: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(fallback `.html`).
+- 출력 파일명: `<보고서명>_KSSB_공시근거_사전검토보고서.{docx|html|md}`(우선순위 DOCX→HTML→Markdown).
   `<보고서명>` base는 `report_meta.generated_for`(없으면 `report_title`)에서 파생해 sanitize한다.
 
 ## 렌더러가 하는 일 / 하지 않는 일
@@ -48,7 +52,12 @@ python src/renderers/kssb_report_renderer.py src/schemas/kssb_findings_example.j
 ```python
 from kssb_report_renderer import load_findings, render_report
 out = render_report(load_findings("findings.json"), out_dir="build")
-# out == {"docx": ..., "html": ..., "docx_error": ...}
+# out == {"docx":..., "html":..., "markdown":..., "primary":..., "primary_format":..., "docx_error":...}
+
+# 전달 배선기(preflight + 대표 문서 + 사용자-facing 요약)
+from kssb_report_delivery import deliver
+res = deliver(load_findings("findings.json"), out_dir="build")
+# res["user_summary"] = 안전한 사용자-facing 요약, res["outputs"]/res["preflight"] = 내부 상세
 ```
 
 ## 산출물 커밋 정책

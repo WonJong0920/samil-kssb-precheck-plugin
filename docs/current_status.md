@@ -6,6 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-1** — Execution Wiring / Output Separation / 대표 문서 생성 **구현**.
+  전달 배선기 `src/renderers/kssb_report_delivery.py` 신설: findings → **validator preflight(detect-only)** → **renderer(재판정 없음)** →
+  **사용자-facing 요약**. 사용자 요약(파일명·표시경로·preflight 건수·사람 검수·경계 고지)과 내부 상세(전체 경로·validator 이슈·docx 오류)를 **분리 반환**(CLI: stdout=요약, `--debug`=stderr).
+  renderer에 **Markdown fallback**(`render_markdown`) 추가 + `render_report`가 대표 문서 우선순위(**DOCX→HTML→Markdown**)를 `primary`/`primary_format`으로 지정. 로컬 절대경로·계정명은 표시경로 sanitize + 2차 redaction으로 비노출.
+  테스트 `tests/test_delivery_wiring.py`(24건) 신설, `.gitignore`에 `.md` 산출물 제외 추가. 완료 보고: `docs/cycle2i_1_execution_wiring_completion_report.md`.
+  검증: 전달 배선 24/24, 렌더러 스모크 22/22, 검증기 19/19 PASS. **Kordoc/OCR/PDF 재실행 없음.**
+
+## 이전 Cycle
 - **Cycle 2I-0 (+ Addendum)** — baseline 문제 분석에 이어 **구현계획 문서화**(구현 아님, 판정 없음).
   개선 순서 **2I-1(실행 배선/로그·경로 분리·대표 문서 생성) → 2I-2(표현 품질: 코드→한글 라벨·인용/위치) → 2I-3(인테이크/표 fallback 설계) ∥ 2I-3A(Kordoc feasibility spike)** 제안.
   **Kordoc**은 사용자 승인 후 로컬 MCP/CLI 설치 가능한 **인테이크 후보**로만 반영(본체 hard dependency 아님, 미설치·미실행).

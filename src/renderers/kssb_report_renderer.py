@@ -398,6 +398,157 @@ def render_html(findings: dict) -> str:
 
 
 # ===========================================================================
+# Markdown fallback (동일 findings 단일 소스 — 재판정 없음)
+# ===========================================================================
+
+def _md(value: Any) -> str:
+    """Markdown 셀/텍스트 안전화: 제어문자 제거, 파이프·개행을 인라인 안전 문자로."""
+    text = _sanitize_xml_text(_s(value))
+    return text.replace("\\", "\\\\").replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+
+
+def render_markdown(findings: dict) -> str:
+    """findings를 대표 문서의 Markdown 표현으로 변환한다(재판정 없음, 동일 섹션 구성)."""
+    _validate_findings(findings)
+    meta = _dict(findings.get("report_meta"))
+    areas = _list(findings.get("kssb_areas"))
+    sources = _list(findings.get("source_documents"))
+    items = _all_items(areas)
+    title = _s(meta.get("report_title")) or "KSSB 공시근거 사전검토 보고서 (초안)"
+    out: list[str] = [f"# {_md(title)}", ""]
+
+    # 표지 및 고지
+    if meta.get("generated_for"):
+        out.append(f"- **검토 대상**: {_md(meta.get('generated_for'))}")
+    if meta.get("review_purpose"):
+        out.append(f"- **검토 목적**: {_md(meta.get('review_purpose'))}")
+    out.append(f"- **검토 모드(review_mode)**: {_md(meta.get('review_mode'))}")
+    if meta.get("created_at"):
+        out.append(f"- **생성 시각**: {_md(meta.get('created_at'))}")
+    if meta.get("disclaimer"):
+        out.append("")
+        out.append(f"> **고지**: {_md(meta.get('disclaimer'))}")
+    out.append("")
+
+    # 1. 검토 개요
+    out.append("## 1. 검토 개요")
+    out.append("검토 범위: KSSB 4대 영역(거버넌스·전략·위험관리·지표 및 목표) MVP. "
+               "본 문서는 구조화 findings를 재판정 없이 형식 변환한 컨설턴트 검수용 초안이다.")
+    if sources:
+        out.append("")
+        out.append("### 검토 대상 자료 (source_documents)")
+        out.append("| source_id | 제목 | 유형 | 출처 모드 | 기간/발행 |")
+        out.append("|---|---|---|---|---|")
+        for s in sources:
+            s = _dict(s)
+            out.append(f"| {_md(s.get('source_id'))} | {_md(s.get('title'))} | {_md(s.get('document_type'))} "
+                       f"| {_md(s.get('source_mode'))} | {_md(s.get('date_or_period'))} |")
+    out.append("")
+
+    # 2. 상태 요약
+    out.append("## 2. 상태 요약")
+    out.append(f"총 검토 항목: {len(items)}건")
+    out.append("")
+    out.append("| 판정 라벨 | 항목 수 |")
+    out.append("|---|---|")
+    for label, cnt in _judgment_count_rows(items):
+        out.append(f"| {_md(label)} | {cnt} |")
+    out.append("")
+    out.append("### 항목-판정 요약")
+    out.append("| 항목ID | 영역 | 공시요구 | 판정 |")
+    out.append("|---|---|---|---|")
+    for a in _ordered_areas(areas):
+        area_name = _s(a.get("area_name"))
+        for it in _list(a.get("items")):
+            it = _dict(it)
+            out.append(f"| {_md(it.get('item_id'))} | {_md(area_name)} | {_md(it.get('requirement_title'))} "
+                       f"| {_md(it.get('judgment_label'))} |")
+    out.append("")
+
+    # 3. 영역별 항목 결과와 근거
+    out.append("## 3. 영역별 항목 결과와 근거")
+    for a in _ordered_areas(areas):
+        a = _dict(a)
+        out.append(f"### {_md(a.get('area_name'))} ({_md(a.get('area_id'))})")
+        for it in _list(a.get("items")):
+            it = _dict(it)
+            out.append(f"#### [{_md(it.get('item_id'))}] {_md(it.get('requirement_title'))}")
+            if it.get("requirement_description"):
+                out.append(_md(it.get("requirement_description")))
+            out.append(f"- **판정**: {_md(it.get('judgment_label'))}")
+            anchors = _list(it.get("evidence_anchors"))
+            if anchors:
+                out.append("- **판단 근거(근거 앵커)**:")
+                for anc in anchors:
+                    anc = _dict(anc)
+                    loc = _s(anc.get("page_or_section"))
+                    prefix = f"[{_md(anc.get('source_id'))}" + (f" · {_md(loc)}]" if loc else "]")
+                    out.append(f"  - {prefix} “{_md(anc.get('quote'))}”")
+                    if anc.get("relevance_note"):
+                        out.append(f"    - 근거 설명: {_md(anc.get('relevance_note'))}")
+            else:
+                out.append("- 근거 앵커 없음.")
+            for m in _list(it.get("missing_info")):
+                if _s(m):
+                    out.append(f"  - 부족 정보/사유: {_md(m)}")
+            if it.get("human_review_required"):
+                out.append(f"- **사람 검수 필요**: {_md(it.get('human_review_note'))}")
+        out.append("")
+
+    # 4. 고객 확인 질문 및 요청자료
+    out.append("## 4. 고객 확인 질문 및 요청자료")
+    questions = _collect_questions(areas)
+    if questions:
+        out.append("| 항목ID | 항목명 | 질문 | 질문사유 | 관련근거 | 우선순위 | 요청자료 | 후속조치 |")
+        out.append("|---|---|---|---|---|---|---|---|")
+        for q in questions:
+            out.append(f"| {_md(q['item_id'])} | {_md(q['requirement_title'])} | {_md(q['question'])} "
+                       f"| {_md(q['reason'])} | {_md(q['related_evidence'])} | {_md(_priority_display(q['priority']))} "
+                       f"| {_md(q['requested_material'])} | {_md(q['follow_up_action'])} |")
+    else:
+        out.append("고객 확인 질문이 없습니다.")
+    out.append("")
+
+    # 5. 보완 권고
+    out.append("## 5. 보완 권고")
+    any_rec = False
+    for a in _ordered_areas(areas):
+        for it in _list(a.get("items")):
+            it = _dict(it)
+            for r in _list(it.get("recommendations")):
+                if _s(r):
+                    any_rec = True
+                    out.append(f"- **[{_md(it.get('item_id'))}] {_md(it.get('requirement_title'))}**: {_md(r)}")
+    if not any_rec:
+        out.append("등록된 보완 권고가 없습니다.")
+    out.append("")
+
+    # 6. 한계와 사람 검수 안내
+    out.append("## 6. 한계와 사람 검수 안내")
+    for x in _list(findings.get("overall_limitations")):
+        if _s(x):
+            out.append(f"- {_md(x)}")
+    hr_items = [it for it in items if it.get("human_review_required")]
+    if hr_items:
+        out.append("- **사람 검수 대상 항목**:")
+        for it in hr_items:
+            out.append(f"  - [{_md(it.get('item_id'))}] {_md(it.get('requirement_title'))} — {_md(it.get('human_review_note'))}")
+    ptc = _dict(findings.get("prohibited_terms_check"))
+    if ptc:
+        found = [_s(x) for x in _list(ptc.get("prohibited_terms_found")) if _s(x)]
+        out.append(f"- 금지 표현 점검: 수행={_md(ptc.get('performed'))}, 고지문 존재={_md(ptc.get('disclaimer_present'))}, "
+                   f"발견={'없음' if not found else _md(', '.join(found))}.")
+        if ptc.get("notes"):
+            out.append(f"  - {_md(ptc.get('notes'))}")
+    boundary = _s(findings.get("human_review_boundary"))
+    if boundary:
+        out.append("")
+        out.append(f"> **사람 검수 경계**: {_md(boundary)}")
+    out.append("")
+    return "\n".join(out)
+
+
+# ===========================================================================
 # DOCX (stdlib zipfile OOXML — 재판정 없음)
 # ===========================================================================
 
@@ -712,10 +863,12 @@ def _base_name(findings: dict, override: str | None) -> str:
 
 def render_report(findings: dict, out_dir: str | Path, base_name: str | None = None,
                   prefer_docx: bool = True) -> dict:
-    """findings를 대표 문서로 변환한다.
+    """findings를 대표 문서로 변환한다(동일 findings 단일 소스, 재판정 없음).
 
-    반환: {"docx": <경로 또는 None>, "html": <경로>, "docx_error": <문자열 또는 None>}
-    - DOCX 조립에 실패하면 예외를 삼키지 않되, HTML fallback은 항상 생성한다.
+    반환: {"docx": <경로 또는 None>, "html": <경로 또는 None>, "markdown": <경로 또는 None>,
+           "primary": <대표 문서 경로>, "primary_format": "docx"|"html"|"markdown",
+           "docx_error": <문자열 또는 None>}
+    - 우선순위: DOCX → HTML → Markdown. DOCX 조립 실패 시에도 HTML/Markdown fallback은 항상 생성한다.
     """
     _validate_findings(findings)
     out_dir = Path(out_dir)
@@ -723,12 +876,17 @@ def render_report(findings: dict, out_dir: str | Path, base_name: str | None = N
     base = _base_name(findings, base_name)
     stem = f"{base}{FILENAME_SUFFIX}"
 
-    result: dict = {"docx": None, "html": None, "docx_error": None}
+    result: dict = {"docx": None, "html": None, "markdown": None,
+                    "primary": None, "primary_format": None, "docx_error": None}
 
-    # HTML fallback은 동일 findings 단일 소스에서 항상 생성(재판정 없음).
+    # HTML·Markdown fallback은 동일 findings 단일 소스에서 항상 생성(재판정 없음).
     html_path = out_dir / f"{stem}.html"
     html_path.write_text(render_html(findings), encoding="utf-8")
     result["html"] = str(html_path)
+
+    md_path = out_dir / f"{stem}.md"
+    md_path.write_text(render_markdown(findings), encoding="utf-8")
+    result["markdown"] = str(md_path)
 
     if prefer_docx:
         try:
@@ -736,8 +894,15 @@ def render_report(findings: dict, out_dir: str | Path, base_name: str | None = N
             docx_path = out_dir / f"{stem}.docx"
             docx_path.write_bytes(data)
             result["docx"] = str(docx_path)
-        except Exception as exc:  # noqa: BLE001 - DOCX 실패 시 HTML fallback으로 계속
+        except Exception as exc:  # noqa: BLE001 - DOCX 실패 시 HTML/Markdown fallback으로 계속
             result["docx_error"] = f"{type(exc).__name__}: {exc}"
+
+    # 대표 문서 선정(우선순위 DOCX → HTML → Markdown).
+    for fmt in ("docx", "html", "markdown"):
+        if result.get(fmt):
+            result["primary"] = result[fmt]
+            result["primary_format"] = fmt
+            break
     return result
 
 
@@ -772,8 +937,10 @@ def _main(argv: list[str] | None = None) -> int:
     if out.get("docx"):
         print(f"DOCX: {out['docx']}")
     elif out.get("docx_error"):
-        print(f"[warn] DOCX 생성 실패, HTML fallback 사용: {out['docx_error']}", file=sys.stderr)
+        print(f"[warn] DOCX 생성 실패, fallback 사용: {out['docx_error']}", file=sys.stderr)
     print(f"HTML: {out['html']}")
+    print(f"Markdown: {out['markdown']}")
+    print(f"대표 문서(primary, {out.get('primary_format')}): {out.get('primary')}")
     return 0
 
 

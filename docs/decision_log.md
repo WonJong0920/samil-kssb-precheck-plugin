@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -391,6 +391,23 @@
 - **Consequences**: 이번 사이클은 **구현·설치·MCP setup·`.mcp.json`·OCR 사용 없음.** Codex Review 대상은 분석 문서 + 이 계획 문서 + 상태/결정. 착수는 확인 후.
 - **Status**: 계획 기록 확정. 실제 수정·설치 미착수.
 - **Related Files**: `docs/planning/cycle2i_remediation_implementation_plan.md`, `docs/cycle2i_baseline_execution_output_problem_analysis.md`.
+
+---
+
+# Cycle 2I-1 결정 (D41) — Execution Wiring / Output Separation
+
+## D41. 전달 배선기로 findings→preflight→대표 문서→사용자 요약을 잇고 로그·경로를 분리
+- **Date**: 2026-07-02
+- **Context**: baseline(2I-0)에서 실행 로그·로컬 경로 노출, DOCX 미생성, findings→validator→renderer 미배선이 확인됨. Codex remediation plan review에서 2I-1을 다음 단계로 권장(PASS).
+- **Decision**: **얇은 내부 배선기** `src/renderers/kssb_report_delivery.py`를 신설(기존 renderer/validator 재사용, 새 외부 의존성 없음).
+  ① validator preflight(detect-only, findings 미변경) → ② renderer(재판정 없음) 대표 문서 생성 → ③ **사용자-facing 요약**(파일명·표시경로·preflight 건수·사람 검수·경계 고지)과 **내부 상세**(전체 경로·validator 이슈·docx 오류)를 **분리 반환**.
+  CLI는 stdout=사용자 요약, `--debug`=stderr=내부 상세. 표시 경로는 repo-relative 또는 파일명만(절대경로·계정명 비노출) + 2차 redaction.
+  renderer에 **Markdown fallback**을 더해 대표 문서 우선순위 **DOCX→HTML→Markdown**을 `primary`로 지정. `.gitignore`에 `.md` 산출물 제외 추가.
+- **Rationale**: 사용자 결과와 내부 실행 로그를 분리하고 대표 문서 파일·경로를 보장하되, 판정·근거는 만들지 않아 재판정 금지·detect-only·Skill-first·제품 경계를 유지.
+- **Alternatives Considered**: (a) renderer 안에서 요약·로그 처리 → 기각(책임 혼합·경계 흐림). (b) 사용자 요약에 절대경로 노출 → 기각(민감정보 정책 위배). (c) 파이프라인 전면 재작성 → 기각(과범위).
+- **Consequences**: findings example 기준 대표 문서 3종 생성·사용자 요약 안전 불변식(경로/계정 비노출·경계·사람 검수·재판정 없음) 테스트로 확인. 실제 PDF 인테이크/OCR(2I-3)·표현 품질(2I-2)은 별도 사이클.
+- **Status**: 구현 확정(2I-1 범위). 2I-2/2I-3 미착수.
+- **Related Files**: `src/renderers/kssb_report_delivery.py`, `src/renderers/kssb_report_renderer.py`(render_markdown·render_report primary), `tests/test_delivery_wiring.py`, `.gitignore`, `docs/workflow_usage.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
