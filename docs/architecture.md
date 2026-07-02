@@ -8,6 +8,9 @@
 
 ```
 Samil KSSB Precheck Plugin/
+├── .agents/
+│   └── plugins/
+│       └── marketplace.json            # 로컬/Repo marketplace 정의 (source.path = ./src)
 ├── src/
 │   ├── .codex-plugin/
 │   │   └── plugin.json                 # Codex 플러그인 매니페스트 (plugin root = src/)
@@ -47,10 +50,15 @@ Samil KSSB Precheck Plugin/
   (코드 복사·이동 금지, 원본은 D 드라이브 read-only). 이는 Python CLI 회귀와 원본 수정 리스크를 함께 차단한다.
 
 ## plugin.json
-- `name`: `samil-kssb-precheck`
-- `version`: `0.1.0`
-- `description`: 컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 생성 Skill workflow(영문 + 한국어 고지 포함).
-- `skills`: `./skills/`
+- 핵심 필드: `name`(`samil-kssb-precheck`) · `version`(`0.1.0`) · `description`(영문 + 한국어 고지) · `skills`(`./skills/`).
+- **install surface metadata(Cycle 2G 보강)**: `interface`(displayName·shortDescription·longDescription·developerName·category) ·
+  `keywords` · `repository`. Codex 설치 화면에 보이는 이름·설명을 제어하며 제품 경계(삼일 비공식·감사/인증/준수 대체 아님)를 유지한다.
+  Hook/MCP/apps/assets 경로는 추가하지 않는다(현 범위 밖).
+
+## Codex marketplace / install readiness
+- 로컬/Repo marketplace: `.agents/plugins/marketplace.json`(marketplace root = repo root). Public Plugin Directory 등록이 아니다.
+- plugin root는 `src/`이므로 marketplace entry의 `source.path`는 `./src`로 plugin root를 가리킨다. `plugins[].name`은 manifest `name`과 정합.
+- 상세·확인 절차: `docs/codex_install_readiness.md`. 실제 GUI 설치 확인은 별도 단계.
 
 ## Workflow 구성요소 (Skill → 검증 → 렌더 → 사람 검수)
 사용자-facing 진입점은 스킬 하나이며, 스킬 절차가 아래 내부 단계를 잇는다. 상세·경계는 `docs/workflow_usage.md`.

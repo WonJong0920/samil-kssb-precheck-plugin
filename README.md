@@ -74,6 +74,7 @@ KSSB 공시요구와 일일이 대조해 "근거가 확인되는 항목 / 부족
 
 ```
 Samil KSSB Precheck Plugin/
+├── .agents/plugins/marketplace.json        # 로컬/Repo marketplace 정의 (source.path = ./src)
 ├── src/
 │   ├── .codex-plugin/plugin.json          # Codex 플러그인 매니페스트 (plugin root = src/)
 │   ├── skills/samil-kssb-precheck/         # Skill 본체 + 보조 문서 (사용자-facing 진입점)

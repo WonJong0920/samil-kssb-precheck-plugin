@@ -20,7 +20,8 @@
 
 | 항목 | 분류 | 근거 / 비고 |
 |---|---|---|
-| `src/.codex-plugin/plugin.json` | **A** | 필수 매니페스트(name·version·description·skills). 제출 규격 핵심. |
+| `src/.codex-plugin/plugin.json` | **A** | 필수 매니페스트(name·version·description·skills + install surface `interface`/`keywords`/`repository`). 제출 규격 핵심. |
+| `.agents/plugins/marketplace.json` | **A** | 로컬/Repo marketplace 정의(`source.path`=`./src`). Public Plugin Directory 등록이 아니다. |
 | `src/skills/samil-kssb-precheck/` | **A** | Skill 본체 `SKILL.md` + 보조 7종(catalog·judgment·evidence·question·report_template·checklist·prohibited). 사용자-facing 진입점. |
 | `src/schemas/` | **A** | findings 데이터 계약(JSON Schema) + 예시. |
 | `src/validators/` | **A** | 내부 detect-only 검증기(표준 라이브러리). |
@@ -74,10 +75,14 @@ Codex Cycle 1 이후 남은 Minor(최종 `submission.zip`에 원본 무편집 AI
 
 최종 제출 직전(별도 제출 사이클) 다음을 점검한다. 이 목록은 점검 항목이며, 이번 사이클에서 실행·확정하지 않는다.
 
-### 4.1 구조 / 매니페스트
+### 4.1 구조 / 매니페스트 / marketplace
 - [ ] `src/.codex-plugin/plugin.json` JSON 파싱 성공, `name`=`samil-kssb-precheck`, `version`, `description`, `skills`=`./skills/`.
-- [ ] `skills` 경로가 실제 `src/skills/samil-kssb-precheck/`와 일치.
+- [ ] `skills` 경로가 plugin root 기준 실제 `src/skills/samil-kssb-precheck/`와 일치.
 - [ ] `SKILL.md` + 보조 7종 존재.
+- [ ] `.agents/plugins/marketplace.json` JSON 파싱 성공.
+- [ ] marketplace `plugins[].name`과 manifest `name`이 `samil-kssb-precheck`로 정합.
+- [ ] marketplace `source.path`(`./src`)가 실제 plugin root(=`.codex-plugin/plugin.json`·`skills/` 보유 폴더)를 가리킴.
+- [ ] 로컬/Repo marketplace이며 **Public Plugin Directory 등록·공개 배포가 아님**을 확인(문구·metadata 과장 없음). 상세 `docs/codex_install_readiness.md`.
 - [ ] zip 내부 파일 목록(매니페스트) 별도 기록.
 
 ### 4.2 문서 / 제품 경계

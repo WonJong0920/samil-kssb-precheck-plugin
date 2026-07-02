@@ -1,9 +1,22 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
+- **Cycle 2G** — Codex Marketplace / Local Install Readiness. repo/local marketplace(`.agents/plugins/marketplace.json`) 추가와
+  plugin manifest install-surface metadata 보강, 제출 정책 반영. Public Plugin Directory 등록·공개 배포 아님. validator/renderer/schema 로직 무변경.
+
+## Cycle 2G 완료 작업
+- 신규 `.agents/plugins/marketplace.json`: 로컬/Repo marketplace 정의. `plugins[].name`=`samil-kssb-precheck`(manifest와 정합),
+  `source.source`=`local`·`source.path`=`./src`(plugin root=src/), `policy`=`installation: AVAILABLE`/`authentication: NONE`(Skill-only·무인증), `category: Productivity`.
+- `src/.codex-plugin/plugin.json` metadata 보강: `interface`(displayName·shortDescription·longDescription·developerName·category)·`keywords`·`repository` 추가.
+  핵심 4필드(name/version/description/skills) 유지, Hook/MCP/apps/assets 미추가, 제품 경계 문구 유지.
+- 신규 `docs/codex_install_readiness.md`: 위치·경로 요약(marketplace/plugin root/source.path/manifest/skills), 정합성 규칙, local vs public 구분, 수동 확인 절차, GUI 확인은 별도 단계.
+- `docs/submission_packaging_policy.md`: marketplace 파일 A분류 추가, §4.1에 marketplace JSON 문법·name 정합·source.path·local vs public 점검 추가.
+- README·architecture 저장소 트리에 `.agents/plugins/marketplace.json` 반영, architecture에 install readiness 절 추가. current_status·decision_log(D33) 갱신.
+- 완료 보고: `docs/cycle2g_marketplace_install_readiness_completion_report.md`.
+
+## 이전 Cycle: Cycle 2F
 - **Cycle 2F** — 제출 패키징 사전점검/정책 정리(문서만, submission.zip 미생성).
-  포함/제외 분류·원본 로그 제출 방식·샘플 실행 산출물 위치·최종 제출 preflight checklist를
-  `docs/submission_packaging_policy.md`로 통합. 실제 샘플/OCR/로그 생성 없음.
+  Codex Cycle 2F Submission Preflight Review **PASS**(`docs/reviews/codex_cycle2f_submission_preflight_review.md`).
 
 ## Cycle 2F 완료 작업
 - 신규 `docs/submission_packaging_policy.md`: (1) 포함/제외 5분류(A repo+zip / B zip-only 조건부 / C 생성 제외 /
@@ -112,6 +125,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2F(제출 패키징 정책 정리) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2F Submission Preflight Review.
+- Cycle 2G(marketplace/install readiness) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2G Marketplace / Install Readiness Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

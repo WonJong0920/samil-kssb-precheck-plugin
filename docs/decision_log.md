@@ -1,6 +1,6 @@
-# 의사결정 기록 (Decision Log) — Cycle 1 ~ 2F
+# 의사결정 기록 (Decision Log) — Cycle 1 ~ 2G
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -254,6 +254,24 @@
 - **Consequences**: 잠정 권장은 로그 zip-only 번들(현 `.gitignore`가 이미 `logs/*` 제외). 생성 DOCX/HTML·샘플 산출물은 기본 미커밋.
 - **Status**: 정책 확정, 로그 최종 방식·샘플 zip 포함은 제출 단계 확정(보류).
 - **Related Files**: `docs/submission_packaging_policy.md`, `docs/planning/submission_packaging_checklist.md`, `docs/planning/sample_input_policy.md`, `docs/workflow_usage.md`, `.gitignore`.
+
+---
+
+# Cycle 2G 결정 (D33) — Codex Marketplace / Local Install Readiness
+
+## D33. 로컬/Repo marketplace 추가 + manifest install-surface metadata 보강(공개 등록 아님)
+- **Date**: 2026-07-02
+- **Context**: repo가 Codex에서 실제 탐색·설치 가능한 형태에 가까워지도록 marketplace 정의와 manifest install metadata가 필요.
+  plugin root가 repo root가 아니라 `src/`라, marketplace `source.path`가 plugin root를 정확히 가리켜야 함.
+- **Decision**: (1) `.agents/plugins/marketplace.json`(marketplace root=repo root) 신설, `source.source=local`·`source.path=./src`,
+  `plugins[].name=samil-kssb-precheck`(manifest와 정합), `policy=installation: AVAILABLE`/`authentication: NONE`(Skill-only·무인증), `category: Productivity`.
+  (2) `src/.codex-plugin/plugin.json`에 `interface`(displayName·shortDescription·longDescription·developerName·category)·`keywords`·`repository` 보강.
+  (3) `docs/codex_install_readiness.md` 신설. **Public Plugin Directory 등록·공개 배포가 아님**을 문서·metadata에 명시.
+- **Rationale**: 로컬/Repo install readiness 확보. D2의 "보수적 최소 구성"은 **install surface metadata까지 확장**하되 Hook/MCP/apps/assets는 여전히 미추가(불확실·없는 파일 경로 회피). 제품 경계 문구 유지.
+- **Alternatives Considered**: (a) `source.path`를 repo root로 → 기각(plugin root는 `src/`). (b) `authentication: ON_INSTALL` → 기각(무인증 플러그인에 인증 단계 오해). (c) assets/logo·defaultPrompt·capabilities 추가 → 보류(없는 파일·불확실 필드 회피).
+- **Consequences**: 파일 기반 install readiness 확보. 실제 Codex GUI/CLI 설치 확인은 별도 단계. marketplace 파일은 제출 패키징 A분류(repo 커밋+zip).
+- **Status**: 확정(파일 기반). GUI 설치 확인·공개 등록은 범위 밖/보류.
+- **Related Files**: `.agents/plugins/marketplace.json`, `src/.codex-plugin/plugin.json`, `docs/codex_install_readiness.md`, `docs/submission_packaging_policy.md`, `README.md`, `docs/architecture.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

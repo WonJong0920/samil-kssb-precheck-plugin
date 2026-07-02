@@ -1,0 +1,21 @@
+{
+  "name": "samil-kssb-precheck-marketplace",
+  "interface": {
+    "displayName": "Samil KSSB Precheck — Local/Repo Marketplace",
+    "description": "로컬/Repo marketplace 정의. Public Plugin Directory 등록이 아니며, 이 repo를 로컬/repo marketplace로 추가해 설치 탐색을 검증하기 위한 것이다."
+  },
+  "plugins": [
+    {
+      "name": "samil-kssb-precheck",
+      "source": {
+        "source": "local",
+        "path": "./src"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "NONE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
