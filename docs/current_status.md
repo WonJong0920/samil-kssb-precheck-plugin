@@ -6,8 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2H (+ Patch)** — User-led Codex Install Verification Kit 이후, plugin 사용자-facing 표시명을
-  **Samil KSSB Precheck Plugin**으로 정렬(display name alignment). machine name·source·path·policy는 불변.
+- **Cycle 2H (+ Patch, + Install/Smoke Evidence)** — display name 정렬 후, **사용자 직접 Codex CLI discovery + 새 thread smoke test 확인 완료**를
+  evidence 문서로 기록. 실제 보고서 기반 end-to-end 품질 검증은 다음 단계(Cycle 2I 제안)로 분리. PASS/FAIL 판정 없음.
+
+## Cycle 2H Install/Smoke Evidence (사용자 직접 확인)
+- 사용자 직접 Codex CLI에서 대상 plugin(**Samil KSSB Precheck Plugin** / `samil-kssb-precheck`)이 확인됨. 이전 `local-kssb-plugins`/`kssb-evidence-gap-auditor`(파이썬 기반)와 구분.
+- 새 thread smoke test: **실제 기업 분석 없이** plugin 사용 방식(입력자료·KSSB 4대 영역·근거 기반 검토·보고서 구조·경계) 설명만 요청·확인. source-bound·감사/인증/준수 대체 아님·사람 검수 경계 유지.
+- app GUI 표시 검증·실제 보고서 end-to-end 품질 검증은 **미수행(다음 단계)**. evidence: `docs/codex_install_verification_evidence_2026-07-02.md`.
+- Claude Code는 실제 Codex 상태 변경(add/install/enable) 미수행. 다음: Codex evidence review + Cycle 2I(Real Report Practical Output Validation) 제안.
 
 ## Cycle 2H Patch (Plugin Display Name Alignment)
 - 사용자 화면의 `Local KSSB Plugins / local-kssb-plugins` 항목은 **이전 파이썬 기반 local plugin**으로 확인되어, 현재 플러그인과 혼동 가능성이 있다.
@@ -163,6 +169,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2H Patch(plugin display name alignment) push 후 **ChatGPT 확인 대기** + **사용자 직접 Codex 설치 검증 대기**. 다음 단계는 Codex Cycle 2H Patch Review.
+- Cycle 2H Install/Smoke Evidence push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex evidence review + Cycle 2I(Real Report Practical Output Validation) 제안(실제 분석은 미착수).
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

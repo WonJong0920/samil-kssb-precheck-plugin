@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2H
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -345,6 +345,21 @@
   **다음 별도 이슈는 marketplace registration/discovery 확인**(현재 플러그인이 실제로 app/CLI에 표시·설치되는지).
 - **Status**: 확정(display metadata naming consistency). 실제 Codex app/CLI 표시·설치·discovery 확인은 사용자 직접 검증 대기(미확인).
 - **Related Files**: `src/.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, `docs/codex_install_verification.md`, `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`.
+
+---
+
+# Cycle 2H 기록 (D38) — Install/Smoke Evidence + 다음 단계 분리
+
+## D38. 사용자 직접 CLI discovery·smoke 확인을 evidence로 기록, 실무 품질 검증은 다음 단계로 분리
+- **Date**: 2026-07-02
+- **Context**: 사용자가 직접 Codex CLI에서 대상 plugin(**Samil KSSB Precheck Plugin** / `samil-kssb-precheck`) discovery와 새 thread smoke test를 수행·보고했다.
+- **Decision**: 사용자 직접 확인 결과를 `docs/codex_install_verification_evidence_2026-07-02.md`에 evidence로 기록한다. smoke는 **실제 기업 분석 없이** 사용 방식 설명만
+  요청·확인했으며 제품 경계·source-bound·사람 검수 원칙 유지 여부를 사실 기록했다. **PASS/FAIL 판정은 하지 않는다**(독립 검증은 Codex). app GUI 표시 검증과
+  **실제 보고서 기반 end-to-end 품질 검증은 미수행**으로 남기고, **Cycle 2I — Real Report Practical Output Validation**을 다음 단계로 제안(이번엔 미착수).
+- **Rationale**: install/smoke discovery 단계와 실무 산출물 품질 검증 단계를 분리해 추적성 확보. 외부 상태 변경은 사용자 직접(운영 원칙 유지).
+- **Consequences**: current_status에 evidence·다음 단계 반영. 실제 분석·submission.zip은 여전히 미수행.
+- **Status**: 기록 확정(사용자 직접 evidence). 실무 품질 검증은 Cycle 2I 착수 시(사용자/ChatGPT 확인 후).
+- **Related Files**: `docs/codex_install_verification_evidence_2026-07-02.md`, `docs/cycle2h_marketplace_discovery_diagnostic_report.md`, `docs/codex_install_verification.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
