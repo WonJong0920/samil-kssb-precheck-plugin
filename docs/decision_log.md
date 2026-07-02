@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -408,6 +408,23 @@
 - **Consequences**: findings example 기준 대표 문서 3종 생성·사용자 요약 안전 불변식(경로/계정 비노출·경계·사람 검수·재판정 없음) 테스트로 확인. 실제 PDF 인테이크/OCR(2I-3)·표현 품질(2I-2)은 별도 사이클.
 - **Status**: 구현 확정(2I-1 범위). 2I-2/2I-3 미착수.
 - **Related Files**: `src/renderers/kssb_report_delivery.py`, `src/renderers/kssb_report_renderer.py`(render_markdown·render_report primary), `tests/test_delivery_wiring.py`, `.gitignore`, `docs/workflow_usage.md`.
+
+---
+
+# Cycle 2I-2 결정 (D42) — Presentation Quality + Skill Workflow Alignment
+
+## D42. 대표 문서 표현 품질 개선(표기만) + 전달 배선기 정합 + 2I-1 minor 처리
+- **Date**: 2026-07-02
+- **Context**: 2I-1 PASS 이후, baseline의 산출물 품질 문제(내부 코드명·인용/위치 부족)와 Codex 2I-1 비차단 minor 3건.
+- **Decision**: 렌더러 3종(HTML/DOCX/Markdown)에서 **표기·정렬·라벨만** 개선 — 한글 공시요구 제목 우선(항목ID 보조), 근거 앵커 인용/출처/위치 분리,
+  §2 항목표 열 재정렬, 질문 안내 인트로. **재판정 금지 유지**(판정·근거·질문·권고 값 미생성, 없는 페이지/인용 미생성).
+  Codex 2I-1 minor: (01) SKILL.md를 전달 배선기(`kssb_report_delivery.py`) 경로·DOCX→HTML→Markdown fallback과 정합,
+  (02) 강제 DOCX 실패 fallback 영구 테스트 추가, (03) 렌더러 stale fallback 문구 현행화.
+- **Rationale**: 병목은 판정 로직이 아니라 표현 품질·문서 정합이므로, 코드 표기와 Skill 문서만 최소 변경. validator/schema/delivery 로직·경계는 불변.
+- **Alternatives Considered**: (a) 항목ID 완전 제거 → 기각(추적성 상실). (b) 질문/요청자료 문구를 렌더러가 재작성 → 기각(재판정/창작 위험). (c) 스키마에 표시용 필드 추가 → 보류(과범위).
+- **Consequences**: 대표 문서가 한글 제목·인용/위치 중심으로 읽기 쉬워짐. 전달 33/33·렌더러 22/22·검증기 19/19 PASS. 실제 PDF 인테이크(2I-3)는 별도.
+- **Status**: 구현 확정(2I-2 범위). 2I-3/2I-3A 미착수.
+- **Related Files**: `src/renderers/kssb_report_renderer.py`, `src/skills/samil-kssb-precheck/SKILL.md`, `tests/test_delivery_wiring.py`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

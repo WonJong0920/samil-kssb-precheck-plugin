@@ -102,6 +102,41 @@ def main() -> int:
     banned = ["준수 확정 판정", "적합 판정", "인증 의견", "감사 의견", "적정 의견"]
     check("대표 문서에 금지 판정명 없음", not any(b in md_text for b in banned))
 
+    # 13. 표현 품질(2I-2): 한글 공시요구 제목 우선 + 항목ID 보조 표기, 원문 인용·출처/위치 라벨
+    first_item = findings["kssb_areas"][0]["items"][0]
+    title0 = first_item["requirement_title"]
+    id0 = first_item["item_id"]
+    check("Markdown 한글 공시요구 제목 우선(항목ID 보조)",
+          f"#### {title0} (항목ID: {id0})" in md_text)
+    check("Markdown 근거 인용/출처 라벨", ("- 인용: " in md_text) and ("출처: " in md_text))
+    # 위치 단서: page_or_section이 있는 앵커는 '위치:'로 표기
+    has_loc = any(anc.get("page_or_section") for a in findings["kssb_areas"]
+                  for it in a["items"] for anc in it.get("evidence_anchors", []))
+    if has_loc:
+        check("Markdown 위치 단서 표기", "위치: " in md_text)
+
+    # 14. MIN-02: 강제 DOCX 실패 시 fallback (primary=html, html/markdown 존재, docx_error 기록)
+    orig = R._docx_bytes
+    R._docx_bytes = lambda findings: (_ for _ in ()).throw(RuntimeError("forced docx failure"))
+    try:
+        fdir = Path(tempfile.mkdtemp(prefix="kssb_docxfail_"))
+        fres = D.deliver(findings, fdir)
+        fout = fres["outputs"]
+        check("강제 DOCX 실패 → docx None", fout.get("docx") is None)
+        check("강제 DOCX 실패 → docx_error 기록", bool(fout.get("docx_error")))
+        check("강제 DOCX 실패 → primary=html", fout.get("primary_format") == "html")
+        check("강제 DOCX 실패 → HTML/Markdown 존재",
+              bool(fout.get("html")) and Path(fout["html"]).exists()
+              and bool(fout.get("markdown")) and Path(fout["markdown"]).exists())
+        check("강제 DOCX 실패 → user_summary fallback 안내",
+              "fallback" in fres["user_summary"] or "제한" in fres["user_summary"])
+        check("강제 DOCX 실패 → user_summary 절대경로/계정 비노출",
+              re.search(r"[A-Za-z]:[\\/][Uu]sers[\\/]|/(?:home|Users)/[^/\s]", fres["user_summary"]) is None)
+        import shutil as _sh
+        _sh.rmtree(fdir, ignore_errors=True)
+    finally:
+        R._docx_bytes = orig
+
     import shutil
     shutil.rmtree(out_dir, ignore_errors=True)
 

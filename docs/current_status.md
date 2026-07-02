@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-2** — Presentation / Report Wording Quality + Skill Workflow Alignment **구현**.
+  렌더러 3종(HTML/DOCX/Markdown) 표현 개선: **한글 공시요구 제목 우선**(항목ID 보조), 근거 앵커를 **인용/출처/위치** 라벨로 분리,
+  §2 항목표 열 재정렬(영역·공시요구·판정·항목ID), 질문 안내 인트로. Codex 2I-1 minor 3건 처리 — SKILL.md를 전달 배선기·Markdown fallback과 정합(MIN-01),
+  강제 DOCX 실패 fallback 영구 테스트 추가(MIN-02), 렌더러 stale fallback 문구 현행화(MIN-03).
+  재판정 없음·detect-only·경계 유지. 검증: 전달 33/33, 렌더러 스모크 22/22, 검증기 19/19 PASS. 완료 보고: `docs/cycle2i_2_presentation_quality_completion_report.md`.
+
+## 이전 Cycle
 - **Cycle 2I-1** — Execution Wiring / Output Separation / 대표 문서 생성 **구현**.
   전달 배선기 `src/renderers/kssb_report_delivery.py` 신설: findings → **validator preflight(detect-only)** → **renderer(재판정 없음)** →
   **사용자-facing 요약**. 사용자 요약(파일명·표시경로·preflight 건수·사람 검수·경계 고지)과 내부 상세(전체 경로·validator 이슈·docx 오류)를 **분리 반환**(CLI: stdout=요약, `--debug`=stderr).

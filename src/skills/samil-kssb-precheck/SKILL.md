@@ -34,9 +34,9 @@ KSSB 공시요구사항별 **확인 근거 / 부족한 정보 / 추가 확인 �
 
 > 산출 흐름(워크플로우): 이 스킬은 최종 보고서를 직접 쓰지 않고, 먼저 **구조화 findings**(데이터 계약)를 만든 뒤
 > ① 검증기가 findings를 **재판정 없이** preflight 점검(detect-only)하고 ② 렌더러가 findings를 **재판정 없이**
-> 대표 문서(DOCX/HTML)로 변환한 다음 ③ 컨설턴트가 검수한다. findings 형식은
+> 대표 문서(DOCX → HTML → Markdown)로 변환하며 ③ 전달 배선기가 로그와 분리된 **사용자-facing 요약**을 만든 다음 ④ 컨설턴트가 검수한다. findings 형식은
 > `docs/findings_schema_contract.md` 및 스키마 `src/schemas/kssb_findings.schema.json`을 따른다.
-> 검증기·렌더러는 스킬 워크플로우가 사용하는 **내부 구성요소**이며, 아래 절차는 findings 내용을 근거로 구성하기 위한 지침이다.
+> 검증기·렌더러·전달 배선기는 스킬 워크플로우가 사용하는 **내부 구성요소**이며, 아래 절차는 findings 내용을 근거로 구성하기 위한 지침이다.
 > 전체 흐름은 아래 "Workflow" 절과 `docs/workflow_usage.md` 참조.
 
 ## Source-bound analysis rules (근거 기반 분석 원칙)
@@ -115,11 +115,14 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
    빈 quote·질문 필수 6필드·금지 표현·내부 경로 노출. 검증기는 findings를 **고치지 않고 문제를 감지·보고만** 한다.
    error가 있으면 findings를 먼저 바로잡은 뒤 렌더한다.
 3. **렌더 (렌더러 = 형식 변환기)**: `src/renderers/kssb_report_renderer.py`가 동일 findings를 **재판정 없이**
-   대표 DOCX와 HTML fallback으로 변환한다(단일 소스 파생, 결정적 출력).
-4. **사람 검수**: 산출물은 초안이며 컨설턴트가 검수·수정·확정한다. 확인 불가·상충 항목은 사람 검토로 넘긴다.
+   대표 문서로 변환한다. 대표 문서 우선순위는 **DOCX → HTML → Markdown**이며, DOCX 생성이 제한돼도 HTML·Markdown fallback은 항상 생성된다(단일 소스 파생, 결정적 출력).
+4. **전달 (배선기 = 로그/사용자 분리)**: `src/renderers/kssb_report_delivery.py`가 위 2·3단계(preflight+렌더)를 잇고
+   **사용자-facing 요약**(대표 문서 파일명·표시 경로·preflight 건수·사람 검수·경계 고지)을 생성한다. 로컬 절대경로·계정명·임시경로·validator raw 출력·실행 로그는
+   사용자 결과에 노출하지 않고 내부 상세와 **분리**한다. 사용자-facing 산출 흐름은 **이 배선기 경로**를 사용한다.
+5. **사람 검수**: 산출물은 초안이며 컨설턴트가 검수·수정·확정한다. 확인 불가·상충 항목은 사람 검토로 넘긴다.
 
-검증기·렌더러는 **내부 워크플로우 구성요소**다(사용자-facing Python CLI가 아니다). 상세는 각 폴더 README와
-`docs/workflow_usage.md` 참조.
+검증기·렌더러·전달 배선기는 **내부 워크플로우 구성요소**다(사용자-facing Python CLI가 아니다). 배선기는 재판정하지 않는다.
+상세는 각 폴더 README와 `docs/workflow_usage.md`("전달 계약") 참조.
 
 ## Report structure (보고서 구조)
 
@@ -139,14 +142,15 @@ findings는 렌더 전 검증기 preflight(위 Workflow 2단계)에서 error 0�
 
 ## Output policy (산출물 정책)
 
-- 기본 목표 산출물: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`
-- DOCX 생성이 제한될 경우 fallback: `<보고서명>_KSSB_공시근거_사전검토보고서.html`
+- 기본 목표 산출물: `<보고서명>_KSSB_공시근거_사전검토보고서.docx` (대표 문서 1개).
+- DOCX 생성이 제한될 경우 fallback: `.html` → `.md`(우선순위 DOCX → HTML → Markdown). 배선기가 대표 문서(primary)를 지정한다.
 - 기본 사용자 흐름에서는 JSON/CSV/manifest/debug log/`_검토근거` 폴더를 **산출물로 요구하지 않는다.**
   (이는 향후 개발/검증/debug mode에서 내부 검증용으로만 사용할 수 있다.)
-- 대표 문서 생성은 렌더러(`src/renderers/kssb_report_renderer.py`, 표준 라이브러리 기반 내부 구성요소)가
-  findings를 재판정 없이 변환해 수행한다. 렌더 전 검증기가 findings를 detect-only로 preflight 점검한다(위 Workflow 절).
+- 대표 문서 생성·전달은 렌더러(`src/renderers/kssb_report_renderer.py`)와 전달 배선기(`src/renderers/kssb_report_delivery.py`,
+  표준 라이브러리 기반 내부 구성요소)가 findings를 재판정 없이 변환해 수행한다. 렌더 전 검증기가 findings를 detect-only로 preflight 점검한다(위 Workflow 절).
+  사용자-facing 요약(파일명·표시 경로·사람 검수·경계 고지)은 **배선기 경로**로 생성하며, 실행 로그·내부 상세와 분리한다.
   본 스킬은 구조화 findings와 보고서 템플릿·출력 정책을 규정하는 판단 엔진이며, 사용자-facing 진입점은 스킬 하나다.
-- 사용자-facing 안내에 plugin/cache/sandbox 내부 경로를 노출하지 않는다.
+- 사용자-facing 안내에 plugin/cache/sandbox 내부 경로·로컬 절대경로·계정명을 노출하지 않는다.
 
 ## Human review boundary (사람 검수 경계)
 

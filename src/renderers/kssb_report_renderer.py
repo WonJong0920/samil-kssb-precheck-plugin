@@ -1,7 +1,8 @@
 """Samil KSSB Precheck - Findings Report Renderer (Cycle 2C, minimal).
 
 구조화 findings(`src/schemas/kssb_findings.schema.json`)를 입력으로 받아, **재판정 없이**
-대표 DOCX와 HTML fallback으로 형식 변환하는 최소 렌더러다.
+대표 문서로 형식 변환하는 최소 렌더러다. 대표 문서 우선순위는 **DOCX → HTML → Markdown**이며,
+DOCX 생성이 제한돼도 HTML·Markdown fallback은 항상 생성된다(사용자-facing 전달·요약은 `kssb_report_delivery.py`).
 
 포지셔닝:
 - 이 모듈은 사용자-facing Python CLI가 아니라, Skill `samil-kssb-precheck` 워크플로우가 사용하는
@@ -198,7 +199,7 @@ def _validate_findings(findings: dict) -> None:
 
 
 # ===========================================================================
-# HTML fallback (동일 findings 단일 소스에서 파생 — 재판정 없음)
+# HTML/Markdown fallback (동일 findings 단일 소스에서 파생 — 재판정 없음)
 # ===========================================================================
 
 def _h(value: Any) -> str:
@@ -277,17 +278,17 @@ def render_html(findings: dict) -> str:
         parts.append(f"<tr><td>{_h(label)}</td><td>{cnt}</td></tr>")
     parts.append("</table>")
     parts.append("<h3>항목-판정 요약</h3>")
-    parts.append("<table><tr><th>항목ID</th><th>영역</th><th>공시요구</th><th>판정</th></tr>")
+    parts.append("<table><tr><th>영역</th><th>공시요구</th><th>판정</th><th>항목ID</th></tr>")
     for a in _ordered_areas(areas):
         area_name = _s(a.get("area_name"))
         for it in _list(a.get("items")):
             it = _dict(it)
             parts.append(
                 "<tr>"
-                f"<td>{_h(it.get('item_id'))}</td>"
                 f"<td>{_h(area_name)}</td>"
                 f"<td>{_h(it.get('requirement_title'))}</td>"
                 f"<td>{_h(it.get('judgment_label'))}</td>"
+                f"<td class='loc'>{_h(it.get('item_id'))}</td>"
                 "</tr>"
             )
     parts.append("</table>")
@@ -296,21 +297,25 @@ def render_html(findings: dict) -> str:
     parts.append("<h2>3. 영역별 항목 결과와 근거</h2>")
     for a in _ordered_areas(areas):
         a = _dict(a)
-        parts.append(f"<h3>{_h(a.get('area_name'))} ({_h(a.get('area_id'))})</h3>")
+        parts.append(f"<h3>{_h(a.get('area_name'))}</h3>")
         for it in _list(a.get("items")):
             it = _dict(it)
-            parts.append(f"<p><strong>[{_h(it.get('item_id'))}] {_h(it.get('requirement_title'))}</strong></p>")
+            # 사용자 친화: 한글 공시요구 제목을 우선 표기하고, 내부 항목ID는 보조 식별자로 표시.
+            parts.append(f"<p><strong>{_h(it.get('requirement_title'))}</strong> "
+                         f"<span class='loc'>(항목ID: {_h(it.get('item_id'))})</span></p>")
             if it.get("requirement_description"):
                 parts.append(f"<p class='muted'>{_h(it.get('requirement_description'))}</p>")
             parts.append(f"<p><strong>판정:</strong> {_h(it.get('judgment_label'))}</p>")
             anchors = _list(it.get("evidence_anchors"))
             if anchors:
-                parts.append("<p><strong>판단 근거(근거 앵커):</strong></p>")
+                parts.append("<p><strong>판단 근거(원문 인용·위치):</strong></p>")
                 for anc in anchors:
                     anc = _dict(anc)
                     loc = _s(anc.get("page_or_section"))
-                    loc_html = f'<span class="loc">[{_h(anc.get("source_id"))}{(" · " + _h(loc)) if loc else ""}]</span> '
-                    parts.append(f'<div class="quote">{loc_html}“{_h(anc.get("quote"))}”</div>')
+                    parts.append(f'<div class="quote">“{_h(anc.get("quote"))}”</div>')
+                    src = _h(anc.get("source_id"))
+                    loc_line = f"<strong>출처:</strong> {src}" + (f" · <strong>위치:</strong> {_h(loc)}" if loc else "")
+                    parts.append(f'<p class="loc">{loc_line}</p>')
                     if anc.get("relevance_note"):
                         parts.append(f'<p class="muted">근거 설명: {_h(anc.get("relevance_note"))}</p>')
             else:
@@ -329,6 +334,8 @@ def render_html(findings: dict) -> str:
     parts.append("<h2>4. 고객 확인 질문 및 요청자료</h2>")
     questions = _collect_questions(areas)
     if questions:
+        parts.append("<p class='muted'>우선순위(상→하) 순. 각 질문은 질문사유·관련근거와 함께 "
+                     "고객에게 요청할 구체 자료(요청자료)와 자료 수령 후 후속조치를 제시합니다.</p>")
         parts.append("<table><tr><th>항목ID</th><th>항목명</th><th>질문</th><th>질문사유</th>"
                      "<th>관련근거</th><th>우선순위</th><th>요청자료</th><th>후속조치</th></tr>")
         for q in questions:
@@ -455,35 +462,37 @@ def render_markdown(findings: dict) -> str:
         out.append(f"| {_md(label)} | {cnt} |")
     out.append("")
     out.append("### 항목-판정 요약")
-    out.append("| 항목ID | 영역 | 공시요구 | 판정 |")
+    out.append("| 영역 | 공시요구 | 판정 | 항목ID |")
     out.append("|---|---|---|---|")
     for a in _ordered_areas(areas):
         area_name = _s(a.get("area_name"))
         for it in _list(a.get("items")):
             it = _dict(it)
-            out.append(f"| {_md(it.get('item_id'))} | {_md(area_name)} | {_md(it.get('requirement_title'))} "
-                       f"| {_md(it.get('judgment_label'))} |")
+            out.append(f"| {_md(area_name)} | {_md(it.get('requirement_title'))} | {_md(it.get('judgment_label'))} "
+                       f"| {_md(it.get('item_id'))} |")
     out.append("")
 
     # 3. 영역별 항목 결과와 근거
     out.append("## 3. 영역별 항목 결과와 근거")
     for a in _ordered_areas(areas):
         a = _dict(a)
-        out.append(f"### {_md(a.get('area_name'))} ({_md(a.get('area_id'))})")
+        out.append(f"### {_md(a.get('area_name'))}")
         for it in _list(a.get("items")):
             it = _dict(it)
-            out.append(f"#### [{_md(it.get('item_id'))}] {_md(it.get('requirement_title'))}")
+            # 한글 공시요구 제목 우선, 내부 항목ID는 보조 식별자.
+            out.append(f"#### {_md(it.get('requirement_title'))} (항목ID: {_md(it.get('item_id'))})")
             if it.get("requirement_description"):
                 out.append(_md(it.get("requirement_description")))
             out.append(f"- **판정**: {_md(it.get('judgment_label'))}")
             anchors = _list(it.get("evidence_anchors"))
             if anchors:
-                out.append("- **판단 근거(근거 앵커)**:")
+                out.append("- **판단 근거(원문 인용·위치)**:")
                 for anc in anchors:
                     anc = _dict(anc)
                     loc = _s(anc.get("page_or_section"))
-                    prefix = f"[{_md(anc.get('source_id'))}" + (f" · {_md(loc)}]" if loc else "]")
-                    out.append(f"  - {prefix} “{_md(anc.get('quote'))}”")
+                    out.append(f"  - 인용: “{_md(anc.get('quote'))}”")
+                    src_line = f"    - 출처: {_md(anc.get('source_id'))}" + (f" · 위치: {_md(loc)}" if loc else "")
+                    out.append(src_line)
                     if anc.get("relevance_note"):
                         out.append(f"    - 근거 설명: {_md(anc.get('relevance_note'))}")
             else:
@@ -499,6 +508,8 @@ def render_markdown(findings: dict) -> str:
     out.append("## 4. 고객 확인 질문 및 요청자료")
     questions = _collect_questions(areas)
     if questions:
+        out.append("우선순위(상→하) 순. 각 질문은 질문사유·관련근거와 함께 요청자료와 후속조치를 제시합니다.")
+        out.append("")
         out.append("| 항목ID | 항목명 | 질문 | 질문사유 | 관련근거 | 우선순위 | 요청자료 | 후속조치 |")
         out.append("|---|---|---|---|---|---|---|---|")
         for q in questions:
@@ -663,29 +674,32 @@ def build_document_xml(findings: dict) -> str:
         area_name = _s(a.get("area_name"))
         for it in _list(a.get("items")):
             it = _dict(it)
-            it_rows.append([_s(it.get("item_id")), area_name,
-                            _s(it.get("requirement_title")), _s(it.get("judgment_label"))])
-    parts.append(_table(["항목ID", "영역", "공시요구", "판정"], it_rows, [1400, 1600, 3800, 2400]))
+            it_rows.append([area_name, _s(it.get("requirement_title")),
+                            _s(it.get("judgment_label")), _s(it.get("item_id"))])
+    parts.append(_table(["영역", "공시요구", "판정", "항목ID"], it_rows, [1600, 3800, 2400, 1400]))
 
     # 4. 영역별 항목 결과와 근거
     parts.append(_h1("3. 영역별 항목 결과와 근거"))
     for a in _ordered_areas(areas):
         a = _dict(a)
-        parts.append(_h2(f"{_s(a.get('area_name'))} ({_s(a.get('area_id'))})"))
+        parts.append(_h2(_s(a.get("area_name"))))
         for it in _list(a.get("items")):
             it = _dict(it)
-            parts.append(_p([_run(f"[{_s(it.get('item_id'))}] {_s(it.get('requirement_title'))}", bold=True)]))
+            # 한글 공시요구 제목을 우선, 내부 항목ID는 보조 식별자로.
+            parts.append(_p([_run(_s(it.get("requirement_title")), bold=True),
+                             _run(f"  (항목ID: {_s(it.get('item_id'))})")]))
             if it.get("requirement_description"):
                 parts.append(_p(_s(it.get("requirement_description"))))
             parts.append(_label("판정: ", _s(it.get("judgment_label"))))
             anchors = _list(it.get("evidence_anchors"))
             if anchors:
-                parts.append(_p([_run("판단 근거(근거 앵커):", bold=True)]))
+                parts.append(_p([_run("판단 근거(원문 인용·위치):", bold=True)]))
                 for anc in anchors:
                     anc = _dict(anc)
                     loc = _s(anc.get("page_or_section"))
-                    prefix = f"[{_s(anc.get('source_id'))}" + (f" · {loc}]" if loc else "]")
-                    parts.append(_p(f"  · {prefix} “{_s(anc.get('quote'))}”"))
+                    parts.append(_p(f"  · 인용: “{_s(anc.get('quote'))}”"))
+                    src_line = f"    출처: {_s(anc.get('source_id'))}" + (f" · 위치: {loc}" if loc else "")
+                    parts.append(_p(src_line))
                     if anc.get("relevance_note"):
                         parts.append(_p(f"    근거 설명: {_s(anc.get('relevance_note'))}"))
             else:
@@ -700,6 +714,7 @@ def build_document_xml(findings: dict) -> str:
     parts.append(_h1("4. 고객 확인 질문 및 요청자료"))
     questions = _collect_questions(areas)
     if questions:
+        parts.append(_p("우선순위(상→하) 순. 각 질문은 질문사유·관련근거와 함께 요청자료와 후속조치를 제시합니다."))
         q_rows = [[q["item_id"], q["requirement_title"], q["question"], q["reason"],
                    q["related_evidence"], _priority_display(q["priority"]),
                    q["requested_material"], q["follow_up_action"]] for q in questions]
@@ -914,11 +929,11 @@ def load_findings(path: str | Path) -> dict:
 def _main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Samil KSSB Precheck 내부 findings 렌더러(재판정 없음). "
-                    "Skill 워크플로우가 findings를 대표 DOCX/HTML로 변환할 때 사용한다.")
+                    "Skill 워크플로우가 findings를 대표 DOCX/HTML/Markdown으로 변환할 때 사용한다.")
     parser.add_argument("findings", help="findings JSON 경로")
     parser.add_argument("-o", "--out-dir", default=".", help="출력 디렉터리(기본: 현재 디렉터리)")
     parser.add_argument("--base-name", default=None, help="파일명 base 재정의(기본: generated_for 또는 report_title)")
-    parser.add_argument("--html-only", action="store_true", help="HTML fallback만 생성")
+    parser.add_argument("--html-only", action="store_true", help="DOCX 생략, HTML/Markdown fallback만 생성")
     args = parser.parse_args(argv)
 
     try:
