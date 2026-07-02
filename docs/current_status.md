@@ -1,10 +1,25 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
-- **Cycle 2C** — 확정된 findings schema를 입력으로 받아 **재판정 없이** 대표 DOCX + HTML fallback을 생성하는
-  최소 렌더러 구현(renderer only). validator·OCR·PDF 파싱·Hook/MCP·submission.zip·샘플 PDF 분석 없음.
+- **Cycle 2D** — findings·렌더러 산출물에 대한 **경량 결정적 검증/가드레일** 추가(validation/guardrail only).
+  검증기는 detect-only(재판정·findings 보정 없음). OCR·PDF 파싱·Hook/MCP·submission.zip 없음.
 
-## Cycle 2C 완료 작업
+## Cycle 2D 완료 작업
+- 검증기: `src/validators/kssb_findings_validator.py`(표준 라이브러리만, `jsonschema`는 있으면 선택 사용).
+  구조 필수 필드, `source_id` cross-reference, review_mode↔source_mode↔judgment_label 정합,
+  source-bound 조건부 규칙, evidence quote 빈값, customer_questions 필수 6필드, 금지 표현 스캔(고지·경계 필드 제외),
+  내부 경로 노출 스캔을 **감지·보고만** 한다(findings 미변경).
+- 보조 문서: `src/validators/README.md`(detect-only 경계·규칙·사용).
+- 재사용 테스트: `tests/smoke_test_renderer.py`(렌더러 스모크, 출력은 repo 밖 임시 폴더), `tests/test_findings_validator.py`
+  (valid example error 0건 + 손상 사본에서 기대 코드 검출), `tests/README.md`. 새 pytest 의존성 없음.
+- 문서 정리(Codex Cycle 2C Renderer Review Minor): `report_template.md`의 "렌더러 미구현" 문구를 현행화,
+  `completion_checklist.md` 질문 항목에 관련근거 추가(6필드 정합).
+- Preflight: schema/example JSON 문법 OK, 검증기 example RC0, 렌더러 스모크 22/22 PASS, 검증기 테스트 12/12 PASS,
+  새 외부 의존성·의존성 매니페스트 없음.
+- 완료 보고: `docs/cycle2d_validation_completion_report.md`.
+
+## 이전 Cycle: Cycle 2C 완료 작업
+- Codex Cycle 2C Renderer Review **PASS**(`docs/reviews/codex_cycle2c_renderer_review.md`).
 - 렌더러: `src/renderers/kssb_report_renderer.py`(Python 표준 라이브러리만, 외부 의존 0).
   findings JSON을 읽어 stdlib `zipfile` OOXML DOCX와 self-contained HTML fallback을 결정적으로 생성.
   판정·근거·질문·권고를 **재계산하지 않고** 형식 변환(정렬·표·escape·sanitize·안전 오류)만 수행.
@@ -46,9 +61,9 @@
 - **Cycle 2B schema/example/contract 및 Skill 문서는 수정하지 않음(검증 대기).**
 
 ## 미완료 / 이후 사이클 (의도적 제외)
-- 경량 결정적 검증 단계(수동 검증 규칙 자동화: source_id cross-ref·모드↔라벨 정합·인용 실재성·금지 표현 스캔).
+- 인용 실재성(quote가 실제 입력 자료 원문인지)은 자동 검출 불가 → 사람 검수 유지(경량 검증 밖).
+- 렌더러·검증기를 Skill 절차에 실제 배선(호출 지점 확정)·산업별 지표 확장.
 - 실제 샘플(PDF/OCR/문서 파싱) 실행·submission.zip 패키징.
-- 렌더러를 Skill 절차에 실제 배선(호출 지점 확정)·산업별 지표 확장.
 - Hook/MCP는 하드 요건 확정 시에만 재검토.
 
 ## 보류 (확정하지 않음)
@@ -57,6 +72,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2C 렌더러 push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2C Renderer Review.
+- Cycle 2D 검증/가드레일 push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2D Validation Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

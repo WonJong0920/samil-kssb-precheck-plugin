@@ -4,8 +4,9 @@ Samil KSSB Precheck의 사용자-facing 산출물은 **컨설턴트 검수용 KS
 **구조화 findings에서 렌더러가 변환**해 생성한다. 렌더러는 findings를 **재판정하지 않고** 형식 변환만 한다.
 findings 계약은 `docs/findings_schema_contract.md`, 스키마는 `src/schemas/kssb_findings.schema.json`.
 
-> **주의**: 실제 DOCX/HTML 생성 코드는 아직 구현하지 않는다. 이 문서는 보고서의 **섹션 구성과 내용 규칙**을
-> 규정한다. 실제 파일 생성(렌더러)은 이후 사이클의 과제다.
+> **참고**: 이 문서는 보고서의 **섹션 구성과 내용 규칙**을 규정한다. 실제 파일 생성 렌더러는
+> `src/renderers/kssb_report_renderer.py`에 구현되어 있으며(findings를 재판정 없이 DOCX/HTML로 변환),
+> 렌더 전 경량 검증은 `src/validators/kssb_findings_validator.py`가 담당한다.
 
 ## 파일 명명 규칙 (출력 정책)
 
