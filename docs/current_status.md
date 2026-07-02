@@ -1,9 +1,23 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
+- **Cycle 2F** — 제출 패키징 사전점검/정책 정리(문서만, submission.zip 미생성).
+  포함/제외 분류·원본 로그 제출 방식·샘플 실행 산출물 위치·최종 제출 preflight checklist를
+  `docs/submission_packaging_policy.md`로 통합. 실제 샘플/OCR/로그 생성 없음.
+
+## Cycle 2F 완료 작업
+- 신규 `docs/submission_packaging_policy.md`: (1) 포함/제외 5분류(A repo+zip / B zip-only 조건부 / C 생성 제외 /
+  D 제출 전 재생성·재검증 / E 절대 금지) 표, (2) logs 원본 제출 방식(원본·무편집 원칙, 요약 대체 금지, commit vs
+  zip-only 결정 기준, 파일명·위치, 민감정보 스캔, 미확정 사항), (3) 샘플 실행 산출물 위치 정책, (4) 최종 제출 preflight checklist.
+- `docs/planning/submission_packaging_checklist.md`: 정책 통합 문서로의 포인터 추가(요약 체크리스트로 위치).
+- `docs/workflow_usage.md`: 산출물 정책에 submission 정책 포인터 추가.
+- current_status·decision_log(D32) 갱신. 코드·스키마·테스트·`.gitignore` 변경 없음.
+- 완료 보고: `docs/cycle2f_submission_preflight_completion_report.md`.
+
+## 이전 Cycle: Cycle 2E
 - **Cycle 2E** — Skill Workflow Wiring / Usage Contract 정리(문서 정합, 코드 변경 없음).
-  findings → 검증기 preflight(detect-only) → 렌더러 형식 변환(재판정 없음) → 사람 검수 흐름을
-  Skill 문서·README·architecture·completion_checklist·current_status에 일관 반영. 사용 계약 문서 `docs/workflow_usage.md` 추가.
+  findings → 검증기 preflight(detect-only) → 렌더러 형식 변환(재판정 없음) → 사람 검수 흐름을 문서 전반에 반영.
+  Codex Cycle 2E Workflow Review **PASS**(`docs/reviews/codex_cycle2e_workflow_review.md`).
 
 ## Cycle 2E 완료 작업
 - `SKILL.md`: 산출 흐름 blockquote에 검증→렌더→사람 검수 반영, "Workflow" 절 신설(내부 구성요소 명시), Output policy의
@@ -93,10 +107,11 @@
 
 ## 보류 (확정하지 않음)
 - **logs 원본 제출 방식**: repo 커밋 vs submission.zip 번들만 — **제출 패키징 단계에서 결정**(현재 미확정).
-- 렌더러 코드 도입 위치·시점, 참고 엔진 재구현 범위.
+  결정 기준·잠정 권장(zip-only)·민감정보 스캔 필요성은 `docs/submission_packaging_policy.md` §2에 정리(최종 확정은 제출 단계).
+- 샘플 실행 산출물의 zip 포함 여부(저작권·식별정보 검토 후 결정), 실제 submission.zip 생성.
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2E(workflow wiring 문서 정합) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2E Workflow Review.
+- Cycle 2F(제출 패키징 정책 정리) push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2F Submission Preflight Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

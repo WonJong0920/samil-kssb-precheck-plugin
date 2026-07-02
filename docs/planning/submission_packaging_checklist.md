@@ -2,6 +2,7 @@
 
 > **성격**: 계획 문서. 이번 사이클에서 submission.zip을 생성하지 않는다. 실제 패키징 시 이 체크리스트로 점검한다.
 > **최우선 필수**: Codex Cycle 1 리뷰의 Minor 지적 — 최종 submission.zip에 **원본 무편집 AI 대화 로그** 포함.
+> **정책 상세(포함/제외 분류·로그·샘플 산출물·최종 preflight)는 `docs/submission_packaging_policy.md`(Cycle 2F)로 통합**했다. 이 문서는 그 정책의 요약 체크리스트다.
 
 ## 1. 구조 / 매니페스트
 - [ ] `src/.codex-plugin/plugin.json` 유효(JSON 파싱, `name` kebab-case, `version`, `description`, `skills: ./skills/`).

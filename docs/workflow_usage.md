@@ -56,6 +56,7 @@ python tests/smoke_test_renderer.py       # 렌더러 스모크
 - JSON/CSV/manifest/`_검토근거` 폴더는 기본 산출물이 아니다(내부 개발/검증용 가능성만).
 - 생성 문서는 커밋 대상이 아니며 findings에서 결정적으로 재생성 가능하다(`.gitignore` 산출물 제외).
 - plugin/cache/sandbox 내부 경로를 산출물·사용자 안내에 노출하지 않는다.
+- 제출 패키징(포함/제외 분류·원본 로그 방식·샘플 산출물 위치·최종 preflight)은 `docs/submission_packaging_policy.md` 참조.
 
 ## 경계
 
