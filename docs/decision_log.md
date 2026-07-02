@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2H
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -360,6 +360,21 @@
 - **Consequences**: current_status에 evidence·다음 단계 반영. 실제 분석·submission.zip은 여전히 미수행.
 - **Status**: 기록 확정(사용자 직접 evidence). 실무 품질 검증은 Cycle 2I 착수 시(사용자/ChatGPT 확인 후).
 - **Related Files**: `docs/codex_install_verification_evidence_2026-07-02.md`, `docs/cycle2h_marketplace_discovery_diagnostic_report.md`, `docs/codex_install_verification.md`.
+
+---
+
+# Cycle 2I-0 기록 (D39) — Baseline 실행/산출물 문제 분석
+
+## D39. 두 실사용 테스트 결과를 실행 단계·산출물 품질 문제로 분리 분석(수정 미착수)
+- **Date**: 2026-07-02
+- **Context**: 사용자가 실사용 방식으로 Run A(Hana, KSSB형) / Run B(K-water, 일반형)를 실행. gov/strat 내부 코드 표기, DOCX 미생성, PDF 파악 한계가 관찰됨.
+- **Decision**: 문제를 **① 실행 단계**(문서 인테이크/OCR 부재, 표 수치 복원 실패, 대용량 처리, **실행 로그·로컬 경로 노출**, findings→renderer 미배선으로 **DOCX 미생성**·산출물 경로 부재)와
+  **② 산출물 퀄리티**(내부 코드명 노출, 원문 인용·페이지/섹션 위치 단서 부족, 요약형)로 나눠 `docs/cycle2i_baseline_execution_output_problem_analysis.md`에 기록.
+  경계(감사·인증·준수 대체 아님·컨설턴트 검수용·확인 불가 미공시 아님)는 두 Run 모두 유지됨을 관찰. **PASS/FAIL 판정·실제 수정은 하지 않음.**
+- **Rationale**: 병목이 판정 로직이 아니라 실행 배선·표현 품질임을 분리해 이후 수정 우선순위를 명확히 하기 위함. 로컬 절대경로·계정명은 문서에서 `[REDACTED]` 처리.
+- **Consequences**: 개선 우선순위(로그↔보고서 분리·경로 비노출 → 대표 문서 생성 → 코드→한글 라벨 → 인용/위치 → OCR/표 fallback → 질문 구체화)와 다음 사이클(2I-1/2I-2/2I-3) 제안. 착수는 확인 후.
+- **Status**: 분석 기록 확정. 실제 수정 미착수.
+- **Related Files**: `docs/cycle2i_baseline_execution_output_problem_analysis.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

@@ -6,8 +6,15 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-0** — 두 실사용 테스트(Run A Hana / Run B K-water) baseline **문제 분석 전용**(코드·판정 없음).
+  문제를 **실행 단계 문제**(문서 인테이크/OCR 부재·표 수치 복원 실패·실행 로그 및 로컬 경로 노출·DOCX 미생성)와
+  **산출물 퀄리티 문제**(내부 코드명 노출·원문 인용/위치 단서 부족·요약형)로 분리. 경계(감사/인증/준수 대체 아님)는 유지 관찰.
+  개선 우선순위 6단계·다음 수정 사이클(2I-1/2I-2/2I-3) 제안. 분석 문서: `docs/cycle2i_baseline_execution_output_problem_analysis.md`.
+  **실제 수정 미착수**, 다음은 Codex Review.
+
+## 이전 Cycle
 - **Cycle 2H (+ Patch, + Install/Smoke Evidence)** — display name 정렬 후, **사용자 직접 Codex CLI discovery + 새 thread smoke test 확인 완료**를
-  evidence 문서로 기록. 실제 보고서 기반 end-to-end 품질 검증은 다음 단계(Cycle 2I 제안)로 분리. PASS/FAIL 판정 없음.
+  evidence 문서로 기록. 실제 보고서 기반 end-to-end 품질 검증은 다음 단계(Cycle 2I)로 분리. PASS/FAIL 판정 없음.
 
 ## Cycle 2H Install/Smoke Evidence (사용자 직접 확인)
 - 사용자 직접 Codex CLI에서 대상 plugin(**Samil KSSB Precheck Plugin** / `samil-kssb-precheck`)이 확인됨. 이전 `local-kssb-plugins`/`kssb-evidence-gap-auditor`(파이썬 기반)와 구분.
