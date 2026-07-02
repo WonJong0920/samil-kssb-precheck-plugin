@@ -10,7 +10,10 @@
   개선 순서 **2I-1(실행 배선/로그·경로 분리·대표 문서 생성) → 2I-2(표현 품질: 코드→한글 라벨·인용/위치) → 2I-3(인테이크/표 fallback 설계) ∥ 2I-3A(Kordoc feasibility spike)** 제안.
   **Kordoc**은 사용자 승인 후 로컬 MCP/CLI 설치 가능한 **인테이크 후보**로만 반영(본체 hard dependency 아님, 미설치·미실행).
   표·이미지 판독용 **Document Evidence Index**를 schema 변경 없이 상위 설계로 제안(판정 생성 아님, 근거 재료만).
-  계획 문서: `docs/planning/cycle2i_remediation_implementation_plan.md`. **실제 수정·설치 미착수**, 다음은 Codex Review(분석+계획 문서).
+  계획 문서: `docs/planning/cycle2i_remediation_implementation_plan.md`.
+- **Codex Cycle 2I Review = CONDITIONAL PASS**(`docs/reviews/codex_cycle2i_remediation_plan_review.md`). 문서 cleanup patch로 대응:
+  Major(레거시 `reference_review.md`의 실제 로컬 계정 경로) → `[REDACTED_LOCAL_PATH]`로 정리, Minor(decision_log 제목 범위 → 2I, Kordoc feasibility 버전/확인일/artifact 출처 기록 요건) 보강.
+  **실제 수정·설치 미착수**. 다음 단계는 확인 후 Cycle 2I-1(실행 배선/출력 분리).
 
 ## 이전 Cycle: Cycle 2I-0 baseline
 - 두 실사용 테스트(Run A Hana / Run B K-water)를 실행 단계 문제·산출물 품질 문제로 분리 분석. 경계 유지 관찰. 문서: `docs/cycle2i_baseline_execution_output_problem_analysis.md`.

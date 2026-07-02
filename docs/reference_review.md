@@ -5,7 +5,7 @@
 - 기존 1차 작업물 루트(read-only reference source):
   `D:\PrimeBell\AI_Projects\kssb-evidence-gap-auditor`
 - 신규 Cycle 1 작업 루트:
-  `C:\Users\user\Desktop\Samil KSSB Precheck Plugin`
+  `[REDACTED_LOCAL_PATH]/Samil KSSB Precheck Plugin` (로컬 절대경로·계정명은 기록하지 않는다)
 
 확인한 주요 파일/폴더:
 - `README.md` — 공개자료 기반 KSSB 근거 갭 사전진단 소개, 실행법, 포지셔닝.

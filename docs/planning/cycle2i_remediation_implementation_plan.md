@@ -20,7 +20,7 @@
 - `docs/workflow_usage.md`, `docs/architecture.md` — findings→검증→렌더→사람 검수 흐름, Skill-first 내부 구성요소.
 - `src/skills/samil-kssb-precheck/SKILL.md` — 현 범위에 "문서 변환/OCR 실행 코드 미포함" 명시.
 - `src/schemas/kssb_findings.schema.json`(evidence_anchor / customer_question / finding_item 정의), `src/renderers/`(stdlib DOCX/HTML), `src/validators/`(detect-only).
-- Kordoc 공개 정보(README, read-only 확인): npm 패키지 `kordoc`(Node.js 18+). HWP 3.x/5.x·HWPX·HWPML·**PDF**·XLS·XLSX·DOCX → **Markdown 변환 + 표(Table) 재구성**, 신구대조, HWPX 생성, **MCP 연동**(`parse_document`·`parse_table`·`fill_form`·`generate_document` 등). *(외부 repo 상세는 공개 README 범위에서만 확인; 코드 감사·라이선스 정밀검토는 미수행.)*
+- Kordoc 공개 정보(README, read-only 확인 — **README 확인일 2026-07-02**, 확인처: 공개 GitHub repo `chrisryugj/kordoc`의 `README.md`): npm 패키지 `kordoc`(Node.js 18+). HWP 3.x/5.x·HWPX·HWPML·**PDF**·XLS·XLSX·DOCX → **Markdown 변환 + 표(Table) 재구성**, 신구대조, HWPX 생성, **MCP 연동**(`parse_document`·`parse_table`·`fill_form`·`generate_document` 등). README는 v3.5.0까지의 변경사항을 문서화(npm 버전 배지는 동적, **정확한 패키지 버전은 미고정**). *(외부 repo 상세는 공개 README 범위에서만 확인; 코드 감사·라이선스 정밀검토·설치·실행은 미수행. 공개 정보는 시점에 따라 변할 수 있음.)*
 
 ## 3. Baseline Problem Summary
 
@@ -72,6 +72,7 @@
   5. **스키마 정합 매핑** — 산출(Markdown/표)이 Document Evidence Index(§8) → findings evidence_anchor로 **손실 최소** 매핑되는지.
   6. **Skill-first·경계 유지** — 사용자 진입점은 Skill 하나 유지, 인테이크는 내부 구성요소. 로컬 경로·MCP 설정은 사용자-facing/ repo 비노출.
 - **격리 조건(spike 동안)**: 설치·`npx`·`.mcp.json`·MCP setup은 **사용자 로컬에서 사용자 승인 후**에만. repo에는 설치 명령·로컬 경로·계정·MCP 설정을 **커밋하지 않는다.** OCR provider(스캔 이미지 PDF 대응)는 **별도 사용자 승인 전 사용 금지**로 명시.
+- **feasibility evidence 기록 요건(재현성)**: Kordoc은 활성 외부 의존 후보라 공개 정보가 시점에 따라 변할 수 있으므로, 후속 feasibility evidence 문서/spike 지침에는 다음을 **명시적으로 기록**한다 — ① 테스트에 사용한 **정확한 패키지 버전**(예: `kordoc@x.y.z`), ② **명령/도구 출처**(CLI/MCP 도구명), ③ **README/문서 확인일**, ④ 테스트한 artifact가 문서화된 **공개 README와 일치하는지** 여부. "public README" 단독 근거로만 결론 내지 않는다.
 - **산출**: feasibility 결과는 별도 evidence 문서(후속)로 기록(도구 판단은 사용자/ChatGPT). 이번 문서는 **feasibility 계획**까지.
 
 ## 8. Document Evidence Index Proposal
