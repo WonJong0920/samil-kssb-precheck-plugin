@@ -1,8 +1,23 @@
 # 현재 상태 (Current Status)
 
 ## 현재 Cycle
+- **Cycle 2C** — 확정된 findings schema를 입력으로 받아 **재판정 없이** 대표 DOCX + HTML fallback을 생성하는
+  최소 렌더러 구현(renderer only). validator·OCR·PDF 파싱·Hook/MCP·submission.zip·샘플 PDF 분석 없음.
+
+## Cycle 2C 완료 작업
+- 렌더러: `src/renderers/kssb_report_renderer.py`(Python 표준 라이브러리만, 외부 의존 0).
+  findings JSON을 읽어 stdlib `zipfile` OOXML DOCX와 self-contained HTML fallback을 결정적으로 생성.
+  판정·근거·질문·권고를 **재계산하지 않고** 형식 변환(정렬·표·escape·sanitize·안전 오류)만 수행.
+- 보조 문서: `src/renderers/README.md`(렌더러=Skill 워크플로우의 내부 형식 변환기 포지셔닝, 산출물 커밋 정책).
+- 스모크 테스트(example JSON): schema/example JSON 문법, DOCX 생성·zip 무결성·내부 XML 파싱, HTML 핵심 섹션 포함,
+  결정성(동일 바이트), 파일명 규칙, 재판정 금지(출력 판정 라벨=입력 라벨), 누락 필드 안전 처리 — **33건 전부 PASS**.
+- `.gitignore`에 렌더러 산출물(`*_KSSB_공시근거_사전검토보고서.docx/.html`, `build/`, `out/`) 제외 추가.
+- 완료 보고: `docs/cycle2c_renderer_completion_report.md`.
+- **생성 DOCX/HTML은 커밋하지 않음**(스모크 출력은 repo 밖 임시 폴더에 생성).
+
+## 이전 Cycle
 - **Cycle 2B (+ Patch)** — Findings Schema Contract 확정 후 Codex Schema Review(CONDITIONAL PASS) Major 지적 보정.
-  렌더러·validator 코드·Hook/MCP·샘플 실행 없음.
+  Codex Cycle 2B Patch Review **PASS**(`docs/reviews/codex_cycle2b_patch_review.md`). 렌더러·validator 코드·Hook/MCP·샘플 실행 없음.
 
 ## Cycle 2B Patch (Codex Schema Review 대응)
 - Codex 판정: **CONDITIONAL PASS**(`docs/reviews/codex_cycle2b_schema_review.md`).
@@ -31,9 +46,9 @@
 - **Cycle 2B schema/example/contract 및 Skill 문서는 수정하지 않음(검증 대기).**
 
 ## 미완료 / 이후 사이클 (의도적 제외)
-- DOCX/HTML 렌더러 구현(구조화 findings 소비).
-- 경량 결정적 검증 단계(수동 검증 규칙 자동화).
-- 샘플 실행·submission.zip 패키징.
+- 경량 결정적 검증 단계(수동 검증 규칙 자동화: source_id cross-ref·모드↔라벨 정합·인용 실재성·금지 표현 스캔).
+- 실제 샘플(PDF/OCR/문서 파싱) 실행·submission.zip 패키징.
+- 렌더러를 Skill 절차에 실제 배선(호출 지점 확정)·산업별 지표 확장.
 - Hook/MCP는 하드 요건 확정 시에만 재검토.
 
 ## 보류 (확정하지 않음)
@@ -42,6 +57,6 @@
 
 ## GitHub / 검증 상태
 - repo: https://github.com/WonJong0920/samil-kssb-precheck-plugin (owner `WonJong0920`, branch `main`).
-- Cycle 2B 산출물 push 후 **ChatGPT 확인 대기**. 다음 단계는 ChatGPT·사용자가 결정한다.
+- Cycle 2C 렌더러 push 후 **ChatGPT 확인 대기**. 다음 단계는 Codex Cycle 2C Renderer Review.
 - 최종 검증·PASS/FAIL 판정은 **Codex**가 수행한다. 검증 기준은 `docs/validation_criteria.md` 참조.
 - 최종 commit SHA는 자기참조 문제로 문서에 고정하지 않고 작업 완료 채팅 보고에 기재한다.

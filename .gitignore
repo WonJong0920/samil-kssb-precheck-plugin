@@ -14,3 +14,9 @@ Thumbs.db
 # 로그 산출물(디렉터리는 .gitkeep으로 유지)
 logs/*
 !logs/.gitkeep
+
+# 렌더러 산출물(대표 문서는 기본 커밋 대상 아님 — 스모크/검증 출력은 repo 밖에 생성)
+*_KSSB_공시근거_사전검토보고서.docx
+*_KSSB_공시근거_사전검토보고서.html
+build/
+out/
