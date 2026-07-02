@@ -6,6 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-3 (계획 문서 push)** — Document Intake / Evidence Quality / Kordoc Feasibility Boundary **설계 계획**.
+  남은 리스크(인테이크 품질·표/스캔 수치·findings 값 로컬 경로 유입·Kordoc/OCR 승인 게이트)를 정리하고,
+  표·이미지 판독용 **Document Evidence Index를 문서 수준(비-schema)**으로 제안(판정 생성 아님, `evidence_anchor` 매핑).
+  로컬 경로 차단은 **upstream validator(detect-only)**에서, renderer/delivery는 재작성 금지 원칙 정리.
+  **최소 validator 경로 스캔 확장**(2I-3 구현 후보)은 **계획 검토 우선**으로 이번 push에 미포함(승인 후 별도 커밋).
+  Kordoc은 **2I-3A feasibility spike 후보**로만 분리(미설치·미실행). 계획 문서: `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
+
+## 이전 Cycle
 - **Cycle 2I-2** — Presentation / Report Wording Quality + Skill Workflow Alignment **구현**.
   렌더러 3종(HTML/DOCX/Markdown) 표현 개선: **한글 공시요구 제목 우선**(항목ID 보조), 근거 앵커를 **인용/출처/위치** 라벨로 분리,
   §2 항목표 열 재정렬(영역·공시요구·판정·항목ID), 질문 안내 인트로. Codex 2I-1 minor 3건 처리 — SKILL.md를 전달 배선기·Markdown fallback과 정합(MIN-01),

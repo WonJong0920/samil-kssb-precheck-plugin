@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -425,6 +425,23 @@
 - **Consequences**: 대표 문서가 한글 제목·인용/위치 중심으로 읽기 쉬워짐. 전달 33/33·렌더러 22/22·검증기 19/19 PASS. 실제 PDF 인테이크(2I-3)는 별도.
 - **Status**: 구현 확정(2I-2 범위). 2I-3/2I-3A 미착수.
 - **Related Files**: `src/renderers/kssb_report_renderer.py`, `src/skills/samil-kssb-precheck/SKILL.md`, `tests/test_delivery_wiring.py`.
+
+---
+
+# Cycle 2I-3 기록 (D43) — Document Intake / Evidence Quality 설계 계획
+
+## D43. intake/evidence 품질 설계 + DEI 문서 수준 제안 + 최소 validator guardrail은 검토 후 착수
+- **Date**: 2026-07-02
+- **Context**: 2I-1/2I-2 PASS 이후 남은 리스크는 판정/렌더가 아니라 **문서 인테이크**(PDF/표/이미지/스캔·findings 값 로컬 경로 유입·Kordoc/OCR 승인 게이트).
+- **Decision**: `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md` 작성 — (1) 인테이크/evidence 리스크 정리,
+  (2) **Document Evidence Index를 문서 수준(비-schema)**으로 제안(판정 생성 아님, `evidence_anchor`로 매핑, 확정 schema 미도입),
+  (3) 로컬 경로 차단은 **upstream validator(detect-only)**에서, renderer/delivery는 findings 재작성 금지,
+  (4) **최소 validator 경로 스캔 확장**(`_PATH_PATTERNS`에 `/home/`·`%TEMP%`·`%USERPROFILE%`·`/var/folders/`·`\Temp\` 등)을 2I-3 구현 후보로 제시하되 **계획 검토 우선**으로 이번 push에 미포함,
+  (5) Kordoc은 **2I-3A feasibility spike**(사용자 승인·pluggable·미설치)로 분리.
+- **Rationale**: 병목이 upstream 인테이크이므로 성급한 엔진/외부 의존 도입을 피하고, 지금은 설계 확정과 최소·안전 guardrail 범위만 정의. 사용자 요청("우선 계획 확인")에 따라 계획 문서만 먼저 push해 검토 가능하게 함.
+- **Consequences**: 계획 검토(및 Codex Review) 후 §11 guardrail을 별도 커밋으로 반영. 실제 인테이크/Kordoc/OCR은 2I-3A.
+- **Status**: 계획 확정. guardrail 구현·2I-3A 미착수.
+- **Related Files**: `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`, `src/validators/kssb_findings_validator.py`(향후 guardrail 대상), `docs/planning/cycle2i_remediation_implementation_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
