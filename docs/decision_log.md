@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -583,6 +583,23 @@
 - **Consequences**: 구현 사이클(예: 2I-3C, 최소 opt-in 어댑터 계약)은 사용자/ChatGPT 승인 + RH-B2 처리 후 별도 사이클로. RH-P1/P2는 번들·재배포 결정 시 처리.
 - **Status**: Version Strategy 확정. **Kordoc 미도입·미설치, package/dependency 미추가, PDF/OCR/MCP 미실행, node_modules·스크립트·lock repo 미커밋, 코드/schema/validator/renderer/delivery/manifest/marketplace 미변경.**
 - **Related Files**: `docs/planning/cycle2i_3b_version_strategy_confirmation.md`, `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`, `docs/samples/gate_b_license_review_evidence_2026-07-03.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`.
+
+---
+
+# Cycle 2J 기록 (D53) — Mistral OCR 4 문서지능 구조 벤치마크 (계획 보완)
+
+## D53. Mistral OCR 4는 구조만 벤치마크, 클라우드 도입은 별도 Gate C — confidence는 검수 우선순위 신호로만 반영
+- **Date**: 2026-07-03
+- **Context**: 사용자가 Mistral OCR 4 문서 판독 구조를 현재 Kordoc/DEI/evidence 구조와 벤치마크해 계획 보완을 요청. 구현·API·업로드 없음.
+- **Decision**: `docs/planning/cycle2j_mistral_ocr4_document_intelligence_benchmark.md` 작성 — 공개 링크 read-only 확인 후 판정:
+  page/block·markdown·raw↔Document-AI 계층분리는 **이미 Kordoc 로컬 보유**; **inline confidence는 판단이 아니라 '검수 우선순위' 신호**로 DEI 선택필드에 개념 반영(추후+Codex검증, renderer no re-judgment·validator detect-only·source-bound·human-review 유지);
+  bbox/block_type은 DEI 위치·유형 힌트로 유지(**findings evidence_anchor schema 불변**); batch는 클라우드 API가 아니라 **로컬 결정적 개념**(custom_id류 keying·per-page status·result hash, 부분실패 명시)로만 차용;
+  스캔/이미지 OCR 실행은 v1 제외(needs_ocr 신호만), **Mistral 클라우드 API/SDK/Python/notebook/문서 업로드는 제외**.
+  이유: Mistral OCR는 **클라우드 API(문서 egress)** 라 Gate A no-egress 전제와 상충 + 외부 dependency·API key·비용·결정성 약화. → 실제 도입은 Kordoc 로컬 게이트와 다른 **Gate C(외부/클라우드 OCR egress: 데이터 egress 승인·프라이버시/DPA·법률/ToS·자격증명 repo 비노출·로컬 우선)** 필요.
+- **Rationale**: 필요한 raw 구조 대부분을 Kordoc이 오프라인으로 제공하므로 클라우드 OCR의 증분 가치(confidence·스캔 OCR)는 별도 게이트 대상. 구조·개념만 차용하면 Gate A/B/Version·Residual Hardening과 무충돌(core·egress·버전규칙 불변, confidence는 재료 신호).
+- **Consequences**: DEI confidence 필드·bbox 힌트·로컬 배치 개념의 실제 반영은 구현-prep/구현 사이클(RH-B2 종료·사용자 승인 후). 클라우드 OCR 도입은 Gate C 통과 시에만.
+- **Status**: 계획 보완(개념 판정). **Mistral 미도입, API/SDK/Python/notebook/업로드 없음, Kordoc/Mistral dependency·MCP·코드·schema·validator·renderer·delivery·manifest·marketplace 미변경.**
+- **Related Files**: `docs/planning/cycle2j_mistral_ocr4_document_intelligence_benchmark.md`, `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

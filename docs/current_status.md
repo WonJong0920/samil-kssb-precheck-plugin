@@ -6,6 +6,12 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2J — Mistral OCR 4 문서지능 구조 벤치마크**(계획 보완, 문서만, 구현/실행 없음). 공개 링크 read-only 확인 후 Mistral OCR 4 구조
+  (bbox·typed-block·**inline confidence(페이지/단어)**·markdown·raw OCR↔Document AI 분리·batch `custom_id`/status)를 현재 Kordoc·DEI·evidence 구조와 대비.
+  판정: page/block·markdown·계층분리는 **이미 보유(Kordoc 로컬)**; **confidence는 판단이 아니라 '검수 우선순위' 신호**로 DEI 선택필드 반영(추후+Codex검증, no re-judgment 유지);
+  bbox/block_type은 DEI 위치·유형 힌트(evidence_anchor schema 불변); batch는 **로컬 결정적 개념**(status/result hash)로만; **스캔 OCR 실행·Mistral 클라우드 API/SDK는 제외**.
+  Mistral은 **클라우드 egress(문서 업로드)** 라 Gate A no-egress와 상충 → 도입은 별도 **Gate C(외부/클라우드 OCR egress)** 필요. Gate A/B/Version과 무충돌 보완.
+  문서: `docs/planning/cycle2j_mistral_ocr4_document_intelligence_benchmark.md`. **API/Python/notebook/업로드 없음, Mistral/Kordoc dependency·MCP·코드·schema·manifest 미변경.**
 - **Cycle 2I-3B Version Strategy Confirmation → 확정 + Residual Hardening Register**(문서만, 구현 없음). Gate A·B PASS 이후 남은 gate인
   Version Strategy 8규칙 확정: `kordoc@3.8.2` exact pin · `pdfjs-dist@4.10.x`(실측 4.10.38, 광역 `>=4` 금지) · 실행 전 compat-check · 미검증 fail-fast ·
   auto-upgrade 금지 · 신버전 시 Gate A/B 재검증 · 불일치 시 fallback · Kordoc은 계속 optional/local(core hard dependency 아님, `--omit=optional`).
