@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -620,6 +620,20 @@
 - **Consequences**: L1 구현 착수는 별도 승인+RH-B2 후. L2~L4는 각 게이트(D, C/C-SH) 수행 후에만. RH-S1은 "L0/L1 유지, L2+는 Gate D 후"로 해석 명확화(완화 아님).
 - **Status**: 계획 확정(문서만). **OCR 엔진 설치/실행·API 호출·업로드·패키지 추가·코드/schema/manifest 변경 없음. Kordoc/Mistral 미도입.**
 - **Related Files**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/planning/cycle2j_mistral_ocr4_document_intelligence_benchmark.md`, `docs/reviews/codex_cycle2j_mistral_ocr4_benchmark_review.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/submission_packaging_policy.md`.
+
+---
+
+# Cycle 2K Patch 기록 (D55) — 예선 L3 제출 목표 명확화 (Codex C2K-MAJ-01 해소)
+
+## D55. "MVP=L0+L1, 후속=L2/L3" 서술을 예선 3단 구조(최소 L0+L1 / 목표 L0+L1+L2+L3 / 범위밖 L4)로 재정리
+- **Date**: 2026-07-03
+- **Context**: Codex Review(`docs/reviews/codex_cycle2k_ocr_scanned_pdf_image_capability_plan_review.md`)가 **CONDITIONAL PASS**로 판정하며 Major `C2K-MAJ-01`을 제기: 기존 §7이 L0+L1을 "제출 MVP", L2/L3를 막연한 "후속 확장"으로만 표현해, 최신 제출 의도(사용자 확정: 예선 목표선은 L3)를 충분히 반영하지 못함. 또한 예선과 본선 과제가 다름을 명확히 구분할 필요가 확인됨.
+- **Decision**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md` §7을 3단 구조로 재작성 — **예선 제출 최소/fallback = L0+L1**(신규 게이트 불요, 항상 달성 가능) / **예선 제출 목표(target) = L0+L1+L2+L3**(Gate D 통과 + 구현 evidence + 독립 검증 조건, L2/L3를 "의도된 목표선"으로 명시) / **예선 범위 밖 = L4**(Gate C/C-SH 이후, 본선과 별도 — 본 문서는 본선 로드맵을 다루지 않음을 헤더에 고지).
+  §7a 신설로 "목표선 지정"과 "구현 완료 표현"을 분리: L2/L3가 목표 범위여도 **Gate D 통과 전 구현 착수 금지**, **구현·검증 전 "현재 지원 기능" 표현 금지**는 그대로 유지. Gate D 미통과 시 L1 fallback 제출은 유효하되 내부 문서상 "목표선 미달"로 구분 기록하는 규칙 추가. §5 L1~L4 절·§10 다음 단계도 목표/최소/범위밖 프레이밍에 맞춰 정합화. 차트 수치·이미지 의미·KSSB 충족 추정 금지, DEI 후보·검수 신호 전용 합류, source-bound·human-review 원칙은 전부 불변.
+- **Rationale**: 계획 문서의 "목표 표기"와 제품 문서의 "구현 완료 표기"를 별개 승인 트리거로 분리하면, 목표를 명확히 하면서도 과장 표현 금지·게이트 순서를 동시에 지킬 수 있다. Codex 리뷰 원문과 2J 문서/리뷰(이미 PASS)는 수정하지 않고 이번 patch만으로 Major를 해소.
+- **Consequences**: 다음 implementation-prep 논의는 L1(최소) 구현과 L2/L3(목표, Gate D 준비)를 병행 검토 대상으로 다룬다. L4는 예선 판단과 분리해 별도 사이클에서만.
+- **Status**: patch 확정(문서만). **코드/schema/manifest/marketplace/package 미변경, OCR/Kordoc/Mistral 설치·실행 없음.** Codex 재검증 대기.
+- **Related Files**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/reviews/codex_cycle2k_ocr_scanned_pdf_image_capability_plan_review.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

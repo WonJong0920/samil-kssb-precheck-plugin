@@ -3,6 +3,9 @@
 > **성격**: **계획 보강 문서**(문서 수준). 구현이 아니다. 최종 제출 목표가 text-PDF 처리에 머무르지 않고 **가능한 범위 안에서 OCR·스캔 PDF·이미지 기반 페이지·이미지/도표/표/차트 근거 후보 식별·검수 라우팅까지 확장**됨을 명시하고, 그 확장을 **단계(capability ladder) + 게이트**로 고정한다.
 > **하지 않는 것**: 코드 구현·패키지 설치·Python/notebook 실행·API 호출·외부 문서 업로드·OCR 엔진 설치/실행·MCP 설정·raw artifact·submission.zip·src/tests/schema/validator/renderer/delivery/Skill/manifest/marketplace 변경.
 > 상위 규칙: `AGENTS.md`·`docs/operating_principles.md`. 근거: Gate A/B PASS·Version Strategy 확정·2J 벤치마크(전부 Codex PASS) + 2J minor(C2J-MISTRAL-MIN-01).
+> **범위 고지**: 본 문서는 **예선(preliminary) 제출물의 목표 범위**를 정리한다. **본선(final round) 과제는 별도**이며 본선 고도화 로드맵과 혼동하지 않는다 — 본 문서의 capability ladder는 예선 목표선(§7)을 정하기 위한 것이다.
+>
+> **Patch(C2K-MAJ-01 해소)**: Codex Review(`docs/reviews/codex_cycle2k_ocr_scanned_pdf_image_capability_plan_review.md`, CONDITIONAL PASS)는 기존 §7이 L0+L1을 "제출 MVP", L2/L3를 막연한 "후속 확장"으로만 표현해 최신 제출 의도(예선 목표선=L3)를 충분히 반영하지 못한다고 지적했다(Major, blocking before implementation-prep). 본 patch는 §7을 **예선 최소/fallback(L0+L1) — 예선 목표(L0+L1+L2+L3, Gate D 통과 시) — 예선 범위 밖(L4, Gate C/C-SH 이후)** 3단 구조로 재작성해 이를 해소한다(§7·§7a 참조). Codex 리뷰 원문은 수정하지 않는다.
 
 ## 1. 제출 목표에서 OCR / Scanned PDF / Image Analysis의 의미
 
@@ -50,25 +53,28 @@
 - **prohibited**: OCR 실행, native/optional 의존성 사용.
 - **게이트**: Gate A·B PASS, Version 확정(완료).
 
-### L1 — 스캔/이미지/도표 존재 **감지 + 검수 라우팅** (구현 후보, 추가 게이트 불요)
+### L1 — 스캔/이미지/도표 존재 **감지 + 검수 라우팅** (예선 최소/fallback, 추가 게이트 불요)
 - **allowed**: 이미 검증된 Kordoc 신호(`needsOcr`·`ocrCandidatePages`·`pageQuality`·`SKIPPED_IMAGE`·image/table block·bbox)를 DEI로 수집해 —
   (a) 스캔/이미지 페이지·이미지/도표/표 블록을 **근거 후보 위치로 식별**, (b) `extraction_quality`/confidence류 신호로 **검수 우선순위** 부여,
   (c) 판독 불가/저신뢰 구간을 **`missing_info` + `customer_questions` + 요청자료**로 라우팅, (d) bbox/page anchor로 **검수 하이라이트 힌트** 제공.
 - **prohibited**: OCR 실행, 이미지 내용 해석·수치 추정, 자동 판정.
 - **게이트**: 신규 게이트 불요(기존 Gate A/B 검증 범위 내 신호만 사용). 단 **구현 착수는 사용자/ChatGPT 승인 + RH-B2**(기존 규칙).
-- **제출 목표 관점**: L1까지가 "스캔 PDF·이미지 존재에 **대응**하는 MVP" — 판독은 못 해도 **어디를 사람이 봐야 하는지**를 제시.
+- **제출 목표 관점**: L0+L1은 **예선 제출 최소/fallback선**(§7) — 판독은 못 해도 **어디를 사람이 봐야 하는지**를 제시하는 안전한 하한선.
 
-### L2 — 로컬 OCR 실행 (이미지 내 텍스트) — **Gate D 필요**
+### L2 — 로컬 OCR 실행 (이미지 내 텍스트) — **예선 목표선, Gate D 필요**
+- **위치**: L2는 **예선 제출 목표(§7)의 일부**다. 단, 아래 게이트 통과·구현·독립 검증 전까지는 **"구현 완료 기능"으로 표현하지 않는다**(계획·목표 단계로만 기재).
 - **allowed(게이트 통과 후)**: 로컬/오프라인 OCR provider(Kordoc orchestration 또는 별도 로컬 도구)로 스캔 페이지·이미지 블록의 **텍스트만** 추출 → DEI 후보로 합류(`needs_ocr` 이력·`extraction_quality` 필수 기록). 저신뢰 결과는 정량 근거로 승격 금지, 요청자료 라우팅.
-- **prohibited**: 클라우드 OCR, 차트 수치 추정, OCR 텍스트의 무검수 판정 사용.
+- **prohibited**: **Gate D 통과 전 구현 착수 자체가 금지**. 클라우드 OCR, 차트 수치 추정, OCR 텍스트의 무검수 판정 사용.
 - **게이트**: **Gate D(로컬 OCR provider 게이트)** — 2I-3A §13 "OCR provider 별도 승인 게이트"의 공식화: ① 사용자 명시 승인, ② **모델/도구 준비 단계(다운로드 egress 허용, 기록) ↔ 파싱 단계(no-egress 증명, Gate A 방식)** 분리 검증, ③ native/LGPL 의존성 재유입에 대한 **Gate B 재검토**, ④ 결정성·재현성 evidence, ⑤ **비민감 스캔 샘플(유형3) 확보 후 검증**(2I-3A 미확보 잔여 항목).
 
-### L3 — 이미지·도표·표·차트 **구조 분석/후보 분류** — Gate D + 설계 검증
+### L3 — 이미지·도표·표·차트 **구조 분석/후보 분류** — **예선 목표선(최상위), Gate D + 설계 검증**
+- **위치**: L3는 **이번 예선이 노리는 목표선의 최상위 단계**다(§7). L2와 마찬가지로 게이트·구현·독립 검증 전에는 "구현 완료"로 표현하지 않는다.
 - **allowed(게이트 통과 후)**: 블록의 **유형 분류**(표/그림/차트/서명 등, Mistral typed-block 참고)와 위치·품질 신호 강화, 표 구조 복원 확장. 분류는 **검수 참고 라벨**.
 - **prohibited**: **차트 수치 읽기·이미지 의미 해석·KSSB 충족 추정** — 이는 자동 판정 계층이 되므로 금지. 해당 구간은 항상 사람 검수 + 요청자료.
 - **게이트**: Gate D + 분류 오류가 판정에 영향 주지 않음(재료 신호 전용)을 Codex 검증.
 
-### L4 — 클라우드/Self-host OCR — **Gate C / Gate C-SH**
+### L4 — 클라우드/Self-host OCR — **예선 범위 밖(Gate C / Gate C-SH 이후 별도 범위)**
+- **위치**: L4는 **예선 제출 목표(§7)에 포함되지 않는다.** 게이트 통과 전까지 계획 단계로만 유지하며, 실제 도입 논의도 예선 제출 판단과 분리한다.
 - **allowed**: 없음(현재). 별도 승인 전 금지.
 - **게이트**: **Gate C**(클라우드 OCR egress: 데이터 egress 명시 승인·프라이버시/DPA·법률/ToS·자격증명 repo 비노출·비용·로컬 우선 — 2J §10).
   **Gate C-SH(self-host 하위분기, C2J-MISTRAL-MIN-01 해소)**: self-host는 public API와 **다른 분기**이며 **자동으로 Kordoc Gate A no-egress와 동급이 아니다** — ① deployment entitlement(호스팅 권한), ② license/commercial terms, ③ model/container provenance, ④ **offline/no-egress 증명(자체 수행 필요)**, ⑤ operational security, ⑥ deterministic/version controls를 별도 검증해야 통과.
@@ -79,11 +85,22 @@
 - **구현하지 않고 사람/후속 게이트로 넘기는 것**: 이미지 의미·차트 수치·표 외 시각 정보의 해석, 저신뢰 구간의 근거 승격, KSSB 충족 판단, 클라우드/self-host OCR 도입 판단.
 - **불변 원칙**: source-bound analysis · validator detect-only · renderer no re-judgment · delivery separation · 사람 검수 필수 · confidence/quality는 **재료·트리아지 신호**일 뿐.
 
-## 7. 제출 MVP 범위 vs 후속 확장
+## 7. 예선 제출 범위 3단 구조 (최소/fallback — 목표 — 범위 밖)
 
-- **제출 MVP 포함 가능**: **L0(완료) + L1(감지·라우팅, 승인 시 구현)** — 스캔/이미지 자료에도 "판독 필요·위치·검수 우선순위·요청자료"로 대응하는 제품 스토리 완성. 신규 게이트 불요.
-- **후속 확장(게이트 뒤)**: **L2(Gate D)** → **L3(Gate D+검증)** → **L4(Gate C/C-SH)**. 제출 시점까지 게이트를 통과하지 못한 단계는 **계획·게이트 문서로만 제출물에 반영**(과장 표현 금지 — "지원"이 아니라 "단계적 확장 계획"으로 기재).
-- 제출물 표현 주의: OCR/이미지 분석을 **현재 동작 기능처럼 표현하지 않는다**(README/SKILL 문구는 구현 완료 단계만 반영).
+> 본 절은 Codex Major `C2K-MAJ-01`이 지적한 지점이다. 기존 서술("MVP=L0+L1, L2/L3=후속 확장")은 안전하지만 최신 제출 의도(예선 목표선=L3)를 충분히 드러내지 못했다. 아래 3단 구조로 명확화한다.
+
+| 구분 | 범위 | 성격 |
+|---|---|---|
+| **예선 제출 최소 / fallback** | **L0 + L1** | 신규 게이트 불요. 항상 달성 가능한 안전 하한선. Gate D가 시간 내 통과되지 않으면 이 선으로 제출 가능. |
+| **예선 제출 목표(target)** | **L0 + L1 + L2 + L3** | **Gate D 통과 + 구현 evidence + 독립 검증**이 조건. **이번 예선이 실제로 노리는 목표선.** L2/L3를 "혹시 되면 좋은 확장"이 아니라 **의도된 목표 범위**로 취급한다. |
+| **예선 범위 밖 / 후속(본선 또는 별도 사이클)** | **L4(클라우드/self-host OCR)** | Gate C·Gate C-SH 통과 전 금지. **본선 과제와는 별도**이며, 본 문서는 본선 고도화 로드맵을 다루지 않는다. |
+
+### 7a. 목표선(L2/L3)과 "구현 완료 표현 금지"는 동시에 유지된다
+
+- **목표라는 것과 이미 구현됐다는 것은 다르다.** L2/L3가 예선 목표 범위임을 이 문서·계획 수준에서는 명시하되, **Gate D 통과·실제 구현·Codex 독립 검증이 끝나기 전까지는 "현재 지원 기능"으로 표현하지 않는다**(README/SKILL/제출물 공통). 계획 문서상 목표선 표기와, 제품 문서상 "구현 완료" 표기는 **별개의 승인 트리거**를 가진다.
+- **Gate D 미통과 시**: L1 fallback으로 제출은 유효하지만, 내부 문서(현황·decision log)에는 이를 **"목표선 미달(target-shortfall)"** 상태로 구분 기록한다 — L3를 달성한 것처럼 조용히 넘어가지 않는다.
+- L2/L3 구현 착수 자체가 **Gate D 통과 전에는 금지**라는 §5의 게이트 규칙은 이 절에서도 완전히 유지된다(목표로 삼는 것이 게이트를 생략해도 된다는 뜻이 아니다).
+- OCR/image 결과는 계속 **DEI 후보·검수 신호로만** 합류하며 renderer/validator에 직접 유입되지 않는다. 차트 수치 읽기·이미지 의미 해석·KSSB 충족 추정은 L2/L3가 목표선이 되어도 **여전히 금지**다. 최종 판단은 Skill의 source-bound 판정 + 사람 검수로 불변.
 
 ## 8. 기존 게이트 구조와의 정합 (충돌 없음)
 
@@ -103,5 +120,7 @@
 
 ## 10. 다음 단계
 
-- 본 문서 Codex Review → 사용자/ChatGPT 판단.
-- L1 구현 착수는 별도 승인 + RH-B2 종료 후. L2+는 각 게이트(D, C/C-SH) 수행 후에만.
+- 본 patch(§7 3단 구조 재정리)에 대한 Codex Review → 사용자/ChatGPT 판단.
+- **L1**(예선 최소/fallback) 구현 착수는 별도 승인 + RH-B2 종료 후.
+- **L2/L3**(예선 목표): 착수 경로는 곧 **Gate D 준비(implementation-prep)** — 별도 게이트로 미룬 확장이 아니라 예선 목표 달성을 위해 지금부터 준비할 대상. 실제 구현은 Gate D 통과 후에만.
+- **L4**는 예선 판단·본선 과제와 분리해 Gate C/C-SH 별도 사이클에서만 검토.

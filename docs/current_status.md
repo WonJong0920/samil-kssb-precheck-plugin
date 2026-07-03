@@ -6,6 +6,11 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2K Patch — 예선 L3 제출 목표 명확화**(Codex C2K-MAJ-01 해소, 문서만). Codex CONDITIONAL PASS가 지적한 "L0+L1=MVP, L2/L3=막연한 후속 확장"
+  서술을 **예선 제출 3단 구조**로 재정리: **예선 최소/fallback = L0+L1**(신규 게이트 불요) / **예선 제출 목표 = L0+L1+L2+L3**(Gate D 통과·구현 evidence·독립 검증 조건, L2/L3는 "의도된 목표선") /
+  **예선 범위 밖 = L4**(Gate C/C-SH 이후, 본선과 별도). L2/L3가 목표선이어도 **Gate D 통과 전 구현 착수 금지**·**구현 완료 전 "현재 지원 기능" 표현 금지**는 유지;
+  Gate D 미통과 시 L1 fallback 제출은 유효하나 내부적으로 "목표선 미달"로 구분 기록. 차트 수치·이미지 의미·KSSB 충족 추정 금지, DEI 후보·검수 신호로만 합류하는 원칙 불변.
+  문서: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`(§7 재작성). Codex 리뷰 원문·2J 문서는 미수정.
 - **Cycle 2K — OCR/Scanned PDF/Image Analysis Capability Ladder 계획**(제출 목표 반영, 문서만, 구현/설치/실행 없음).
   제출 목표가 text-PDF를 넘어 **OCR·스캔 PDF·이미지 기반 페이지·이미지/도표/표/차트 근거 후보 식별·검수 라우팅까지 확장**됨을 명시하고
   **L0~L4 capability ladder + 게이트**로 고정: L0(텍스트 PDF, 완료) → **L1(스캔/이미지/도표 존재 감지+검수 라우팅 — 기존 검증 신호만 사용, 신규 게이트 불요, 제출 MVP 후보)**
