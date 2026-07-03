@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -506,6 +506,22 @@
 - **Consequences**: 실제 어댑터/DEI schema화/인테이크 코드는 **여전히 미착수**(별도 승인·검증 필요). 다음 후보: 유형3(스캔 전용) 재현·강제 무-egress 재확인·전이 의존성 라이선스 정밀 검토.
 - **Status**: spike 실행·evidence 기록 완료. **Kordoc 미도입, plugin core/schema/renderer/delivery/validator/manifest/marketplace 미변경, OCR provider 미실행.** 사용자/ChatGPT 판단 대기.
 - **Related Files**: `docs/samples/kordoc_spike_evidence_2026-07-03.md`, `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md`, `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`.
+
+---
+
+# Cycle 2I-3B 기록 (D48) — Optional/Pluggable External Intake Adapter 설계
+
+## D48. Kordoc을 런타임 결합이 아니라 "어댑터 인터페이스 계약 + 외부 preprocessing"으로 격리(설계만)
+- **Date**: 2026-07-03
+- **Context**: 2I-3A spike(D47)에서 Kordoc의 인테이크 가치는 입증됐으나 hard dependency 부적합(런타임·버전 민감·egress·license·no-egress 미경화). Codex evidence review는 PASS + 3 minors(EV-MIN-01 no-egress 미경화, EV-MIN-02 의존성·버전, EV-MIN-03 스캔/OCR 미검증)와 §10 adoption gate를 제시.
+- **Decision**: `docs/planning/cycle2i_3b_optional_intake_adapter_design.md` 작성 — Kordoc을 **plugin core 밖 "외부 인테이크 어댑터 인터페이스 계약"의 한 구현**으로 둔다.
+  v1 = 로컬 out-of-band preprocessing이 **DEI-후보 JSON**(2I-3 §5 개념, 강제 schema 아님)을 산출 → Skill이 근거 재료로만 참조, plugin core는 계속 **findings 계약**만 소비.
+  경계: 어댑터 산출물은 renderer/delivery/validator에 직접 입력되지 않고 DEI→Skill 경유(판정 미생성). 버전: `kordoc@3.8.2 + pdfjs-dist@4.10.x`를 검증된 조합으로 기록, pin/compat-check·auto-upgrade 금지·불일치 시 fail-fast→fallback.
+  **Gate A(no-egress 강제검증)·Gate B(전이/native license 검토)** 를 구현/운영/번들 전 필수 gate로, OCR/formula/scanned는 v1 제외(needs_ocr는 신호만), 어댑터 부재/실패 시 현행 fallback 유지, 구현 진입 gate 체크리스트(§12) 정의.
+- **Rationale**: 2I-3A에서 확인된 런타임·버전·egress·license 리스크를 core 밖으로 격리해야 Skill-first·결정성·무-의존·제출 패키징 원칙이 보호된다. 런타임 결합/번들/자동 MCP 구동은 이 리스크를 본체로 전이하므로 기각.
+- **Consequences**: 실제 어댑터 코드·의존성 pin·DEI schema화·인테이크 구현은 **여전히 미착수**. 구현 사이클(예: 2I-3C) 진입은 §12 gate(특히 Gate A·B·버전 전략) 충족·기록 후 별도 승인 하에만.
+- **Status**: 설계 확정. **코드/의존성/schema/validator/renderer/delivery/manifest/marketplace 미변경, Kordoc 미설치·미도입, OCR 미실행.** 사용자/ChatGPT 판단 대기.
+- **Related Files**: `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/samples/kordoc_spike_evidence_2026-07-03.md`, `docs/reviews/codex_cycle2i_3a_kordoc_spike_evidence_review.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

@@ -6,6 +6,12 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-3B — Optional/Pluggable External Intake Adapter 설계**(문서만, 코드 무구현). spike evidence + Codex PASS를 바탕으로
+  Kordoc을 **런타임 결합 의존성이 아니라 "외부 인테이크 어댑터 인터페이스 계약 + 로컬 preprocessing" 뒤의 한 구현**으로 격리.
+  plugin core는 findings 계약만 소비(어댑터 산출물은 DEI→Skill 경유, renderer/delivery/validator 직접 입력 아님). DEI↔`evidence_anchor` 매핑(판정 미생성·schema 미변경),
+  버전 pin(`kordoc@3.8.2`+`pdfjs-dist@4.10.x`, auto-upgrade 금지·fail-fast), **Gate A(no-egress 강제검증)·Gate B(전이/native license)** 를 구현 전 필수 gate로,
+  OCR/formula/scanned는 v1 제외(needs_ocr는 신호만), 부재 시 현행 fallback 유지, 구현 진입 gate 체크리스트를 정의. 설계: `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`.
+  **Kordoc 설치·MCP·OCR·PDF 재실행·코드/의존성/manifest/marketplace 변경 없음.**
 - **Cycle 2I-3A 실제 local Kordoc feasibility spike 실행** — 사용자 승인 하 로컬에서 **kordoc@3.8.2**(MIT) 설치·CLI 파싱 실측.
   결과: 표 재구성(유형1 49개·유형2 199개)·결정성(2회 SHA 동일)·대용량 안정(156MB·126p 40초)·풍부한 위치/품질/`needsOcr` 신호로
   baseline(naive 텍스트) 대비 인테이크 품질 **개선 확인**. 단 **PDF는 `pdfjs-dist` 별도 설치 필요 + 버전 민감(v6 실패, v4.10.x 고정 필요)**,
