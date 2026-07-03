@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -490,6 +490,22 @@
 - **Consequences**: 승인 시 Runbook을 따라 로컬 spike 수행 → evidence 문서(민감정보 제거) 작성 → Codex 검증 → 도입 여부 판단. 미승인 시 fallback 유지.
 - **Status**: 문서 확정. **Kordoc 설치·MCP·OCR·PDF 재실행 미착수**(사용자 승인 대기).
 - **Related Files**: `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md`, `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
+
+---
+
+# Cycle 2I-3A 기록 (D47) — 실제 local Kordoc feasibility spike 실행 결과
+
+## D47. Kordoc은 인테이크 품질에 가치 있으나 plugin hard dependency로는 부적합 — optional/pluggable로만 권고
+- **Date**: 2026-07-03
+- **Context**: D45/D46(승인 게이트·Runbook) 후 사용자 승인 하에 **실제 로컬 spike**를 수행. 목표: Kordoc이 문서 인테이크 품질(표/위치/needs_ocr)을 실제로 개선하는지, hard dependency 가치가 있는지 판단 재료 확보.
+- **Decision(관찰 기반)**: `kordoc@3.8.2`(MIT) CLI로 공개 공시성 보고서 2종(유형1 53p·유형2 156MB/126p) 실측 —
+  표 재구성(49/199개), **결정성**(2회 markdown SHA 동일), 대용량 안정(40초), block/outline/pageQuality/`needsOcr`/warnings 등 **DEI→evidence_anchor 매핑에 유용한 위치·품질 신호** 확보, baseline(naive 텍스트) 대비 표 열구조·위치·OCR 신호 **개선 확인**.
+  단 리스크: **PDF는 `pdfjs-dist` 별도 설치 필수 + 버전 민감(v6.1.200 실패 `doc.destroy`, v4.10.38 성공)**, **Node.js 런타임 필요**(plugin stdlib-only와 상충), OCR/formula 기능은 **대용량 ONNX 모델 egress**, 전이 의존성/네이티브 바이너리 라이선스 별도 심사, 강제 무-egress 본 환경 미보장.
+  → **종합: 성공(가치 입증) + hard dependency 부적합.** Kordoc은 **optional/pluggable 외부 인테이크 도구**로만(사용자 로컬·승인 하), plugin core hard-couple 금지, 부재 시 현행 fallback 유지.
+- **Rationale**: 인테이크 개선 효과는 실측으로 확인됐지만, 런타임·의존성 버전 민감성·egress 기능·라이선스 심사 부담이 Skill-first·결정성·무-의존 원칙과 충돌. 도입은 본체 결합이 아니라 교체 가능한 외부 계층으로 격리해야 안전.
+- **Consequences**: 실제 어댑터/DEI schema화/인테이크 코드는 **여전히 미착수**(별도 승인·검증 필요). 다음 후보: 유형3(스캔 전용) 재현·강제 무-egress 재확인·전이 의존성 라이선스 정밀 검토.
+- **Status**: spike 실행·evidence 기록 완료. **Kordoc 미도입, plugin core/schema/renderer/delivery/validator/manifest/marketplace 미변경, OCR provider 미실행.** 사용자/ChatGPT 판단 대기.
+- **Related Files**: `docs/samples/kordoc_spike_evidence_2026-07-03.md`, `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md`, `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

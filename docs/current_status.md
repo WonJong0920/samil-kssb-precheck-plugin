@@ -6,6 +6,12 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-3A 실제 local Kordoc feasibility spike 실행** — 사용자 승인 하 로컬에서 **kordoc@3.8.2**(MIT) 설치·CLI 파싱 실측.
+  결과: 표 재구성(유형1 49개·유형2 199개)·결정성(2회 SHA 동일)·대용량 안정(156MB·126p 40초)·풍부한 위치/품질/`needsOcr` 신호로
+  baseline(naive 텍스트) 대비 인테이크 품질 **개선 확인**. 단 **PDF는 `pdfjs-dist` 별도 설치 필요 + 버전 민감(v6 실패, v4.10.x 고정 필요)**,
+  Node 런타임 필요, OCR/formula는 모델 egress → **plugin hard dependency 부적합, optional/pluggable로만** 권고.
+  종합: **성공(가치 입증) + hard dependency 부적합**. evidence: `docs/samples/kordoc_spike_evidence_2026-07-03.md`.
+  유형3(스캔 전용 비민감 샘플)은 미확보(후보 암호화/텍스트레이어). **OCR 미실행(needs_ocr 관찰만)**, plugin core·schema·renderer·delivery·validator·manifest·marketplace **미변경**, 샘플·변환물·`.mcp.json`·raw log repo 미포함.
 - **Cycle 2I-3A (계획)** — Kordoc Feasibility Spike / Approval Gate **문서화**(설치·실행 아님, 코드 무변경).
   Kordoc을 **optional/pluggable intake 후보**로 유지(본체 hard dependency 아님)하고, 사용자 승인 전 확인 조건(오프라인·무-egress·라이선스·재현성·경계),
   샘플 유형별 spike 시나리오·성공/실패 기준·evidence 기록 요건(정확한 버전·명령·README 확인일), DEI↔evidence_anchor 매핑 검증, OCR 별도 승인 게이트,
