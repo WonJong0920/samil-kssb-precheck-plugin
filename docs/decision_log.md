@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -600,6 +600,26 @@
 - **Consequences**: DEI confidence 필드·bbox 힌트·로컬 배치 개념의 실제 반영은 구현-prep/구현 사이클(RH-B2 종료·사용자 승인 후). 클라우드 OCR 도입은 Gate C 통과 시에만.
 - **Status**: 계획 보완(개념 판정). **Mistral 미도입, API/SDK/Python/notebook/업로드 없음, Kordoc/Mistral dependency·MCP·코드·schema·validator·renderer·delivery·manifest·marketplace 미변경.**
 - **Related Files**: `docs/planning/cycle2j_mistral_ocr4_document_intelligence_benchmark.md`, `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`.
+
+---
+
+# Cycle 2K 기록 (D54) — OCR/Scanned PDF/Image Analysis Capability Ladder (제출 목표 반영)
+
+## D54. 제출 목표를 OCR·스캔·이미지 분석까지 확장하되 L0~L4 ladder + 게이트로 단계화 — Kordoc은 OCR 엔진이 아니라 감지/추출/orchestration 후보
+- **Date**: 2026-07-03
+- **Context**: 기존 계획은 OCR/scanned를 v1에서 의도적으로 제외(needs_ocr 신호만)해, "제출 목표가 OCR·스캔 PDF·이미지 분석까지 확장된다"는 방향과 단계 구조가 문서에 없었다. 2J Codex minor(C2J-MISTRAL-MIN-01: self-host 분기 별도 게이트 필요)도 미반영 상태.
+- **Decision**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md` 작성(기존 2J 문서는 Codex PASS 상태 보존 위해 미수정, 새 문서로 보강) —
+  **capability ladder**: L0(텍스트 PDF, Gate A/B/Version 완료) → **L1(스캔/이미지/도표 존재 감지 + 위치/품질/신뢰도 기반 검수 라우팅** — 이미 검증된 Kordoc 신호(needsOcr·ocrCandidatePages·pageQuality·SKIPPED_IMAGE·image/table block·bbox)만 사용, **신규 게이트 불요, 제출 MVP 후보**) →
+  L2(로컬 OCR 실행 — **Gate D** 신설: 사용자 승인·모델 준비(다운로드 egress 허용/기록)↔파싱(no-egress 증명) 분리·native/LGPL 재유입 시 **Gate B 재검토**·결정성·비민감 유형3 샘플) →
+  L3(이미지·도표·표·차트 **후보 분류**(Mistral typed-block 구조 참고) — **차트 수치·이미지 의미·KSSB 충족 추정 금지**) →
+  L4(클라우드/self-host OCR — **Gate C** + **Gate C-SH 하위분기 신설**(C2J-MISTRAL-MIN-01 해소): deployment entitlement·license/commercial terms·model/container provenance·offline/no-egress 자체 증명·operational security·deterministic/version controls, self-host ≠ 자동 Gate A 동급).
+  **Kordoc 역할 재정의**: OCR 엔진이 아니라 "OCR-needed detection + page quality + block/bbox/table/image extraction + (후보) OCR orchestration layer". core hard dependency 금지 유지(V8). OCR 결과는 DEI 후보로만 합류(renderer/validator 직접 유입 금지).
+  **Mistral**: API 도입 후보가 아니라 typed-block/bbox 하이라이트/confidence 트리아지/계층분리/batch status/HITL **구조 참고 모델**(2J 결론 유지).
+  low-confidence/판독불가 → `missing_info`+`customer_questions`+요청자료. 제출물에는 미구현 단계를 "지원"이 아닌 "단계적 확장 계획"으로만 표기(과장 금지).
+- **Rationale**: 제출 목표 확장을 명시하되, egress·license·판정 경계 리스크를 단계별 게이트로 격리하면 기존 Gate A/B/Version·RH와 충돌 없이 확장 가능. L1은 이미 검증된 신호만 쓰므로 게이트 추가 없이 MVP 스토리(스캔 자료에도 "어디를 사람이 봐야 하는지" 제시)를 완성한다.
+- **Consequences**: L1 구현 착수는 별도 승인+RH-B2 후. L2~L4는 각 게이트(D, C/C-SH) 수행 후에만. RH-S1은 "L0/L1 유지, L2+는 Gate D 후"로 해석 명확화(완화 아님).
+- **Status**: 계획 확정(문서만). **OCR 엔진 설치/실행·API 호출·업로드·패키지 추가·코드/schema/manifest 변경 없음. Kordoc/Mistral 미도입.**
+- **Related Files**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/planning/cycle2j_mistral_ocr4_document_intelligence_benchmark.md`, `docs/reviews/codex_cycle2j_mistral_ocr4_benchmark_review.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/submission_packaging_policy.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

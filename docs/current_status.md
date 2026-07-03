@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2K — OCR/Scanned PDF/Image Analysis Capability Ladder 계획**(제출 목표 반영, 문서만, 구현/설치/실행 없음).
+  제출 목표가 text-PDF를 넘어 **OCR·스캔 PDF·이미지 기반 페이지·이미지/도표/표/차트 근거 후보 식별·검수 라우팅까지 확장**됨을 명시하고
+  **L0~L4 capability ladder + 게이트**로 고정: L0(텍스트 PDF, 완료) → **L1(스캔/이미지/도표 존재 감지+검수 라우팅 — 기존 검증 신호만 사용, 신규 게이트 불요, 제출 MVP 후보)**
+  → L2(로컬 OCR 실행 — **Gate D**: 모델 준비 egress↔파싱 no-egress 분리·Gate B 재검토·유형3 샘플) → L3(도표/차트 구조 분류 — 수치/의미 추정 금지)
+  → L4(클라우드/self-host — Gate C / **Gate C-SH**(C2J-MISTRAL-MIN-01 해소: self-host ≠ 자동 no-egress 동급)).
+  Kordoc 역할 재정의: **OCR 엔진이 아니라 감지/추출/orchestration 후보**(core hard dependency 금지 유지). Mistral은 구조 참고 모델(2J 유지).
+  차트 수치·이미지 의미·KSSB 충족 추정 금지, low-confidence → missing_info+customer_questions. 문서: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`.
 - **Cycle 2J — Mistral OCR 4 문서지능 구조 벤치마크**(계획 보완, 문서만, 구현/실행 없음). 공개 링크 read-only 확인 후 Mistral OCR 4 구조
   (bbox·typed-block·**inline confidence(페이지/단어)**·markdown·raw OCR↔Document AI 분리·batch `custom_id`/status)를 현재 Kordoc·DEI·evidence 구조와 대비.
   판정: page/block·markdown·계층분리는 **이미 보유(Kordoc 로컬)**; **confidence는 판단이 아니라 '검수 우선순위' 신호**로 DEI 선택필드 반영(추후+Codex검증, no re-judgment 유지);
