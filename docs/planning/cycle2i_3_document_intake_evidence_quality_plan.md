@@ -146,6 +146,6 @@ delivery 전달 경계 유지 · 새 의존성 없음 · 테스트 가능 · 2I-
 
 ## 14. 다음 단계 제안
 
-- (이번) 계획 문서 검토 → (승인 시) §11 최소 validator guardrail 구현·테스트·push → Codex Review.
-- 이후 2I-3A: Kordoc feasibility spike(사용자 승인·로컬), 실제 PDF 인테이크·표/OCR 설계 검증.
-- 착수 여부·순서는 ChatGPT/사용자 확인 후.
+- (완료) §11 최소 validator guardrail 구현·테스트·push·Codex Review 완료(2I-3 PASS). 완료 보고: `docs/cycle2i_3_minimal_validator_guardrail_completion_report.md`.
+- (완료) 2I-3A Kordoc feasibility spike 계획 문서 작성·Codex Review 완료(PASS): 계획 `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`, 리뷰 `docs/reviews/codex_cycle2i_3a_kordoc_feasibility_plan_review.md`.
+- (다음) 실제 2I-3A Kordoc feasibility spike(사용자 승인·로컬) 착수 여부 판단 — ChatGPT/사용자 확인 후.
