@@ -6,6 +6,11 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-2 Patch — Intake Validation Fix**(Codex CONDITIONAL PASS 조건 해소, narrow patch). **C2L2-MAJ-01**: `dei_producer.py`의 `_require`를
+  `_validate_intake_contract`로 대체 — malformed 입력(빈 `{}`·`success` 누락/비-true·`blocks` 비-list·`pageQuality` 누락/빈값·`qualitySummary` 누락·`pageCount`<1 등)은
+  **조용한 빈 DEI 대신 `IntakeError`**. "유효하지만 근거 빈약(스캔 전용 blocks=[])"은 `pageQuality`/`qualitySummary`/`pageCount` 신호로 허용. negative/positive 테스트 +12(14→**26/26 PASS**).
+  **C2L2-MIN-01**: `evidence_mapping_rules.md` §6 정리 — not_verifiable 위치는 `missing_info`/고객질문에, `evidence_anchor`는 읽을 수 있는 근거에만(앵커 미생성). **C2L2-MIN-02**: decision_log 후행 공백 제거(`git diff --check` clean).
+  schema/validator/renderer/delivery 코드 무변경(기존 26·22·33 green), OCR/native/model/egress·package 변경 없음. patch note: 완료 보고 §8. **Codex patch review 후 L1 ledger 승격.**
 - **Cycle 2L-2 — L1 Implementation**(코드: 선택적 인테이크→DEI producer). 신규 **`src/intake/dei_producer.py`**(core 밖 opt-in, 표준 라이브러리)로
   이미 로컬 추출된 인테이크 산출물을 **DEI-candidate**(결정적·판정 미생성·원문 보존·실패 명시)로 정규화. Skill 라우팅 지침(`evidence_mapping_rules.md` §6, SKILL.md)으로
   스캔/이미지/저신뢰 신호를 **기존 `not_verifiable`+`missing_info`+`customer_questions` 경로**에 연결(위치는 `p.<n> · <섹션>` 자유텍스트, **bbox는 DEI에만**).

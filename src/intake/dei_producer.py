@@ -15,11 +15,13 @@ Cycle 2L-1에서 동결한 **DEI-candidate 계약**(문서 수준 중간 산출�
   본 모듈은 이미 만들어진 인테이크 dict/JSON만 변환한다. 새 의존성 없음(표준 라이브러리만).
 - **실패를 명시한다.** 파싱 실패(`success: false`)·필수 키 누락은 조용히 부분 산출하지 않고 예외를 던진다.
 
-입력(관측된 Kordoc `--format json` 산출 형태를 기준으로 하되, 최소 키만 요구):
-  { "success": bool, "blocks": [ {type,text|table,pageNumber,bbox?} ... ],
-    "metadata": {pageCount}, "outline": [ {level,text,pageNumber} ],
-    "warnings": [ {page,message,code} ], "pageQuality": [ {page,textChars,puaRatio,
-    replacementCharRatio,needsOcr} ], "qualitySummary": {needsOcr,ocrCandidatePages} }
+입력 — **최소 인테이크 계약(malformed 거부, C2L2-MAJ-01)**. 관측된 Kordoc `--format json` 형태 기준:
+  필수: `success == true`, `metadata.pageCount`(int>=1), `blocks`(list, 스캔 전용이면 빈 list 허용),
+        `pageQuality`(비어 있지 않은 list — 페이지 구조 신호), `qualitySummary`(object).
+  선택: `outline`(list), `warnings`(list). (존재하면 list여야 함.)
+  블록: `{type,text|table,pageNumber,bbox?}`, pageQuality: `{page,textChars,puaRatio,
+        replacementCharRatio,needsOcr}`, qualitySummary: `{needsOcr,ocrCandidatePages}`.
+  **"유효하지만 근거 빈약"(예: 스캔 전용, blocks=[]) vs "malformed"(구조 결여)**는 위 필수 신호로 구분한다.
 
 출력: DEI-candidate dict (Cycle 2L-1 §2). 결정적(동일 입력 -> 동일 출력).
 """
@@ -43,11 +45,34 @@ class IntakeError(ValueError):
     """인테이크 산출물이 유효하지 않거나 파싱 실패를 나타낼 때."""
 
 
-def _require(intake: Any) -> dict:
+def _validate_intake_contract(intake: Any) -> dict:
+    """최소 인테이크 계약을 강제한다. 위반 시 IntakeError로 실패(조용한 빈 DEI 금지, C2L2-MAJ-01).
+
+    **유효(허용)**: 성공 파싱 + 페이지 구조가 있는 문서. `blocks`가 비어 있어도(스캔 전용 등 근거 빈약 문서)
+    `pageQuality`/`qualitySummary`/`metadata.pageCount` 신호로 **"유효하지만 근거 빈약"을 malformed와 구분**한다.
+    **무효(거부)**: dict 아님 · `success` 누락/≠true · `metadata.pageCount` 없음/<1 · `blocks` 비-list ·
+    `pageQuality` 비-list/빈 list · `qualitySummary` 비-dict · (존재 시) `outline`/`warnings` 비-list.
+    """
     if not isinstance(intake, dict):
         raise IntakeError("intake must be a dict/JSON object")
-    if intake.get("success") is False:
-        raise IntakeError("intake reports parse failure (success=false); refusing partial DEI")
+    if "success" not in intake:
+        raise IntakeError("intake missing required 'success' flag (malformed / not an intake artifact)")
+    if intake.get("success") is not True:
+        raise IntakeError("intake 'success' must be exactly true (parse failure or unknown state refused)")
+    meta = intake.get("metadata")
+    page_count = meta.get("pageCount") if isinstance(meta, dict) else None
+    if not isinstance(page_count, int) or isinstance(page_count, bool) or page_count < 1:
+        raise IntakeError("intake requires metadata.pageCount as int >= 1")
+    if not isinstance(intake.get("blocks"), list):
+        raise IntakeError("intake requires 'blocks' as a list (may be empty for scanned-only)")
+    page_quality = intake.get("pageQuality")
+    if not isinstance(page_quality, list) or len(page_quality) < 1:
+        raise IntakeError("intake requires non-empty 'pageQuality' (per-page document structure)")
+    if not isinstance(intake.get("qualitySummary"), dict):
+        raise IntakeError("intake requires 'qualitySummary' object")
+    for opt in ("outline", "warnings"):
+        if opt in intake and not isinstance(intake[opt], list):
+            raise IntakeError(f"intake '{opt}' must be a list when present")
     return intake
 
 
@@ -137,7 +162,7 @@ def build_dei_candidate(intake: Any, source_id: str, source_title: str = "") -> 
     """인테이크 산출물 -> DEI-candidate dict. 결정적. 판정 미생성. 원문 보존."""
     if not source_id or not str(source_id).strip():
         raise IntakeError("source_id is required (maps to findings source_documents.source_id)")
-    data = _require(intake)
+    data = _validate_intake_contract(intake)
 
     blocks_in = data.get("blocks") if isinstance(data.get("blocks"), list) else []
     outline = data.get("outline") if isinstance(data.get("outline"), list) else []

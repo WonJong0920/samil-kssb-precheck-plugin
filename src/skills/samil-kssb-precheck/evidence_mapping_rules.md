@@ -49,11 +49,14 @@
 - **판독 불가/저신뢰 신호**(`needs_ocr` / `extraction_quality: low` / `warnings`에 `SKIPPED_IMAGE` / `review_priority_hints`)가
   붙은 구간은 **미공시로 단정하지 않는다**(§2 재확인). →
   - `judgment_code = not_verifiable`(모드별 라벨 "제공자료로 확인 불가" / "공개자료로 확인 불가"),
-  - `missing_info` ≥ 1: 판독 불가 구간을 명시(예: `"p.12 스캔 페이지: 텍스트 레이어 없음, 자동 판독 불가"`),
-  - `customer_questions` ≥ 1: 기계판독 가능한 원문/데이터를 요청. 우선순위는 `review_priority_hints.priority`를 **참고**하되
+  - `missing_info` ≥ 1: 판독 불가 구간과 **그 위치 단서**를 명시(예: `"p.12 스캔 페이지(텍스트 레이어 없음): 자동 판독 불가"`),
+  - `customer_questions` ≥ 1: 기계판독 가능한 원문/데이터를 요청하며, **위치 단서는 질문의 `requested_material`/사유에 함께** 적는다. 우선순위는 `review_priority_hints.priority`를 **참고**하되
     Skill이 근거를 보고 판단한다(priority를 판정으로 직접 매핑하지 않는다).
-- **위치 표기**: findings `evidence_anchor.page_or_section`에는 사람 읽기용 `p.<n> · <섹션>` 최소 표기만 넣는다.
-  **bbox 좌표는 findings에 넣지 않는다**(DEI 문서수준 재료에만 — 숨은 구조 스키마화 방지).
+  - **evidence anchor를 만들지 않는다**: `not_verifiable`(§1·§2)에는 근거 앵커가 없다. 판독 불가 구간의 위치는 위 `missing_info`/고객질문 쪽에 싣고, **`evidence_anchor.page_or_section`에는 넣지 않는다**(없는 quote로 앵커를 만들지 않는다).
+- **위치 표기 규칙(구분)**:
+  - **읽을 수 있는 근거(confirmed / partial 판정)**에만 `evidence_anchor`를 만들고, 그 `page_or_section`에 사람 읽기용 `p.<n> · <섹션>` 최소 표기를 넣는다(원문 `quote` 필수).
+  - **판독 불가(not_verifiable)**의 위치 단서는 `evidence_anchor`가 아니라 `missing_info`/고객질문에 싣는다.
+  - **bbox 좌표는 어느 경우에도 findings에 넣지 않는다**(DEI 문서수준 재료에만 — 숨은 구조 스키마화 방지).
 - **금지(재확인)**: 판독 불가 구간에서 **차트 수치 읽기·이미지 의미 해석·KSSB 충족 추정 금지.**
   DEI의 `extraction_quality`/`needs_ocr`/priority는 **검수 트리아지 신호**이지 판정이 아니다. 최종 판단은 컨설턴트 검수.
 - **범위 경계**: 실제 OCR 실행(스캔 텍스트 추출)·도표/차트 구조 분류는 **현재 기능이 아니다**(Gate D 이후 L2/L3 대상).

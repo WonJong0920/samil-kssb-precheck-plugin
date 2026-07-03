@@ -126,16 +126,60 @@ def main() -> int:
     check("DEI location_hint bbox 포함", any("bbox" in bl["location_hint"] for bl in dei["blocks"]))
 
     # 10. 파싱 실패/필수값 누락 -> 예외(조용한 부분 산출 금지)
+    def expect_intake_error(name: str, intake, source_id: str = "doc-1") -> None:
+        try:
+            D.build_dei_candidate(intake, source_id)
+            check(name, False, "no exception (returned DEI)")
+        except D.IntakeError:
+            check(name, True)
+
+    expect_intake_error("parse 실패(success=false) 예외", {"success": False})
+    expect_intake_error("source_id 누락 예외", sample_intake(), "")
+
+    # 10b. malformed intake contract -> IntakeError (C2L2-MAJ-01 negative tests)
+    def without(key):
+        s = sample_intake()
+        s.pop(key, None)
+        return s
+
+    def with_override(**kw):
+        s = sample_intake()
+        s.update(kw)
+        return s
+
+    expect_intake_error("빈 객체 {} 거부", {})
+    expect_intake_error("success 키 누락 거부", without("success"))
+    expect_intake_error("success 비-true(문자열) 거부", with_override(success="true"))
+    expect_intake_error("metadata 누락 거부", without("metadata"))
+    expect_intake_error("pageCount<1 거부", with_override(metadata={"pageCount": 0}))
+    expect_intake_error("pageCount 비-int 거부", with_override(metadata={"pageCount": "5"}))
+    expect_intake_error("blocks 비-list 거부", with_override(blocks={}))
+    expect_intake_error("pageQuality 누락 거부", without("pageQuality"))
+    expect_intake_error("pageQuality 빈 list 거부", with_override(pageQuality=[]))
+    expect_intake_error("qualitySummary 누락 거부", without("qualitySummary"))
+    expect_intake_error("outline 비-list(존재 시) 거부", with_override(outline={}))
+
+    # 10c. valid but evidence-poor (scanned-only): blocks=[] 이지만 pageQuality/qualitySummary 존재 -> 허용
+    scanned = {
+        "success": True,
+        "fileType": "pdf",
+        "metadata": {"pageCount": 3},
+        "outline": [],
+        "blocks": [],
+        "warnings": [],
+        "pageQuality": [
+            {"page": 1, "textChars": 2, "puaRatio": 0.0, "replacementCharRatio": 0.0, "needsOcr": True},
+            {"page": 2, "textChars": 3, "puaRatio": 0.0, "replacementCharRatio": 0.0, "needsOcr": True},
+            {"page": 3, "textChars": 1, "puaRatio": 0.0, "replacementCharRatio": 0.0, "needsOcr": True},
+        ],
+        "qualitySummary": {"needsOcr": True, "ocrCandidatePages": [1, 2, 3]},
+    }
     try:
-        D.build_dei_candidate({"success": False}, "doc-1")
-        check("parse 실패 시 예외", False, "no exception")
-    except D.IntakeError:
-        check("parse 실패 시 예외", True)
-    try:
-        D.build_dei_candidate(sample_intake(), "")
-        check("source_id 누락 시 예외", False, "no exception")
-    except D.IntakeError:
-        check("source_id 누락 시 예외", True)
+        sdei = D.build_dei_candidate(scanned, "scan-1")
+        sreasons = {h["reason"] for h in sdei["review_priority_hints"]}
+        check("스캔 전용(근거 빈약) 허용", sdei["blocks"] == [] and "needs_ocr" in sreasons)
+    except D.IntakeError as e:
+        check("스캔 전용(근거 빈약) 허용", False, f"unexpected IntakeError: {e}")
 
     # 11. 경계: 이 모듈이 core(validator/renderer/delivery)를 import 하지 않는다
     src = (INTAKE_DIR / "dei_producer.py").read_text(encoding="utf-8")

@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -678,7 +678,7 @@
 ## D58. L1을 core 밖 선택적 인테이크→DEI producer로 구현, schema/validator/renderer/delivery 무변경, 기존 not_verifiable 경로 재사용
 - **Date**: 2026-07-03
 - **Context**: 2L-1 Codex PASS(findings 0) + 승인 후 2L-2(L1 구현) 착수. 범위 = 선택적 인테이크/DEI producer(core 밖) + Skill routing + 테스트. Gate D/L2/L3 아님.
-- **Decision**: 
+- **Decision**:
   ① **`src/intake/dei_producer.py`**(신규, 표준 라이브러리) — 이미 로컬 추출된 인테이크 산출물(Kordoc `--format json` 형태)을 DEI-candidate로 **결정적** 정규화. `build_dei_candidate()`·`page_or_section_hint()`(findings-side, bbox 제외). **판정 미생성·원문 보존·실패 명시**. 인테이크 도구/OCR/네트워크 **미실행**(이미 만들어진 JSON만 변환).
   ② **`src/intake/README.md`** — 이 폴더가 core 아님(opt-in/local, findings 파이프라인 밖) 명시.
   ③ **Skill routing** — `evidence_mapping_rules.md` §6 신설 + `SKILL.md` Inputs 최소 보정: 스캔/이미지/저신뢰 신호 → **기존** `not_verifiable`+`missing_info`+`customer_questions` 경로. 위치는 `p.<n> · <섹션>` 자유텍스트(**bbox는 DEI에만**). priority→판정 직접 매핑 금지. OCR 실행·도표 구조 분류는 현재 기능 아님(후속 게이트) 명시.
@@ -688,6 +688,22 @@
 - **Consequences**: L1 = implemented(2L-2). Codex Review PASS 시 Capability Status Ledger에서 `implemented+reviewed`로 승격(그 전 제품 문서 "현재 기능" 확정 표기 유보). L2/L3는 Gate D(2L-3) 통과 전 코드 없음. 실제 Kordoc→intake JSON 생산은 사용자 로컬 out-of-band, 어댑터는 변환만.
 - **Status**: L1 구현 완료(테스트 PASS). **schema/validator/renderer/delivery/manifest/marketplace/package·dependency 미변경, OCR provider 미설치/미실행, API/notebook/외부 업로드 없음, node_modules·lock·raw artifact 미커밋.** Codex Review 대기.
 - **Related Files**: `src/intake/dei_producer.py`, `src/intake/README.md`, `tests/test_intake_dei_producer.py`, `src/skills/samil-kssb-precheck/evidence_mapping_rules.md`, `src/skills/samil-kssb-precheck/SKILL.md`, `docs/cycle2l_2_l1_intake_completion_report.md`, `docs/planning/cycle2l_1_l1_implementation_prep.md`.
+
+---
+
+# Cycle 2L-2 Patch 기록 (D59) — Intake Validation Fix (Codex CONDITIONAL PASS 해소)
+
+## D59. 최소 인테이크 계약 강제(malformed는 IntakeError), not_verifiable 위치힌트 문구 정리, trailing whitespace 제거
+- **Date**: 2026-07-03
+- **Context**: `docs/reviews/codex_cycle2l_2_l1_implementation_review.md`가 **CONDITIONAL PASS** — C2L2-MAJ-01(입력 검증이 너무 관대해 `build_dei_candidate({}, "doc-1")`가 빈 DEI 반환, L1 ledger 승격 blocking), C2L2-MIN-01(§6 위치힌트 문구가 not_verifiable에 evidence_anchor를 다는 것처럼 읽힘), C2L2-MIN-02(decision_log 후행 공백). narrow patch로 해소.
+- **Decision**:
+  ① **C2L2-MAJ-01** — `dei_producer.py`의 `_require` → `_validate_intake_contract`. **최소 계약**: `success == true` · `metadata.pageCount`(int≥1) · `blocks`(list) · `pageQuality`(비어 있지 않은 list) · `qualitySummary`(object); (존재 시) `outline`/`warnings` list. 위반은 **`IntakeError`**(조용한 빈 DEI 금지). **"유효하지만 근거 빈약"(스캔 전용 blocks=[])는 pageQuality/qualitySummary/pageCount로 허용**해 malformed와 구분. negative 11건 + 스캔 전용 positive 1건 테스트 추가(14→**26/26 PASS**).
+  ② **C2L2-MIN-01** — `evidence_mapping_rules.md` §6: 판독 불가 위치는 `missing_info`/고객질문(`requested_material`)에 싣고 **not_verifiable에 evidence_anchor 미생성**. `evidence_anchor.page_or_section`은 **읽을 수 있는 근거(confirmed/partial)에만**. bbox는 어느 경우도 findings 미포함.
+  ③ **C2L2-MIN-02** — `decision_log.md` D58 `- **Decision**:` 라인 후행 공백 제거(`git diff --check` clean).
+- **Rationale**: 계약을 강제하되 스캔 전용(L1 핵심 대상)을 배제하지 않도록 `pageQuality`/`qualitySummary`를 최소 구조 신호로 요구해 evidence-poor와 malformed를 구분. Codex도 schema-evolution 불필요·schema-free 유효를 확인.
+- **Consequences**: MAJ-01 해소 → **Codex patch review PASS 시 L1을 `implemented+reviewed`로 승격** 가능(그 전엔 유보). 이후 2L-3(Gate D). schema/validator/renderer/delivery 코드·package 무변경 유지.
+- **Status**: patch 완료(intake 26/26, 코어 26·22·33 green, `git diff --check` clean). **schema/validator/renderer/delivery/manifest/package 미변경, OCR/API/notebook/업로드 없음.** Codex patch review 대기.
+- **Related Files**: `src/intake/dei_producer.py`, `tests/test_intake_dei_producer.py`, `src/skills/samil-kssb-precheck/evidence_mapping_rules.md`, `docs/cycle2l_2_l1_intake_completion_report.md`(§8), `docs/reviews/codex_cycle2l_2_l1_implementation_review.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

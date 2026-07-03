@@ -56,3 +56,16 @@
 - **Codex Review 필요**(본 L1 구현). PASS 시 L1을 `implemented+reviewed`로 승격.
 - 이후 **2L-3(Gate D prep/실행)** — 로컬 OCR provider·유형3 샘플·모델준비↔파싱 no-egress 분리. Gate D 통과 전 L2/L3 코드 없음.
 - 미해결(비차단): 실제 Kordoc→intake JSON 생산은 사용자 로컬 out-of-band(어댑터는 그 산출물을 변환만). 적합 유형3 스캔 샘플 확보는 2L-3 선행.
+
+## 8. Patch (2L-2 Codex CONDITIONAL PASS 조건 해소)
+
+근거: `docs/reviews/codex_cycle2l_2_l1_implementation_review.md`(CONDITIONAL PASS). L1 `implemented+reviewed` 승격 전 아래 처리.
+
+- **C2L2-MAJ-01 (blocking) — 최소 인테이크 계약 강제**: `_require`를 `_validate_intake_contract`로 대체. 이제 **malformed 입력은 조용히 빈 DEI를 만들지 않고 `IntakeError`**로 실패한다.
+  - **필수**: `success == true`, `metadata.pageCount`(int ≥ 1), `blocks`(list), `pageQuality`(비어 있지 않은 list), `qualitySummary`(object). 선택: `outline`/`warnings`(존재 시 list).
+  - **"유효하지만 근거 빈약"(스캔 전용, `blocks: []`) vs "malformed"(구조 결여) 구분**: 스캔 전용은 blocks가 비어도 `pageQuality`/`qualitySummary`/`pageCount` 신호로 허용된다. → `build_dei_candidate({}, "doc-1")`는 이제 **IntakeError**.
+  - **negative/positive 테스트 추가**: 빈 `{}`·`success` 누락/비-true·`metadata`/`pageCount` 이상·`blocks` 비-list·`pageQuality` 누락/빈값·`qualitySummary` 누락·`outline` 비-list 거부(11건) + 스캔 전용 허용(1건). 테스트 총 **14 → 26건, 26/26 PASS**.
+- **C2L2-MIN-01 — not_verifiable 위치 힌트 문구 정리**: `evidence_mapping_rules.md` §6에서 판독 불가 구간 위치는 **`missing_info`/고객질문(`requested_material`)에 싣고 `evidence_anchor`를 만들지 않는다**(not_verifiable엔 앵커 없음)를 명시. `evidence_anchor.page_or_section`은 **읽을 수 있는 근거(confirmed/partial)에만** 사용, bbox는 어느 경우에도 findings 미포함.
+- **C2L2-MIN-02 — trailing whitespace 제거**: `docs/decision_log.md` D58 `- **Decision**:` 라인 후행 공백 제거(`git diff --check` clean).
+- **경계 불변**: schema/validator/renderer/delivery **코드 무변경**(기존 26·22·33 green 유지), DEI는 renderer/validator 직접 유입 금지, OCR/native/model/egress 없음, 새 의존성 없음. schema-evolution 불필요(Codex 동의).
+- **판단 근거**: "valid but evidence-poor" 허용은 스캔 전용 문서(L1의 핵심 대상)를 배제하지 않기 위함이고, 그 경우도 `pageQuality`/`qualitySummary`라는 **최소 문서 구조 신호**를 요구해 malformed와 구분한다. negative test 11건은 Codex가 지목한 누락 구조(success/blocks/pageQuality 등)를 각각 커버한다.
