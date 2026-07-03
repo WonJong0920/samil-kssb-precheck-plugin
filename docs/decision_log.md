@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -554,6 +554,20 @@
 - **Consequences**: Gate A 충족. 다음은 Gate B(전이/native license review)·Version Strategy 확정. 구현 진입은 gateprep §9 전체 조건 충족 후 별도 승인.
 - **Status**: Gate A PASS(프로세스 레벨). **Kordoc 미도입, raw log·PDF·변환물·node_modules·훅 repo 미커밋, OCR/formula/MCP 미사용, 코드/schema/validator/renderer/delivery/manifest/marketplace/package 미변경.**
 - **Related Files**: `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/samples/kordoc_spike_evidence_2026-07-03.md`.
+
+---
+
+# Cycle 2I-3B Gate B 기록 (D51) — Transitive/Native License Review 실행 결과: PASS(v1 경로)
+
+## D51. v1 text-PDF 의존성 폐포는 전부 permissive, copyleft/native는 optional·미로드 → Gate B PASS
+- **Date**: 2026-07-03
+- **Context**: 2I-3A EV-MIN-02(전이/native license 미검토)를 실증 검토해 구현/번들 전 gate 통과 판단. gateprep §4 절차대로 실제 수행(읽기전용 인벤토리, 설치 없음).
+- **Decision(관찰 기반)**: `kordoc@3.8.2 + pdfjs-dist@4.10.38`에서 roots={kordoc, pdfjs-dist}의 `dependencies`만 재귀한 **v1-required 폐포 117개가 전부 permissive**(permissive 116 + jszip dual `MIT OR GPL`→MIT electable; **copyleft 0·native 0·unknown 0**), 116/117이 LICENSE/NOTICE 동봉(예외 isarray는 MIT 메타). 카피레프트(LGPL: `@img/sharp-win32-x64` = `Apache-2.0 AND LGPL-3.0-or-later`)와 native 바이너리(`sharp`/`onnxruntime-node`/`@hyzyla/pdfium`/`@napi-rs/canvas`)는 **모두 v1 폐포 밖 optional**이며 텍스트 파싱 시 미로드(Gate A 성공·pdfjs-dist만 필수로 확인).
+  → **Gate B = PASS**. 어댑터 opt-in/local·미번들이므로 재배포 license 의무 미발생. **번들 시 조건**: MIT/BSD 텍스트 + Apache-2.0 NOTICE 보존, `--omit=optional`로 LGPL/native 제외, `submission_packaging_policy.md` §1 E-분류·스캔 준수.
+- **Rationale**: 폐포를 deps-only로 산정해 실제 실행 경로(Gate A로 검증)와 정합. LGPL/native 리스크가 optional 계열에 격리되어 있고 v1이 OCR/formula/scanned를 제외하므로, v1 텍스트 경로의 배포·번들 적합성이 확보됨.
+- **Consequences**: Gate A·B PASS. 남은 gateprep 항목은 Version Strategy 확정. 구현 진입은 gateprep §9 전체 조건 충족 후 별도 승인. 비차단 후속: 구현 시 `--omit=optional` 설치 태세 고정, 번들 결정 시 attribution/NOTICE 수집, 형식 법률 검토(제출 단계).
+- **Status**: Gate B PASS(1차 인벤토리). **형식 법률의견 아님. Kordoc 미도입, node_modules·분석 스크립트·lock·raw 인벤토리 repo 미커밋, OCR/formula/MCP 미사용, 코드/schema/validator/renderer/delivery/manifest/marketplace/package 미변경.**
+- **Related Files**: `docs/samples/gate_b_license_review_evidence_2026-07-03.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/submission_packaging_policy.md`, `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

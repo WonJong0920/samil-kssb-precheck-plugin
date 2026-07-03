@@ -6,6 +6,11 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-3B Gate B — Transitive/Native License Review 실행 → PASS**(v1 text-PDF 경로). `kordoc@3.8.2 + pdfjs-dist@4.10.38` 기준
+  v1-required 폐포(deps-only 재귀) **117개 전부 permissive**(116 permissive + jszip dual MIT-electable; copyleft·native·unknown 0). 116/117 LICENSE 동봉.
+  카피레프트(LGPL: `@img/sharp-win32-x64`)·native 바이너리(`sharp`/`onnxruntime`/`@hyzyla/pdfium`/`canvas`)는 **모두 v1 경로 밖 optional**로 미로드.
+  어댑터 opt-in/local·미번들 → 재배포 의무 미발생; 번들 시 attribution/NOTICE 보존 + `--omit=optional`로 LGPL/native 제외 조건 명시. `submission_packaging_policy.md`와 정합.
+  evidence: `docs/samples/gate_b_license_review_evidence_2026-07-03.md`. **읽기전용 인벤토리(설치 없음), 형식 법률의견 아님, node_modules/스크립트/lock repo 미커밋, 코드/schema/manifest 미변경.** 다음: Version Strategy 확정.
 - **Cycle 2I-3B Gate A — Hard No-egress Rerun 실행 → PASS**(프로세스/Node 런타임 레벨). Node outbound를 preload 훅으로 **강제 차단(block)**한 상태에서
   유형1·유형2 파싱 8/8 성공·**파싱 중 outbound 시도 0건**. control로 차단 실제 작동 입증(monitor 포착 + 알려진 원격 `8.8.8.8:53` 차단). 결정성은 **JSON·Markdown 둘 다** 2회 동일
   (유형1 JSON `eeddfb59…`/MD `953443f4…`, 유형2 JSON `1c7d8ec9…`/MD `6095b881…`; MD는 2I-3A와 일치). 검증 조합 `kordoc@3.8.2 + pdfjs-dist@4.10.38`, 재설치 없이 오프라인 수행.
