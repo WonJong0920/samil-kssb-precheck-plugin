@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -635,6 +635,21 @@
 - **Consequences**: 다음 implementation-prep 논의는 L1(최소) 구현과 L2/L3(목표, Gate D 준비)를 병행 검토 대상으로 다룬다. L4는 예선 판단과 분리해 별도 사이클에서만.
 - **Status**: patch 확정(문서만). **코드/schema/manifest/marketplace/package 미변경, OCR/Kordoc/Mistral 설치·실행 없음.** Codex 재검증 **PASS**(`docs/reviews/codex_cycle2k_l3_preliminary_target_clarification_review.md`, C2K-MAJ-01 해소 확인, minor `C2K-L3-MIN-01`: §9 질문 항목·D54 히스토리에 남은 구 표현("제출 MVP"·"후속 확장"·"MVP 후보") 정리 — 본 문서 §9 및 D54 Status에 대체 안내로 반영 완료).
 - **Related Files**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/reviews/codex_cycle2k_ocr_scanned_pdf_image_capability_plan_review.md`, `docs/reviews/codex_cycle2k_l3_preliminary_target_clarification_review.md`.
+
+---
+
+# Cycle 2L 기록 (D56) — 예선 L3 Implementation-Prep 로드맵
+
+## D56. L3 달성을 sub-cycle(2L-1~2L-5)로 분해, L1 prep과 Gate D prep 분리, RH-B2는 L1 prep 포함, L1은 schema-free 경로 권고
+- **Date**: 2026-07-03
+- **Context**: Cycle 2K에서 예선 범위(최소 L0+L1 / target L0+L1+L2+L3 / 범위밖 L4) 확정 및 Codex PASS 후, 다음은 예선 target L3까지의 실제 implementation-prep. 코드 구조를 실측(read-only)해 근거 있는 실행 구조 필요.
+- **Decision**: `docs/planning/cycle2l_preliminary_l3_implementation_prep.md` 작성 — 실측 결과(파이프라인이 findings에서 시작, `src/`에 인테이크/OCR 코드 없음, SKILL "매칭 실패≠미공시→확인 불가+질문"·`not_verifiable→missing_info+customer_questions` 라우팅이 이미 스키마/validator에 존재, evidence_anchor/source_documents는 `additionalProperties:false`) 기반으로:
+  ① 실행 구조를 **sub-cycle 분해** — 2L-1(L1 prep: **RH-B2 종료 포함**·DEI-후보 계약·Skill 라우팅 지침·test plan) → 2L-2(L1 구현, core 무변경 목표) → **2L-3(Gate D prep/실행: 모델준비 egress↔파싱 no-egress 분리·native/LGPL Gate B 재검토·결정성·비민감 유형3 샘플)** → 2L-4(L2 구현, Gate D PASS 후) → 2L-5(L3 구현, Gate D+설계검증 후). 각 sub-cycle은 Codex 리뷰로 닫는다.
+  ② **L1 prep과 Gate D prep 분리**(리스크 계층 상이 — L1은 무-신규-게이트, Gate D는 새 provider·native·egress 표면). ③ **RH-B2는 L1 prep의 첫 작업**(어댑터 호출 install 태세 검증이 L1 실행의 선행). ④ **L1은 schema-free 경로 권고**(위치는 자유텍스트 page_or_section/notes, 판독불가는 기존 not_verifiable 경로 → schema/validator/renderer/delivery **무변경**); 구조화 confidence/bbox/needs_ocr는 스키마 변경이라 **별도 결정+리뷰**로 분리. ⑤ 과장 방지 **Capability Status Ledger**(레벨별 planned/prep/gated/implemented/reviewed, 제품 문서는 implemented+reviewed만 "현재 기능"). ⑥ **손댈 영역**: 신규 옵션 인테이크/DEI 생산기(core 밖)·Skill 지침(저리스크)·(선택) schema-touch 경로.
+- **Rationale**: 리스크를 한 번에 하나씩 여는 순차 게이트 구조가 "가장 안전·빠름"에 부합. L1이 이미 존재하는 라우팅 계약을 재사용하면 core 무변경으로 예선 하한선을 빠르게 확보하고, L2/L3는 Gate D를 물리적 선행으로 두어 target이면서도 과장·무단구현을 차단.
+- **Consequences**: 승인 시 2L-1부터 착수. Gate D(2L-3) 통과 전 L2/L3 코드 착수 없음. Gate D 미통과 시 L0+L1 fallback 제출은 유효하되 "목표선 미달"로 구분 기록.
+- **Status**: 로드맵 확정(문서만). **코드/dependency/schema/manifest/marketplace 미변경, OCR 엔진·API·Python·notebook·업로드 없음. Kordoc/Mistral 미도입.**
+- **Related Files**: `docs/planning/cycle2l_preliminary_l3_implementation_prep.md`, `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/planning/cycle2i_3b_version_strategy_confirmation.md`, `src/schemas/kssb_findings.schema.json`, `src/skills/samil-kssb-precheck/SKILL.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L — 예선 L3 Implementation-Prep 로드맵**(문서만, 구현 없음). 코드 구조 실측(파이프라인이 findings에서 시작, src에 인테이크/OCR 코드 없음,
+  `not_verifiable→missing_info+customer_questions` 라우팅·SKILL "매칭 실패≠미공시" 이미 존재, evidence_anchor/source_documents는 `additionalProperties:false`) 기반으로
+  L3 달성 실행 구조를 **sub-cycle 분해**: 2L-1(L1 prep — **RH-B2 종료 포함**·DEI-후보 계약·**schema-free 경로 확정**) → 2L-2(L1 구현, core 무변경 목표) →
+  **2L-3(Gate D prep/실행 — 모델준비 egress↔파싱 no-egress 분리·Gate B 재검토·유형3 샘플)** → 2L-4(L2 구현, Gate D PASS 후) → 2L-5(L3 구현, Gate D+설계검증 후).
+  판단: L1 prep과 Gate D prep은 **분리**(리스크 계층 다름), L2/L3는 예선 target이나 **Gate D가 물리적 선행**(target≠implemented). 과장 방지 **Capability Status Ledger** 도입.
+  L4는 로드맵 제외(예선 범위 밖, Gate C/C-SH). Kordoc=optional/local·core hard dependency 아님, Mistral=구조 benchmark, OCR/image=DEI 후보·검수 신호만, 차트수치/이미지의미/KSSB충족 추정 금지 불변.
+  문서: `docs/planning/cycle2l_preliminary_l3_implementation_prep.md`. **코드/dependency/OCR 엔진/API/Python/notebook/submission 없음.**
 - **Cycle 2K Patch — 예선 L3 제출 목표 명확화**(Codex C2K-MAJ-01 해소, 문서만). Codex CONDITIONAL PASS가 지적한 "L0+L1=MVP, L2/L3=막연한 후속 확장"
   서술을 **예선 제출 3단 구조**로 재정리: **예선 최소/fallback = L0+L1**(신규 게이트 불요) / **예선 제출 목표 = L0+L1+L2+L3**(Gate D 통과·구현 evidence·독립 검증 조건, L2/L3는 "의도된 목표선") /
   **예선 범위 밖 = L4**(Gate C/C-SH 이후, 본선과 별도). L2/L3가 목표선이어도 **Gate D 통과 전 구현 착수 금지**·**구현 완료 전 "현재 지원 기능" 표현 금지**는 유지;
