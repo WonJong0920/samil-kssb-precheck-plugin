@@ -6,6 +6,11 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-3B Gate A — Hard No-egress Rerun 실행 → PASS**(프로세스/Node 런타임 레벨). Node outbound를 preload 훅으로 **강제 차단(block)**한 상태에서
+  유형1·유형2 파싱 8/8 성공·**파싱 중 outbound 시도 0건**. control로 차단 실제 작동 입증(monitor 포착 + 알려진 원격 `8.8.8.8:53` 차단). 결정성은 **JSON·Markdown 둘 다** 2회 동일
+  (유형1 JSON `eeddfb59…`/MD `953443f4…`, 유형2 JSON `1c7d8ec9…`/MD `6095b881…`; MD는 2I-3A와 일치). 검증 조합 `kordoc@3.8.2 + pdfjs-dist@4.10.38`, 재설치 없이 오프라인 수행.
+  한계: OS/커널 방화벽 레벨 아님 → 민감 실데이터 운영 전 OS 레벨 재확인은 비차단 보강. evidence: `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`.
+  **OCR/formula/MCP/setup 미사용, raw log·PDF·변환물·node_modules·훅 repo 미커밋, 코드/schema/manifest 미변경.** 다음: Gate B(license)·Version Strategy.
 - **Cycle 2I-3B GatePrep — Gate A/B/Version Strategy 실행계획**(Plan Mode, 문서만, gate 실제 실행 없음). 2I-3B 설계 Codex PASS(§11/§12) 기반으로
   구현 전 필수 gate를 실행 가능한 절차로 구체화: **Gate A**(hard no-egress rerun — 차단 제어검증·아웃바운드 관찰·결정성·evidence 항목·PASS/HOLD/FAIL),
   **Gate B**(전이/native license review — v1 경로 의존성·copyleft·native·submission 정합), **Version Strategy**(`kordoc@3.8.2`+`pdfjs-dist@4.10.x` pin·compat-check·fail-fast·auto-upgrade 금지·재검증 5규칙),

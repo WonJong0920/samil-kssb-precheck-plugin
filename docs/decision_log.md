@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -539,6 +539,21 @@
 - **Consequences**: 승인 시 다음 실행자가 Gate A/B/Version을 로컬 수행 → evidence → Codex 검증 → §9 조건 충족 시 별도 승인 하 구현 사이클(2I-3C 등). 하나라도 HOLD/FAIL이면 미진입(보강 또는 현행 fallback).
 - **Status**: 실행계획 확정. **gate 미실행, Kordoc 미설치/미재실행, no-egress/ license 미수행, 코드/의존성/schema/validator/renderer/delivery/manifest/marketplace 미변경, OCR/PDF 미재실행.**
 - **Related Files**: `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/reviews/codex_cycle2i_3b_optional_intake_adapter_design_review.md`, `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md`, `docs/submission_packaging_policy.md`.
+
+---
+
+# Cycle 2I-3B Gate A 기록 (D50) — Hard No-egress Rerun 실행 결과: PASS(프로세스 레벨)
+
+## D50. Node 런타임 outbound 강제 차단 하에서 Kordoc 파싱 무-egress·성공·결정성 확인 → Gate A PASS
+- **Date**: 2026-07-03
+- **Context**: 2I-3A evidence의 "관측상 무-egress"(EV-MIN-01)를 강제 검증으로 승격해야 구현 진입 gate를 통과. gateprep §3 절차대로 실제 수행.
+- **Decision(관찰 기반)**: preload(`--require`) 훅으로 dns/net/tls/http(s)(및 fetch→net 경유) outbound를 **block**한 상태에서 `kordoc@3.8.2 + pdfjs-dist@4.10.38` CLI로 유형1·유형2를 JSON·Markdown 2회씩 파싱 —
+  **8/8 성공(exit 0), 파싱 중 outbound 시도 0건.** control로 차단 실작동 입증(monitor가 loopback 시도 포착 + block이 알려진 원격 `8.8.8.8:53` 연결을 패킷 전송 전 차단). 결정성은 **JSON·Markdown 모두** 2회 동일(유형1 JSON `eeddfb59…`/MD `953443f4…`, 유형2 JSON `1c7d8ec9…`/MD `6095b881…`; MD 해시는 2I-3A와 일치). 재설치 없이 오프라인 수행.
+  → **Gate A = PASS**, 단 판정 범위는 **프로세스(Node JS 런타임) 레벨**(native raw-syscall/child process 미포함; v1은 native OCR/pdfium 미설치·미사용). OS/커널 방화벽 레벨 재확인은 민감 실데이터 운영 전 **비차단 보강**.
+- **Rationale**: v1 텍스트 파싱 코드경로는 순수 JS(kordoc+pdfjs)이고 fetch/undici도 net.connect 경유이므로, Node net 레벨 차단이 실제 코드경로의 egress를 실증적으로 커버. control로 "차단이 실작동"함을 입증해 `totalAttempts=0`을 "훅 미작동"이 아닌 "무시도"로 해석 가능.
+- **Consequences**: Gate A 충족. 다음은 Gate B(전이/native license review)·Version Strategy 확정. 구현 진입은 gateprep §9 전체 조건 충족 후 별도 승인.
+- **Status**: Gate A PASS(프로세스 레벨). **Kordoc 미도입, raw log·PDF·변환물·node_modules·훅 repo 미커밋, OCR/formula/MCP 미사용, 코드/schema/validator/renderer/delivery/manifest/marketplace/package 미변경.**
+- **Related Files**: `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/samples/kordoc_spike_evidence_2026-07-03.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
