@@ -116,7 +116,7 @@
 4. Gate D의 모델 준비(다운로드) ↔ 파싱(no-egress) 분리와 Gate B 재검토 요건이 충분한가?
 5. Gate C-SH가 C2J-MISTRAL-MIN-01(self-host ≠ 자동 no-egress 동급)을 충분히 해소하는가?
 6. 차트 수치/이미지 의미/KSSB 충족 추정 금지 및 low-confidence → `missing_info`+`customer_questions` 라우팅이 source-bound·human-review·no re-judgment·detect-only 원칙을 보존하는가?
-7. 제출 MVP(L0+L1) vs 후속 확장(L2~L4) 구분과 "미구현 단계 과장 금지" 표현 규칙이 제출 패키징 정책과 정합하는가?
+7. 예선 최소/fallback(L0+L1) vs 예선 target(L0+L1+L2+L3) vs 예선 범위 밖(L4)의 3단 구분(§7)과 "미구현 단계 과장 금지"(§7a) 표현 규칙이 제출 패키징 정책과 정합하는가?
 
 ## 10. 다음 단계
 

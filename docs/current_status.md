@@ -18,6 +18,7 @@
   → L4(클라우드/self-host — Gate C / **Gate C-SH**(C2J-MISTRAL-MIN-01 해소: self-host ≠ 자동 no-egress 동급)).
   Kordoc 역할 재정의: **OCR 엔진이 아니라 감지/추출/orchestration 후보**(core hard dependency 금지 유지). Mistral은 구조 참고 모델(2J 유지).
   차트 수치·이미지 의미·KSSB 충족 추정 금지, low-confidence → missing_info+customer_questions. 문서: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`.
+  (참고: 위 "제출 MVP 후보"·"MVP" 표현은 이후 **D55(§7)**에서 **예선 최소/fallback(L0+L1) / 예선 target(L0+L1+L2+L3) / 예선 범위 밖(L4)**으로 대체됨.)
 - **Cycle 2J — Mistral OCR 4 문서지능 구조 벤치마크**(계획 보완, 문서만, 구현/실행 없음). 공개 링크 read-only 확인 후 Mistral OCR 4 구조
   (bbox·typed-block·**inline confidence(페이지/단어)**·markdown·raw OCR↔Document AI 분리·batch `custom_id`/status)를 현재 Kordoc·DEI·evidence 구조와 대비.
   판정: page/block·markdown·계층분리는 **이미 보유(Kordoc 로컬)**; **confidence는 판단이 아니라 '검수 우선순위' 신호**로 DEI 선택필드 반영(추후+Codex검증, no re-judgment 유지);

@@ -619,6 +619,7 @@
 - **Rationale**: 제출 목표 확장을 명시하되, egress·license·판정 경계 리스크를 단계별 게이트로 격리하면 기존 Gate A/B/Version·RH와 충돌 없이 확장 가능. L1은 이미 검증된 신호만 쓰므로 게이트 추가 없이 MVP 스토리(스캔 자료에도 "어디를 사람이 봐야 하는지" 제시)를 완성한다.
 - **Consequences**: L1 구현 착수는 별도 승인+RH-B2 후. L2~L4는 각 게이트(D, C/C-SH) 수행 후에만. RH-S1은 "L0/L1 유지, L2+는 Gate D 후"로 해석 명확화(완화 아님).
 - **Status**: 계획 확정(문서만). **OCR 엔진 설치/실행·API 호출·업로드·패키지 추가·코드/schema/manifest 변경 없음. Kordoc/Mistral 미도입.**
+- **Superseded wording**: 본 항목의 "제출 MVP 후보"·"L2~L4"·"MVP 스토리" 표현은 **D55(§7)**에서 **예선 최소/fallback(L0+L1) / 예선 target(L0+L1+L2+L3) / 예선 범위 밖(L4)**으로 대체됨(C2K-L3-MIN-01).
 - **Related Files**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/planning/cycle2j_mistral_ocr4_document_intelligence_benchmark.md`, `docs/reviews/codex_cycle2j_mistral_ocr4_benchmark_review.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/submission_packaging_policy.md`.
 
 ---
@@ -632,8 +633,8 @@
   §7a 신설로 "목표선 지정"과 "구현 완료 표현"을 분리: L2/L3가 목표 범위여도 **Gate D 통과 전 구현 착수 금지**, **구현·검증 전 "현재 지원 기능" 표현 금지**는 그대로 유지. Gate D 미통과 시 L1 fallback 제출은 유효하되 내부 문서상 "목표선 미달"로 구분 기록하는 규칙 추가. §5 L1~L4 절·§10 다음 단계도 목표/최소/범위밖 프레이밍에 맞춰 정합화. 차트 수치·이미지 의미·KSSB 충족 추정 금지, DEI 후보·검수 신호 전용 합류, source-bound·human-review 원칙은 전부 불변.
 - **Rationale**: 계획 문서의 "목표 표기"와 제품 문서의 "구현 완료 표기"를 별개 승인 트리거로 분리하면, 목표를 명확히 하면서도 과장 표현 금지·게이트 순서를 동시에 지킬 수 있다. Codex 리뷰 원문과 2J 문서/리뷰(이미 PASS)는 수정하지 않고 이번 patch만으로 Major를 해소.
 - **Consequences**: 다음 implementation-prep 논의는 L1(최소) 구현과 L2/L3(목표, Gate D 준비)를 병행 검토 대상으로 다룬다. L4는 예선 판단과 분리해 별도 사이클에서만.
-- **Status**: patch 확정(문서만). **코드/schema/manifest/marketplace/package 미변경, OCR/Kordoc/Mistral 설치·실행 없음.** Codex 재검증 대기.
-- **Related Files**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/reviews/codex_cycle2k_ocr_scanned_pdf_image_capability_plan_review.md`.
+- **Status**: patch 확정(문서만). **코드/schema/manifest/marketplace/package 미변경, OCR/Kordoc/Mistral 설치·실행 없음.** Codex 재검증 **PASS**(`docs/reviews/codex_cycle2k_l3_preliminary_target_clarification_review.md`, C2K-MAJ-01 해소 확인, minor `C2K-L3-MIN-01`: §9 질문 항목·D54 히스토리에 남은 구 표현("제출 MVP"·"후속 확장"·"MVP 후보") 정리 — 본 문서 §9 및 D54 Status에 대체 안내로 반영 완료).
+- **Related Files**: `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/reviews/codex_cycle2k_ocr_scanned_pdf_image_capability_plan_review.md`, `docs/reviews/codex_cycle2k_l3_preliminary_target_clarification_review.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
