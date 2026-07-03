@@ -6,6 +6,11 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-3B GatePrep — Gate A/B/Version Strategy 실행계획**(Plan Mode, 문서만, gate 실제 실행 없음). 2I-3B 설계 Codex PASS(§11/§12) 기반으로
+  구현 전 필수 gate를 실행 가능한 절차로 구체화: **Gate A**(hard no-egress rerun — 차단 제어검증·아웃바운드 관찰·결정성·evidence 항목·PASS/HOLD/FAIL),
+  **Gate B**(전이/native license review — v1 경로 의존성·copyleft·native·submission 정합), **Version Strategy**(`kordoc@3.8.2`+`pdfjs-dist@4.10.x` pin·compat-check·fail-fast·auto-upgrade 금지·재검증 5규칙),
+  v1 OCR/formula/scanned 제외·opt-in/local-only posture 유지, 구현 사이클 진입 조건 체크리스트. 계획: `docs/planning/cycle2i_3b_gateprep_execution_plan.md`.
+  **Kordoc 설치/재실행·no-egress 테스트·license 정밀검토·코드/의존성/manifest/marketplace 변경·OCR/PDF 재실행 없음.**
 - **Cycle 2I-3B — Optional/Pluggable External Intake Adapter 설계**(문서만, 코드 무구현). spike evidence + Codex PASS를 바탕으로
   Kordoc을 **런타임 결합 의존성이 아니라 "외부 인테이크 어댑터 인터페이스 계약 + 로컬 preprocessing" 뒤의 한 구현**으로 격리.
   plugin core는 findings 계약만 소비(어댑터 산출물은 DEI→Skill 경유, renderer/delivery/validator 직접 입력 아님). DEI↔`evidence_anchor` 매핑(판정 미생성·schema 미변경),

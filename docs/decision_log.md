@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -522,6 +522,23 @@
 - **Consequences**: 실제 어댑터 코드·의존성 pin·DEI schema화·인테이크 구현은 **여전히 미착수**. 구현 사이클(예: 2I-3C) 진입은 §12 gate(특히 Gate A·B·버전 전략) 충족·기록 후 별도 승인 하에만.
 - **Status**: 설계 확정. **코드/의존성/schema/validator/renderer/delivery/manifest/marketplace 미변경, Kordoc 미설치·미도입, OCR 미실행.** 사용자/ChatGPT 판단 대기.
 - **Related Files**: `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/samples/kordoc_spike_evidence_2026-07-03.md`, `docs/reviews/codex_cycle2i_3a_kordoc_spike_evidence_review.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
+
+---
+
+# Cycle 2I-3B GatePrep 기록 (D49) — Gate A/B/Version Strategy 실행계획
+
+## D49. 구현 전 gate(A: no-egress, B: license, Version)를 실행 가능한 절차·판정기준으로 고정(Plan Mode, 실행 없음)
+- **Date**: 2026-07-03
+- **Context**: 2I-3B 어댑터 설계가 Codex **PASS**(findings 0)를 받고 §11/§12에서 구현 전 필수 gate(hard no-egress rerun·전이/native license review·버전 제약 전략)와 gate 준비 착수를 권고. 다음 실행자가 바로 gate 작업에 들어갈 수 있는 실행계획 필요.
+- **Decision**: `docs/planning/cycle2i_3b_gateprep_execution_plan.md` 작성 —
+  **Gate A**(차단 방식 선택→차단 제어검증→유형1/2 재파싱→아웃바운드 관찰→결정성 재확인, evidence 항목·PASS/HOLD/FAIL),
+  **Gate B**(v1 경로 의존성 트리·SPDX license 식별·copyleft/attribution 분류·native 바이너리·`submission_packaging_policy.md` 정합, evidence·PASS/HOLD/FAIL; optional/OCR 계열 미설치·미사용 확인),
+  **Version Strategy 5규칙**(kordoc 정확 pin + pdfjs-dist 4.10.x 제약, 실행 전 compat-check→fail-fast, auto-upgrade 금지, 신버전 재검증, 불일치 시 fallback),
+  v1 OCR/formula/scanned 제외 유지, opt-in/local-only posture 유지, **구현 사이클 진입 조건 체크리스트**(A PASS + B PASS + Version 확정 + scope + posture + 경계 불변)를 고정.
+- **Rationale**: gate를 실행 전 절차·판정기준으로 못박아, 실제 수행 결과만으로 "구현 사이클 진입 정당성"을 판정할 수 있게 함. 실행·설치·정밀검토는 승인 하 별도 수행(이번은 계획만).
+- **Consequences**: 승인 시 다음 실행자가 Gate A/B/Version을 로컬 수행 → evidence → Codex 검증 → §9 조건 충족 시 별도 승인 하 구현 사이클(2I-3C 등). 하나라도 HOLD/FAIL이면 미진입(보강 또는 현행 fallback).
+- **Status**: 실행계획 확정. **gate 미실행, Kordoc 미설치/미재실행, no-egress/ license 미수행, 코드/의존성/schema/validator/renderer/delivery/manifest/marketplace 미변경, OCR/PDF 미재실행.**
+- **Related Files**: `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/reviews/codex_cycle2i_3b_optional_intake_adapter_design_review.md`, `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md`, `docs/submission_packaging_policy.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
