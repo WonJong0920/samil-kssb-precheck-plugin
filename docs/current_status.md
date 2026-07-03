@@ -11,6 +11,10 @@
   샘플 유형별 spike 시나리오·성공/실패 기준·evidence 기록 요건(정확한 버전·명령·README 확인일), DEI↔evidence_anchor 매핑 검증, OCR 별도 승인 게이트,
   MCP/설정·로컬 경로 repo 커밋 금지, 실패 fallback을 정의. 계획: `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`.
   Codex 2I-3 minor(C2I3-MIN-01: 계획 문서 stale 서문) 정리. **Kordoc 설치/MCP/OCR/PDF 재실행 없음.**
+- **Cycle 2I-3A 실행 Runbook 추가** — 승인 후 사용자 로컬 spike **실행 절차 + evidence 기록 템플릿**:
+  `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md`. 실행 전 승인 체크리스트·offline/no-egress 확인·라이선스 확인·재현성 기록·
+  샘플 유형별 실행·성공/실패 기준·DEI→evidence_anchor 매핑 관찰·redaction 규칙·실패 fallback·실행 후 Codex Review 포인트 포함.
+  계획(Approval Gate)과 분리된 **실행/증거** 문서. **문서만, Kordoc 설치·MCP·OCR·PDF 재실행 없음.**
 
 ## 이전 Cycle: Cycle 2I-3 (+ 최소 guardrail 구현)
 - 계획 §11의 **validator 내부 경로 스캔 확장**을 detect-only로 구현(`_PATH_PATTERNS`에 `/home/`·`/var/folders/`·`[\\/]Temp[\\/]`·env-var 추가).

@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -475,6 +475,21 @@
 - **Status**: 계획 확정. spike 수행·Kordoc 도입 미착수(사용자 승인 대기).
 - **부수 정리(C2I3-MIN-01)**: `cycle2i_3_document_intake_evidence_quality_plan.md` 서문의 "계획만/미구현" stale 문구를 "처음 계획 push → 이후 guardrail 구현(D44)" 진행 이력으로 정리.
 - **Related Files**: `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
+
+---
+
+# Cycle 2I-3A 기록 (D46) — Kordoc Local Feasibility Spike 실행 Runbook + Evidence 템플릿
+
+## D46. 승인 후 로컬 spike 실행 절차·증거 기록 양식을 문서화(설치·실행 없음)
+- **Date**: 2026-07-03
+- **Context**: D45 계획(Approval Gate)은 "왜/어떤 조건에서 승인"을 정의했으나, 승인 후 **무엇을 어떤 순서로 실행하고 무엇을 기록**할지 실행 절차서가 없었다.
+- **Decision**: `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md` 작성 — 실행 전 승인 체크리스트, 로컬/offline/no-egress 확인, 라이선스 확인,
+  재현성 기록(정확한 버전·명령·README 확인일), 샘플 유형별 실행 절차, 성공/실패 기준, DEI→evidence_anchor 매핑 관찰, 로컬 경로·계정·토큰 redaction 규칙,
+  실패 fallback, evidence 기록 템플릿, 실행 후 Codex Review 요청 포인트를 정의. **실행 주체=사용자(로컬·승인 후)**, 명령은 placeholder 템플릿으로만 기재.
+- **Rationale**: 계획(승인 게이트)과 실행(Runbook·증거)을 분리해 추적성 확보. 실행은 사용자 로컬·승인 후에만, repo에는 민감정보 없는 절차/템플릿만 남긴다.
+- **Consequences**: 승인 시 Runbook을 따라 로컬 spike 수행 → evidence 문서(민감정보 제거) 작성 → Codex 검증 → 도입 여부 판단. 미승인 시 fallback 유지.
+- **Status**: 문서 확정. **Kordoc 설치·MCP·OCR·PDF 재실행 미착수**(사용자 승인 대기).
+- **Related Files**: `docs/planning/cycle2i_3a_kordoc_local_spike_runbook.md`, `docs/planning/cycle2i_3a_kordoc_feasibility_spike_plan.md`, `docs/planning/cycle2i_3_document_intake_evidence_quality_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
