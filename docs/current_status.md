@@ -6,14 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-2 — L1 Implementation**(코드: 선택적 인테이크→DEI producer). 신규 **`src/intake/dei_producer.py`**(core 밖 opt-in, 표준 라이브러리)로
+  이미 로컬 추출된 인테이크 산출물을 **DEI-candidate**(결정적·판정 미생성·원문 보존·실패 명시)로 정규화. Skill 라우팅 지침(`evidence_mapping_rules.md` §6, SKILL.md)으로
+  스캔/이미지/저신뢰 신호를 **기존 `not_verifiable`+`missing_info`+`customer_questions` 경로**에 연결(위치는 `p.<n> · <섹션>` 자유텍스트, **bbox는 DEI에만**).
+  **schema/validator/renderer/delivery 코드 무변경**(별도 schema-evolution 불필요로 판단). 테스트: 신규 `tests/test_intake_dei_producer.py` **14/14 PASS**, 기존 검증기 26·렌더러 22·전달 33 **전부 유지(실패 0)**.
+  경계: DEI는 renderer/validator 직접 유입 금지(테스트로 강제)·priority→판정 직접 매핑 금지·OCR/native/model/egress 없음·L2/L3는 현재 기능 아님(Gate D 대상). 완료 보고: `docs/cycle2l_2_l1_intake_completion_report.md`.
+  **OCR provider 미설치/미실행, package/dependency 미변경, API/notebook/업로드 없음.** Codex Review 대기.
+- **Capability Status Ledger**: **L0=implemented+reviewed** / **L1=implemented(2L-2), review 대기**(Codex PASS 시 implemented+reviewed 승격) / **L2=planned(Gate D-blocked)** / **L3=planned(Gate D+설계 blocked)** / **L4=out-of-preliminary-scope**.
 - **Cycle 2L-1 — L1 Implementation-Prep**(문서 + RH-B2 로컬 검증, L1 코드 미구현). **RH-B2 종결(PASS)**: `--omit=optional` 클린 설치
   (`kordoc@3.8.2 + pdfjs-dist@4.10.38`, native/optional 전부 부재·`.node` 0건)에서 유형1·유형2 파싱 4/4 성공, 산출물 해시가 **Gate A와 바이트 일치** →
   optional/native는 v1 텍스트 경로에 무영향(evidence: `docs/samples/rh_b2_optional_exclusion_evidence_2026-07-03.md`). 이어 **L1 schema-free DEI-후보 계약 동결**,
   **page/bbox/quality hint 자유텍스트 convention**(findings엔 `p.<n> · <section>` 최소표기, bbox는 DEI 문서수준에만 — 숨은 스키마화 방지), **L1 Skill routing draft**
   (판독불가/저신뢰 → 기존 `not_verifiable`+`missing_info`+`customer_questions`, core 무변경), **L1 test plan**(기존 3종 green 유지 + 신규 DEI 생산기 단위/계약/경계 테스트),
   **Gate D 비실행 준비**(유형3 샘플·provider 기준·evidence 템플릿·no-exec 체크리스트 — 설치·OCR·모델다운로드 없음)를 정리. 문서: `docs/planning/cycle2l_1_l1_implementation_prep.md`.
-  **코드/schema/validator/renderer/delivery/manifest/package 미변경, OCR provider 미설치·미실행, API/notebook/업로드 없음.**
-- **Capability Status Ledger**(과장 방지, 제품 문서는 `implemented+reviewed`만 "현재 기능"): **L0=implemented+reviewed** / **L1=prep(2L-1, RH-B2 closed → 2L-2 구현 대기)** / **L2=planned(Gate D-blocked)** / **L3=planned(Gate D+설계 blocked)** / **L4=out-of-preliminary-scope(Gate C/C-SH)**.
+  **코드/schema/validator/renderer/delivery/manifest/package 미변경, OCR provider 미설치·미실행, API/notebook/업로드 없음.** (Ledger는 상단 2L-2 항목으로 갱신됨.)
 - **Cycle 2L — 예선 L3 Implementation-Prep 로드맵**(문서만, 구현 없음). 코드 구조 실측(파이프라인이 findings에서 시작, src에 인테이크/OCR 코드 없음,
   `not_verifiable→missing_info+customer_questions` 라우팅·SKILL "매칭 실패≠미공시" 이미 존재, evidence_anchor/source_documents는 `additionalProperties:false`) 기반으로
   L3 달성 실행 구조를 **sub-cycle 분해**: 2L-1(L1 prep — **RH-B2 종료 포함**·DEI-후보 계약·**schema-free 경로 확정**) → 2L-2(L1 구현, core 무변경 목표) →
