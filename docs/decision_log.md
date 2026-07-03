@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -650,6 +650,26 @@
 - **Consequences**: 승인 시 2L-1부터 착수. Gate D(2L-3) 통과 전 L2/L3 코드 착수 없음. Gate D 미통과 시 L0+L1 fallback 제출은 유효하되 "목표선 미달"로 구분 기록.
 - **Status**: 로드맵 확정(문서만). **코드/dependency/schema/manifest/marketplace 미변경, OCR 엔진·API·Python·notebook·업로드 없음. Kordoc/Mistral 미도입.**
 - **Related Files**: `docs/planning/cycle2l_preliminary_l3_implementation_prep.md`, `docs/planning/cycle2k_document_intake_ocr_scanned_pdf_image_capability_plan.md`, `docs/planning/cycle2i_3b_optional_intake_adapter_design.md`, `docs/planning/cycle2i_3b_version_strategy_confirmation.md`, `src/schemas/kssb_findings.schema.json`, `src/skills/samil-kssb-precheck/SKILL.md`.
+
+---
+
+# Cycle 2L-1 기록 (D57) — L1 Implementation-Prep + RH-B2 종결
+
+## D57. RH-B2 종결(PASS), L1 schema-free DEI-후보 계약·hint convention·Skill routing draft·test plan 확정, Gate D 비실행 준비
+- **Date**: 2026-07-03
+- **Context**: 2L roadmap Codex PASS(minors C2L-MIN-01 RH-B2 evidence 구체화, C2L-MIN-02 Gate D 비실행 logistics 조기 시작) 후 2L-1 착수. L1 코드는 아직 미구현.
+- **Decision**:
+  ① **RH-B2 종결(PASS)** — `npm install kordoc@3.8.2 pdfjs-dist@4.10.38 --omit=optional` 클린 설치(119 packages, native/optional(`sharp`/`onnxruntime-node`/`@hyzyla/pdfium`/`@napi-rs/canvas`) 전부 부재, `.node` 0건)에서 유형1·유형2 파싱 4/4 성공, 4개 산출물 SHA-256이 **Gate A evidence와 바이트 일치** → optional/native는 v1 텍스트 경로에 무영향·미로드. evidence: `docs/samples/rh_b2_optional_exclusion_evidence_2026-07-03.md`(명령·버전·설치태세·native 부재·hash·redaction, C2L-MIN-01 충족).
+  ② **L1 schema-free DEI-후보 계약 동결** — DEI는 findings 상위 문서수준 산출물(schema 아님), 어댑터(2L-2, core 밖) 생산·Skill 소비. 안정 필드(source_id·doc_quality·blocks{block_type·text_or_table_md·location_hint·extraction_quality·needs_ocr·warnings}·review_priority_hints) + 규칙(판정 미생성·원문 보존·결정성·실패 명시). ad-hoc 매핑 방지.
+  ③ **hint convention** — findings `page_or_section`은 `p.<n> · <section_path>` 최소 사람표기(표/그림 라벨 허용), **bbox 좌표는 DEI `location_hint`에만**(findings 자유텍스트의 숨은 스키마화 방지, Codex 리스크 반영).
+  ④ **L1 Skill routing draft**(실제 SKILL.md 수정은 2L-2) — 판독불가/저신뢰(needs_ocr·low quality·SKIPPED_IMAGE) → 미공시 단정 금지 → 기존 `not_verifiable`+`missing_info`+`customer_questions` 경로 재사용(스키마 allOf가 이미 강제 → **validator 무변경**). 차트수치·이미지의미·KSSB충족 추정 금지.
+  ⑤ **L1 test plan** — 기존 3종(26·22·33) 수정 없이 green 유지(core 무변경 증거) + 신규 DEI 생산기 단위(결정성·감지→priority·판정 미생성·원문 보존)·계약(→findings validator 0 error)·경계(직접 유입 금지) 테스트.
+  ⑥ **Gate D 비실행 준비(C2L-MIN-02)** — 유형3 샘플 기준(비민감·진짜 스캔·미암호화; **적합 샘플 미확보를 2L-3 선행 확보 항목으로 표기**)·로컬 OCR provider 후보 기준(로컬/오프라인·모델준비↔파싱 분리 가능·license 검토 가능·결정성)·Gate D evidence 빈 템플릿·no-execution 체크리스트. **설치·모델다운로드·OCR 실행·native/egress 개방 없음.**
+  ⑦ **Capability Status Ledger**를 current_status에 반영(L0 implemented+reviewed / L1 prep / L2·L3 planned·Gate D-blocked / L4 out-of-scope).
+- **Rationale**: RH-B2를 실측으로 닫아 L1이 어댑터 경로에 의존하기 전 선행조건 충족. schema-free 경로로 core를 건드리지 않고 예선 하한선(L1)을 빠르게 확보. Gate D 비실행 준비로 예선 target(L2/L3) 일정 리스크를 게이트 위반 없이 축소.
+- **Consequences**: 2L-2(L1 구현) 착수 조건 = 본 문서 Codex PASS + 사용자/ChatGPT 승인. 2L-2는 신규 인테이크/DEI 생산기(core 밖)+Skill 지침만, schema/validator/renderer/delivery 무변경 목표. Gate D(2L-3) 통과 전 L2/L3 코드 없음.
+- **Status**: prep 확정. **L1 코드·schema·validator/renderer/delivery·package 미변경, OCR provider 미설치/미실행, API/Python/notebook/업로드 없음. `node_modules`·lock·파싱 산출물 repo 미커밋.**
+- **Related Files**: `docs/planning/cycle2l_1_l1_implementation_prep.md`, `docs/samples/rh_b2_optional_exclusion_evidence_2026-07-03.md`, `docs/planning/cycle2l_preliminary_l3_implementation_prep.md`, `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`, `src/schemas/kssb_findings.schema.json`, `src/skills/samil-kssb-precheck/SKILL.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

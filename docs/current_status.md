@@ -6,6 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-1 — L1 Implementation-Prep**(문서 + RH-B2 로컬 검증, L1 코드 미구현). **RH-B2 종결(PASS)**: `--omit=optional` 클린 설치
+  (`kordoc@3.8.2 + pdfjs-dist@4.10.38`, native/optional 전부 부재·`.node` 0건)에서 유형1·유형2 파싱 4/4 성공, 산출물 해시가 **Gate A와 바이트 일치** →
+  optional/native는 v1 텍스트 경로에 무영향(evidence: `docs/samples/rh_b2_optional_exclusion_evidence_2026-07-03.md`). 이어 **L1 schema-free DEI-후보 계약 동결**,
+  **page/bbox/quality hint 자유텍스트 convention**(findings엔 `p.<n> · <section>` 최소표기, bbox는 DEI 문서수준에만 — 숨은 스키마화 방지), **L1 Skill routing draft**
+  (판독불가/저신뢰 → 기존 `not_verifiable`+`missing_info`+`customer_questions`, core 무변경), **L1 test plan**(기존 3종 green 유지 + 신규 DEI 생산기 단위/계약/경계 테스트),
+  **Gate D 비실행 준비**(유형3 샘플·provider 기준·evidence 템플릿·no-exec 체크리스트 — 설치·OCR·모델다운로드 없음)를 정리. 문서: `docs/planning/cycle2l_1_l1_implementation_prep.md`.
+  **코드/schema/validator/renderer/delivery/manifest/package 미변경, OCR provider 미설치·미실행, API/notebook/업로드 없음.**
+- **Capability Status Ledger**(과장 방지, 제품 문서는 `implemented+reviewed`만 "현재 기능"): **L0=implemented+reviewed** / **L1=prep(2L-1, RH-B2 closed → 2L-2 구현 대기)** / **L2=planned(Gate D-blocked)** / **L3=planned(Gate D+설계 blocked)** / **L4=out-of-preliminary-scope(Gate C/C-SH)**.
 - **Cycle 2L — 예선 L3 Implementation-Prep 로드맵**(문서만, 구현 없음). 코드 구조 실측(파이프라인이 findings에서 시작, src에 인테이크/OCR 코드 없음,
   `not_verifiable→missing_info+customer_questions` 라우팅·SKILL "매칭 실패≠미공시" 이미 존재, evidence_anchor/source_documents는 `additionalProperties:false`) 기반으로
   L3 달성 실행 구조를 **sub-cycle 분해**: 2L-1(L1 prep — **RH-B2 종료 포함**·DEI-후보 계약·**schema-free 경로 확정**) → 2L-2(L1 구현, core 무변경 목표) →
