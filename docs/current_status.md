@@ -6,6 +6,12 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2I-3B Version Strategy Confirmation → 확정 + Residual Hardening Register**(문서만, 구현 없음). Gate A·B PASS 이후 남은 gate인
+  Version Strategy 8규칙 확정: `kordoc@3.8.2` exact pin · `pdfjs-dist@4.10.x`(실측 4.10.38, 광역 `>=4` 금지) · 실행 전 compat-check · 미검증 fail-fast ·
+  auto-upgrade 금지 · 신버전 시 Gate A/B 재검증 · 불일치 시 fallback · Kordoc은 계속 optional/local(core hard dependency 아님, `--omit=optional`).
+  전체 흐름의 non-blocking 보강을 Residual Hardening Register로 수집(RH-A1 OS-egress·RH-A2 메타·RH-B2 optional-omit trace·RH-P1/2 attribution/법률·RH-S1/C1 유지규칙);
+  **RH-B1(완전 117 의존성 인벤토리+`INVENTORY_SHA256`)은 본 문서에서 해소**(GATEB-MIN-01). 판정: **기술 gate 전부 충족, 잔여 blocker 없음. 단 구현 착수 전 사용자/ChatGPT 명시적 승인 필요 → 다음은 구현이 아니라 Codex Review→승인→구현.**
+  확정: `docs/planning/cycle2i_3b_version_strategy_confirmation.md`. **package/dependency 미추가, Kordoc 미설치/미재실행, PDF/OCR/MCP 미실행, 코드/schema/manifest 미변경.**
 - **Cycle 2I-3B Gate B — Transitive/Native License Review 실행 → PASS**(v1 text-PDF 경로). `kordoc@3.8.2 + pdfjs-dist@4.10.38` 기준
   v1-required 폐포(deps-only 재귀) **117개 전부 permissive**(116 permissive + jszip dual MIT-electable; copyleft·native·unknown 0). 116/117 LICENSE 동봉.
   카피레프트(LGPL: `@img/sharp-win32-x64`)·native 바이너리(`sharp`/`onnxruntime`/`@hyzyla/pdfium`/`canvas`)는 **모두 v1 경로 밖 optional**로 미로드.

@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -568,6 +568,21 @@
 - **Consequences**: Gate A·B PASS. 남은 gateprep 항목은 Version Strategy 확정. 구현 진입은 gateprep §9 전체 조건 충족 후 별도 승인. 비차단 후속: 구현 시 `--omit=optional` 설치 태세 고정, 번들 결정 시 attribution/NOTICE 수집, 형식 법률 검토(제출 단계).
 - **Status**: Gate B PASS(1차 인벤토리). **형식 법률의견 아님. Kordoc 미도입, node_modules·분석 스크립트·lock·raw 인벤토리 repo 미커밋, OCR/formula/MCP 미사용, 코드/schema/validator/renderer/delivery/manifest/marketplace/package 미변경.**
 - **Related Files**: `docs/samples/gate_b_license_review_evidence_2026-07-03.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`, `docs/submission_packaging_policy.md`, `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`.
+
+---
+
+# Cycle 2I-3B 기록 (D52) — Version Strategy 확정 + Residual Hardening Register
+
+## D52. Version Strategy 8규칙 확정, 잔여 보강 수집 → 기술 gate 전부 충족, 다음은 Codex Review→승인→구현
+- **Date**: 2026-07-03
+- **Context**: Gate A(D50)·Gate B(D51) PASS 후 남은 gate는 Version Strategy. 동시에 Gate A/B 리뷰·adapter design 흐름의 non-blocking 보강을 빠짐없이 정리 필요.
+- **Decision**: `docs/planning/cycle2i_3b_version_strategy_confirmation.md` 작성 — **Version Strategy 8규칙 확정**(V1 `kordoc@3.8.2` exact pin, V2 `pdfjs-dist@4.10.x`(광역 `>=4` 금지, v6.1.200 실패), V3 실행 전 compat-check, V4 미검증 fail-fast, V5 auto-upgrade 금지, V6 신버전 시 Gate A/B 재검증, V7 불일치 시 fallback, V8 optional/local·core hard dependency 아님·`--omit=optional`).
+  **Residual Hardening Register**로 전체 보강 수집: RH-A1(OS/kernel no-egress), RH-A2(메타데이터: 부분 반영), **RH-B1(완전 117 인벤토리+`INVENTORY_SHA256=64648c64…`) 해소**, RH-B2(`--omit=optional` trace, open), RH-P1(attribution/NOTICE·LGPL 제외), RH-P2(형식 법률), RH-S1(OCR/scanned v1 제외 유지), RH-C1(core boundary 불변).
+  → **기술 gate(Gate A PASS + Gate B PASS + Version 확정 + scope/posture/boundary) 전부 충족, 잔여 blocker 없음.** 단 **구현 착수 전 사용자/ChatGPT 명시적 승인 필요** + 구현-prep에서 RH-B2 처리. **다음 단계 = Codex Review → 승인 → 구현**(바로 구현 아님).
+- **Rationale**: 버전 리스크를 pin·fail-fast·재검증 규칙으로 고정하고, 남은 보강을 blocker/non-blocker·처리 시점으로 명시해 "무엇이 언제 필요한지"를 추적 가능하게 함. RH-B1은 완전 인벤토리+hash로 즉시 해소(GATEB-MIN-01), RH-B2는 PDF 재실행 금지 경계상 구현-prep으로 이월.
+- **Consequences**: 구현 사이클(예: 2I-3C, 최소 opt-in 어댑터 계약)은 사용자/ChatGPT 승인 + RH-B2 처리 후 별도 사이클로. RH-P1/P2는 번들·재배포 결정 시 처리.
+- **Status**: Version Strategy 확정. **Kordoc 미도입·미설치, package/dependency 미추가, PDF/OCR/MCP 미실행, node_modules·스크립트·lock repo 미커밋, 코드/schema/validator/renderer/delivery/manifest/marketplace 미변경.**
+- **Related Files**: `docs/planning/cycle2i_3b_version_strategy_confirmation.md`, `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`, `docs/samples/gate_b_license_review_evidence_2026-07-03.md`, `docs/planning/cycle2i_3b_gateprep_execution_plan.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
