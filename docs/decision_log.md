@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -704,6 +704,18 @@
 - **Consequences**: MAJ-01 해소 → **Codex patch review PASS 시 L1을 `implemented+reviewed`로 승격** 가능(그 전엔 유보). 이후 2L-3(Gate D). schema/validator/renderer/delivery 코드·package 무변경 유지.
 - **Status**: patch 완료(intake 26/26, 코어 26·22·33 green, `git diff --check` clean). **schema/validator/renderer/delivery/manifest/package 미변경, OCR/API/notebook/업로드 없음.** Codex patch review 대기.
 - **Related Files**: `src/intake/dei_producer.py`, `tests/test_intake_dei_producer.py`, `src/skills/samil-kssb-precheck/evidence_mapping_rules.md`, `docs/cycle2l_2_l1_intake_completion_report.md`(§8), `docs/reviews/codex_cycle2l_2_l1_implementation_review.md`.
+
+---
+
+# Cycle 2L-2 Closure 기록 (D60) — L1을 implemented+reviewed로 승격
+
+## D60. Codex patch review PASS에 따라 L1 승격, C2L2 finding 전부 종결, 다음은 Gate D(미실행)
+- **Date**: 2026-07-04
+- **Context**: Cycle 2L-2 L1 patch(D59)에 대한 Codex patch review(`docs/reviews/codex_cycle2l_2_l1_patch_review.md`)가 **PASS**(Critical/Major/Minor 0). C2L2-MAJ-01(malformed→IntakeError 최소 계약)·C2L2-MIN-01(not_verifiable 위치힌트 문구)·C2L2-MIN-02(trailing whitespace) **전부 종결** 확인. 테스트 intake 26/26·코어 26·22·33 green 재확인. 이번 작업은 status closure(문서만).
+- **Decision**: Capability Status Ledger에서 **L1을 `implemented(2L-2), review 대기` → `implemented+reviewed`로 승격**. 근거 commit/review: L1 구현 `045e617217df8b5740eba08aa5d5b21386d89527`, L1 patch `0fa52d839ddfb4dacb9f91f5709c813e7e3b7d71`, patch review PASS `e8f90164404fa28e4fcf70dbaa1bbee5d9a9f170`. **L2/L3는 planned·Gate D-blocked 유지, L4는 out-of-preliminary-scope 유지.**
+- **Consequences**: 다음 단계 = **Cycle 2L-3 Gate D prep/execution**(사용자/ChatGPT 결정 후 착수 가능, 아직 실행 전). **Gate D 통과 전까지 L2/L3 코드·OCR provider 설치/실행·모델 다운로드·native/egress 개방 금지.** 제품 문서는 이제 L1을 현재 기능으로 표기 가능(L2/L3는 금지).
+- **Status**: closure 완료(status 문서만). **코드/테스트/schema/validator/renderer/delivery/manifest/package·dependency 무변경, OCR/API/notebook/업로드 없음.** (코드 변경 없음으로 테스트 미재실행 — patch review에서 26/26·26·22·33 green 확인됨.)
+- **Related Files**: `docs/current_status.md`, `docs/reviews/codex_cycle2l_2_l1_patch_review.md`, `docs/cycle2l_2_l1_intake_completion_report.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

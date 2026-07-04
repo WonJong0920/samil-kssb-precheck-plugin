@@ -6,6 +6,10 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-2 Closure — L1 → `implemented+reviewed` 승격**(status update, 코드 무변경). Codex patch review **PASS**(findings 0,
+  `docs/reviews/codex_cycle2l_2_l1_patch_review.md`)로 **C2L2-MAJ-01/MIN-01/MIN-02 종결** 확인 → Capability Status Ledger에서 L1을 **`implemented+reviewed`**로 승격.
+  근거 commit/review: L1 구현 `045e617217df8b5740eba08aa5d5b21386d89527` · L1 patch `0fa52d839ddfb4dacb9f91f5709c813e7e3b7d71` · patch review PASS `e8f90164404fa28e4fcf70dbaa1bbee5d9a9f170`.
+  **다음 단계 = Cycle 2L-3 Gate D prep/execution — 착수 가능하나 아직 실행 전.** Gate D 통과 전까지 L2/L3 코드·OCR provider 설치/실행·모델 다운로드·native/egress 개방 **금지**. L4는 예선 범위 밖 유지.
 - **Cycle 2L-2 Patch — Intake Validation Fix**(Codex CONDITIONAL PASS 조건 해소, narrow patch). **C2L2-MAJ-01**: `dei_producer.py`의 `_require`를
   `_validate_intake_contract`로 대체 — malformed 입력(빈 `{}`·`success` 누락/비-true·`blocks` 비-list·`pageQuality` 누락/빈값·`qualitySummary` 누락·`pageCount`<1 등)은
   **조용한 빈 DEI 대신 `IntakeError`**. "유효하지만 근거 빈약(스캔 전용 blocks=[])"은 `pageQuality`/`qualitySummary`/`pageCount` 신호로 허용. negative/positive 테스트 +12(14→**26/26 PASS**).
@@ -17,7 +21,7 @@
   **schema/validator/renderer/delivery 코드 무변경**(별도 schema-evolution 불필요로 판단). 테스트: 신규 `tests/test_intake_dei_producer.py` **14/14 PASS**, 기존 검증기 26·렌더러 22·전달 33 **전부 유지(실패 0)**.
   경계: DEI는 renderer/validator 직접 유입 금지(테스트로 강제)·priority→판정 직접 매핑 금지·OCR/native/model/egress 없음·L2/L3는 현재 기능 아님(Gate D 대상). 완료 보고: `docs/cycle2l_2_l1_intake_completion_report.md`.
   **OCR provider 미설치/미실행, package/dependency 미변경, API/notebook/업로드 없음.** Codex Review 대기.
-- **Capability Status Ledger**: **L0=implemented+reviewed** / **L1=implemented(2L-2), review 대기**(Codex PASS 시 implemented+reviewed 승격) / **L2=planned(Gate D-blocked)** / **L3=planned(Gate D+설계 blocked)** / **L4=out-of-preliminary-scope**.
+- **Capability Status Ledger**: **L0=implemented+reviewed** / **L1=implemented+reviewed**(구현 `045e617` + patch `0fa52d8`, Codex patch review PASS `e8f9016`) / **L2=planned(Gate D-blocked)** / **L3=planned(Gate D+설계 blocked)** / **L4=out-of-preliminary-scope**. 2L-3(Gate D)=착수 가능, 아직 실행 전.
 - **Cycle 2L-1 — L1 Implementation-Prep**(문서 + RH-B2 로컬 검증, L1 코드 미구현). **RH-B2 종결(PASS)**: `--omit=optional` 클린 설치
   (`kordoc@3.8.2 + pdfjs-dist@4.10.38`, native/optional 전부 부재·`.node` 0건)에서 유형1·유형2 파싱 4/4 성공, 산출물 해시가 **Gate A와 바이트 일치** →
   optional/native는 v1 텍스트 경로에 무영향(evidence: `docs/samples/rh_b2_optional_exclusion_evidence_2026-07-03.md`). 이어 **L1 schema-free DEI-후보 계약 동결**,

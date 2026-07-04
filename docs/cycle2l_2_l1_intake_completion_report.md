@@ -69,3 +69,4 @@
 - **C2L2-MIN-02 — trailing whitespace 제거**: `docs/decision_log.md` D58 `- **Decision**:` 라인 후행 공백 제거(`git diff --check` clean).
 - **경계 불변**: schema/validator/renderer/delivery **코드 무변경**(기존 26·22·33 green 유지), DEI는 renderer/validator 직접 유입 금지, OCR/native/model/egress 없음, 새 의존성 없음. schema-evolution 불필요(Codex 동의).
 - **판단 근거**: "valid but evidence-poor" 허용은 스캔 전용 문서(L1의 핵심 대상)를 배제하지 않기 위함이고, 그 경우도 `pageQuality`/`qualitySummary`라는 **최소 문서 구조 신호**를 요구해 malformed와 구분한다. negative test 11건은 Codex가 지목한 누락 구조(success/blocks/pageQuality 등)를 각각 커버한다.
+- **승격 결과(Closure)**: Codex patch review **PASS**(findings 0, `docs/reviews/codex_cycle2l_2_l1_patch_review.md`)로 C2L2-MAJ-01/MIN-01/MIN-02 종결 → **L1 = `implemented+reviewed`**(D60). 다음 단계는 Cycle 2L-3 Gate D(착수 전). Gate D 통과 전 L2/L3·OCR 실행 금지.
