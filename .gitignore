@@ -21,3 +21,8 @@ logs/*
 *_KSSB_공시근거_사전검토보고서.md
 build/
 out/
+
+# 원본/샘플 PDF·문서 원자료(제출 패키징 정책 §1 E-분류 — repo 미커밋; hash·관찰만 문서화).
+# Gate D Type 3 샘플 등 로컬 검토용 원본은 repo 밖 취급, 실수 커밋 방지.
+*.pdf
+*.PDF

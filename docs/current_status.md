@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-3B0 — Type 3 Sample Suitability Review**(read-only inspection, 문서만). 사용자 제공 Gate D 후보 PDF(로컬 `[REDACTED_LOCAL_PATH]`)를
+  이미 설치된 read-only 도구(PyMuPDF `fitz`·poppler `pdftotext`)로만 검사(이미지 렌더링·OCR·API·notebook·설치 없음). 결과: **292페이지 전면 스캔/이미지 기반, 텍스트 레이어 0**
+  (전 페이지 추출 텍스트 0자, 두 도구 교차검증 일치), **비암호화**, metadata PII 항목 없음(변환 도구명만). **SHA-256 `be9bfb1a…b2ed363`**. →
+  **Type 3 기술 요건 충족**(진짜 스캔·`needsOcr` 자명). 단 텍스트 레이어 부재로 **이미지 내부 PII는 구조검사만으로 미확인** → 채택은 **사람 육안 PII 점검 + 대표 소수 페이지(3–5p) 선별** 전제(전량 292p 사용 지양).
+  **원본 PDF = repo 미커밋**(submission 정책 E-분류) — `.gitignore`에 `*.pdf`/`*.PDF` 추가로 실수 커밋 차단(tracked PDF 0건, 원본 untracked·ignored), 본문은 **hash·관찰만** 기록.
+  판정: 샘플 자체는 부적합 아님, **선별·PII 점검·출처 확인이 선행 조건(CONDITIONAL readiness)** → 바로 Gate D execution 아님. OCR provider 선정(§3)·no-egress evidence는 Gate D 실행 시 별도 수행.
+  문서: `docs/samples/gate_d_type3_sample_suitability_review_2026-07-04.md`. **L1=implemented+reviewed 유지, L2/L3=Gate D-blocked 유지. Gate D는 아직 실행 전.**
 - **Cycle 2L-3A — Gate D Preflight / Execution Plan**(no-execution prep, 문서만). Gate D 실행 **전** preflight를 확정: 목적·범위(모델/도구 **준비 egress**(허용·기록) ↔
   **파싱/OCR 실행 no-egress**(Gate A 방식 증거) 분리, native/optional/license = **Gate B 재검토**, 비민감 Type 3 샘플, OCR 결과는 **DEI candidate/검수 신호로만**), Type 3 샘플 기준(**현재 미확보** — 임의 생성·다운로드 금지),
   OCR provider **평가 기준 우선·후보 나열만**(Kordoc `--formula-ocr`/Tesseract 계열/로컬 ONNX — 설치·실행 안 함), Gate D **evidence 빈 템플릿**, PASS/CONDITIONAL/FAIL 기준, Gate D 이후 경로(PASS→2L-4 L2 / CONDITIONAL→조건해소 / FAIL→L1 fallback+목표선 미달; L3는 Gate D PASS+설계검증 전 금지).
