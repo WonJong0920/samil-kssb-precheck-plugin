@@ -6,6 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-3B — Gate D Execution Evidence**(로컬 OCR provider 실행 검증, evidence 문서). Codex 2L-3B0 PASS + 사용자 확인(ver2 9p **PII 없음**·**공식 홈페이지 다운로드**) 후,
+  preflight 기준으로 로컬 OCR 실행을 증거화(**모두 repo 밖 임시 디렉터리**, sample/PNG/OCR원문/모델/venv/node_modules 미커밋). 샘플 hash **일치**(`238de8be…`, 9p) 확인 후 진행.
+  provider 후보 2종 평가: **rapidocr-onnxruntime 기각**(onnxruntime **native DLL 초기화 실패** — preflight §3 native/Windows 리스크 실사례) → **tesseract.js 7.0.0 선정**(순수 JS+WASM, **native 0**, Apache-2.0/MIT/BSD, tessdata_fast kor+eng).
+  **준비 egress(허용·기록: npm/PyPI/GitHub)↔파싱 no-egress 분리**. 파싱 no-egress = **Gate A 방식 Node 훅 + worker_threads 확장**(control C1 monitor 포착·C2 원격 `8.8.8.8:53` 차단·worker도 차단 확인), 파싱 중 **outbound 0**(main observedTotal=0, worker hooked, block 하 OCR 성공·완주).
+  **결정성 3회 output hash 동일**(`546926ec…`). license/native: provider 트리 13패키지 전부 permissive·native 바이너리 0(wasm 6)·**RH-B2 native 재유입 없음**. OCR 산출은 집계·hash만 기록(원문 미커밋), 한국어 위주 인식(총 11,852자).
+  **provisional outcome = all criteria observed**, 단 **최종 Gate D PASS/FAIL은 Codex Review 보류**(Claude Code 판정 안 함). 한계: Node 런타임 레벨(OS/커널 방화벽 아님, 비차단)·정확도 미평가(게이트 기준 아님).
+  문서: `docs/samples/gate_d_ocr_evidence_2026-07-04.md`. **코드/schema/validator/renderer/delivery/src/tests/manifest/package/lock 무변경, cloud/외부API OCR 미사용, submission.zip 없음, repo tracked artifact 0.**
+  **L1=implemented+reviewed 유지. L2/L3=Gate D-blocked 유지 — Codex evidence review PASS 전까지 L2/L3 구현 금지.** OCR 결과는 DEI candidate/검수 신호로만(판정 미생성).
 - **Cycle 2L-3B0 Patch — Type 3 Selected Sample Review (ver2, 9p)**(read-only inspection, 문서만). 사용자가 292p source candidate에서 대표 **9페이지를 선별한 ver2 PDF**
   (로컬 `[REDACTED_LOCAL_PATH]`, repo 밖)를 read-only 도구(`fitz`·`pdftotext`)로만 검사(이미지 렌더링·OCR·API·notebook·설치 없음). 결과: **9페이지 전면 스캔/이미지 기반, 텍스트 레이어 0**
   (전 페이지 0자, 두 도구 교차검증), 비암호화, metadata PII 없음, 292p와 **동일 스캔 프로파일**. **SHA-256 `238de8be…c843c5a3`**(source candidate 292p = `be9bfb1a…b2ed363`와 구분). →
