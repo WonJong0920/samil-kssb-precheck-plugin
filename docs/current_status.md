@@ -6,6 +6,10 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-3A — Gate D Preflight / Execution Plan**(no-execution prep, 문서만). Gate D 실행 **전** preflight를 확정: 목적·범위(모델/도구 **준비 egress**(허용·기록) ↔
+  **파싱/OCR 실행 no-egress**(Gate A 방식 증거) 분리, native/optional/license = **Gate B 재검토**, 비민감 Type 3 샘플, OCR 결과는 **DEI candidate/검수 신호로만**), Type 3 샘플 기준(**현재 미확보** — 임의 생성·다운로드 금지),
+  OCR provider **평가 기준 우선·후보 나열만**(Kordoc `--formula-ocr`/Tesseract 계열/로컬 ONNX — 설치·실행 안 함), Gate D **evidence 빈 템플릿**, PASS/CONDITIONAL/FAIL 기준, Gate D 이후 경로(PASS→2L-4 L2 / CONDITIONAL→조건해소 / FAIL→L1 fallback+목표선 미달; L3는 Gate D PASS+설계검증 전 금지).
+  문서: `docs/planning/cycle2l_3_gate_d_preflight_plan.md`. **OCR provider 미설치·모델 미다운로드·OCR 미실행·API/notebook/다운로드 없음, 샘플 PDF 미생성/미커밋, 코드/package/schema 미변경. Gate D는 아직 실행 전.**
 - **Cycle 2L-2 Closure — L1 → `implemented+reviewed` 승격**(status update, 코드 무변경). Codex patch review **PASS**(findings 0,
   `docs/reviews/codex_cycle2l_2_l1_patch_review.md`)로 **C2L2-MAJ-01/MIN-01/MIN-02 종결** 확인 → Capability Status Ledger에서 L1을 **`implemented+reviewed`**로 승격.
   근거 commit/review: L1 구현 `045e617217df8b5740eba08aa5d5b21386d89527` · L1 patch `0fa52d839ddfb4dacb9f91f5709c813e7e3b7d71` · patch review PASS `e8f90164404fa28e4fcf70dbaa1bbee5d9a9f170`.

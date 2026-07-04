@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -716,6 +716,23 @@
 - **Consequences**: 다음 단계 = **Cycle 2L-3 Gate D prep/execution**(사용자/ChatGPT 결정 후 착수 가능, 아직 실행 전). **Gate D 통과 전까지 L2/L3 코드·OCR provider 설치/실행·모델 다운로드·native/egress 개방 금지.** 제품 문서는 이제 L1을 현재 기능으로 표기 가능(L2/L3는 금지).
 - **Status**: closure 완료(status 문서만). **코드/테스트/schema/validator/renderer/delivery/manifest/package·dependency 무변경, OCR/API/notebook/업로드 없음.** (코드 변경 없음으로 테스트 미재실행 — patch review에서 26/26·26·22·33 green 확인됨.)
 - **Related Files**: `docs/current_status.md`, `docs/reviews/codex_cycle2l_2_l1_patch_review.md`, `docs/cycle2l_2_l1_intake_completion_report.md`.
+
+---
+
+# Cycle 2L-3A 기록 (D61) — Gate D Preflight / Execution Plan (no-execution)
+
+## D61. Gate D 실행 전 preflight·evidence template·pass/fail 기준 확정, provider 조기 고정 금지, 실행은 승인 후 별도
+- **Date**: 2026-07-04
+- **Context**: L1 `implemented+reviewed` 승격(D60) 후 다음 단계 = Cycle 2L-3 Gate D. 실행 전 preflight 문서·evidence plan 확정이 필요. 이번 작업은 **no-execution prep**.
+- **Decision**: `docs/planning/cycle2l_3_gate_d_preflight_plan.md` 작성 —
+  ① **Gate D 목적/범위**: **모델/도구 준비 egress(허용·기록) ↔ 파싱/OCR 실행 no-egress(Gate A 방식 증거) 분리**, native/optional/license = **Gate B 재검토**, 비민감 Type 3 샘플, OCR 결과는 **DEI candidate/검수 신호로만**(판정 미생성). **Gate D ≠ L2/L3 구현, 통과 전 L2/L3 코드 금지.**
+  ② **Type 3 샘플 기준**(비민감·공개/synthetic·실제 스캔/저텍스트·PII/KSSB판단 없음; 원본 PDF repo 커밋 보류) — **현재 미확보**로 명시, 임의 생성·다운로드 금지.
+  ③ **OCR provider 평가 기준 우선(9개)·후보 나열만**(Kordoc `--formula-ocr`/Tesseract 계열/로컬 ONNX — 설치·실행 금지, provider 조기 고정 금지).
+  ④ **Gate D evidence 빈 템플릿**(환경·provider 버전·준비/파싱 명령·egress 차단·outbound 관측·native/바이너리·license·input/output/rerun hash·redaction·판정·잔여 리스크).
+  ⑤ **PASS/CONDITIONAL PASS/FAIL 기준** + **이후 경로**(PASS→2L-4 L2 / CONDITIONAL→조건해소 patch·review / FAIL→L1 fallback+목표선 미달; L3는 Gate D PASS+설계검증 전 금지).
+- **Consequences**: 다음 단계 = 사용자/ChatGPT 승인 후 **Gate D execution(2L-3B 등)**. 그 전까지 OCR provider 설치/실행·모델 다운로드·native/egress 개방·L2/L3 코드 없음.
+- **Status**: preflight 확정(문서만). **OCR provider 설치/실행·모델 다운로드·API 호출·notebook·Python OCR 실행·외부 다운로드·샘플 PDF 생성/커밋 없음. package/lock/schema/validator/renderer/delivery 무변경.** L1=implemented+reviewed 유지, L2/L3=Gate D-blocked. 실제 evidence 값 미생성(빈 템플릿). Gate D **아직 실행 전**.
+- **Related Files**: `docs/planning/cycle2l_3_gate_d_preflight_plan.md`, `docs/planning/cycle2l_1_l1_implementation_prep.md`, `docs/samples/gate_a_no_egress_evidence_2026-07-03.md`, `docs/samples/rh_b2_optional_exclusion_evidence_2026-07-03.md`, `docs/submission_packaging_policy.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
