@@ -6,6 +6,11 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-3C — Provider / Document Analysis Capability Comparison**(comparison evidence, 문서만 — L2 구현·provider 최종 확정 아님). **Gate D = PASS 유지**(Codex `codex_cycle2l_3b_gate_d_evidence_review.md`), **tesseract.js = Gate D-proven OCR baseline**, **Kordoc = document-analysis comparison candidate**.
+  sample 5종(유형3 스캔 ver2 9p hash 일치 확인·텍스트레이어 PDF 11p·HWP v5·HWPX·DOCX, 전부 repo 밖)으로 비교: **Kordoc npm latest-observed 3.13.0 + pdfjs-dist@4.10.38 fallback**(peer `>=4.0.0`; **pdfjs@6.1.200는 실측 비호환** — `doc.destroy` API 제거 재현 → fallback 사유 기록)
+  이 **5포맷 전부 성공·10/10 run 파싱 no-egress(훅, egress 0)·5/5 쌍 결정적**, 텍스트레이어 PDF에서 한글 98.8% 커버 + **heading 3계층·표 25(셀 628)·outline·needsOcr 혼합페이지 신호**, **HWP v5 파싱 유일**, 스캔 ver2는 needsOcr 9/9 신호(OCR은 불가 — tesseract.js와 상호보완). 공백: DOCX 이미지 미감지·HWPX heading 0·caption 미지원.
+  **Version discrepancy 기록**: GitHub source `kordoc@3.15.0` ≠ npm observed latest `3.13.0`; source install은 dist 부재로 실행 불가(limitation — 3.13.0은 npm-published baseline로만 해석). 독립 baseline pdfjs-dist@6.1.200 별도 행 비교. PyMuPDF/poppler는 AGPL/GPL이라 검사용만.
+  **provisional recommendation(확정 아님): Kordoc(구조·다포맷 인테이크) + tesseract.js(스캔 OCR fallback) 조합 구도.** 문서: `docs/samples/provider_document_analysis_comparison_2026-07-04.md`. **L2/L3 구현·provider 최종 확정은 계속 금지(Codex Review + 승인 후 별도 결정). 다음 단계 = Codex Review.** 원본/raw 산출물 미커밋(tracked 0), project package/lock/source 무변경.
 - **Cycle 2L-3B — Gate D Execution Evidence**(로컬 OCR provider 실행 검증, evidence 문서). Codex 2L-3B0 PASS + 사용자 확인(ver2 9p **PII 없음**·**공식 홈페이지 다운로드**) 후,
   preflight 기준으로 로컬 OCR 실행을 증거화(**모두 repo 밖 임시 디렉터리**, sample/PNG/OCR원문/모델/venv/node_modules 미커밋). 샘플 hash **일치**(`238de8be…`, 9p) 확인 후 진행.
   provider 후보 2종 평가: **rapidocr-onnxruntime 기각**(onnxruntime **native DLL 초기화 실패** — preflight §3 native/Windows 리스크 실사례) → **tesseract.js 7.0.0 선정**(순수 JS+WASM, **native 0**, Apache-2.0/MIT/BSD, tessdata_fast kor+eng).
