@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -745,6 +745,19 @@
 - **Consequences**: 샘플 자체는 부적합 아님. **선별·PII 육안 점검·출처 확인이 선행 조건(CONDITIONAL readiness)** → **바로 Gate D execution 아님**. OCR provider 선정(preflight §3)·no-egress evidence(§1/§4)는 Gate D 실행 시 별도 수행. 사용자/ChatGPT 승인 후 Gate D execution(2L-3B 등).
 - **Status**: **docs-only sample suitability review.** OCR provider 설치/실행·모델 다운로드·API 호출·notebook·외부 다운로드·이미지 렌더링/래스터화·원본 PDF repo 커밋 없음. 변경: 신규 suitability 문서 + current_status + `.gitignore`(`*.pdf` 방어) + 본 D62. 코드/package/lock/schema/validator/renderer/delivery 무변경. L1=implemented+reviewed 유지, L2/L3=Gate D-blocked. Gate D **아직 실행 전**.
 - **Related Files**: `docs/samples/gate_d_type3_sample_suitability_review_2026-07-04.md`, `docs/planning/cycle2l_3_gate_d_preflight_plan.md`, `docs/submission_packaging_policy.md`, `.gitignore`.
+
+## D63. ver2(9p) = Gate D selected sample(292p source보다 우수), 채택은 선별 9p PII 확인·출처 확인 전제, 원본·ver2 미커밋
+- **Date**: 2026-07-04
+- **Context**: D62(292p source candidate 검토) 후 사용자가 292p에서 대표 9페이지를 선별한 **ver2 PDF**(repo 밖 경로)를 제공. Gate D execution 전 **selected sample 적합성만** 검토(2L-3B0 Patch). OCR·provider·모델·API·notebook·이미지 렌더링 없음.
+- **Decision**: read-only 도구(`fitz`·`pdftotext`)로만 검사 →
+  ① **기술 적합성**: 9페이지 **전면 스캔/이미지 기반, 텍스트 레이어 0**(전 페이지 0자, 두 도구 교차검증), 비암호화, metadata PII 없음, 292p와 동일 스캔 프로파일. SHA-256 `238de8be151da74023a5e1287e104a30a19c7c7a40aaa80749ceeb3cc843c5a3` → **Type 3 충족, Gate D 샘플로 292p source보다 우수**(분량 축소→PII 노출면·determinism 재실행 비용 감소, 사람 선별).
+  ② **PII 위험**: 이미지 내부 PII는 여전히 구조검사만으로 미확인(미렌더링). 단 292p→9p 축소는 사람 큐레이션이라 위험 축소 → **선별 9p 사용자 PII 확인**(이름·서명·연락처)과 **출처/공개성 확인**이 남는 경량 조건.
+  ③ **권장 범위**: **ver2 전체 9p 사용 가능**(위 2개 확인 전제). 추가 선별·synthetic 불요.
+  ④ **문서 관계**: 292p = **source candidate**(D62 문서 유지, 삭제 안 함), ver2 = **selected sample candidate = Gate D 실행 대상**. hash 각각 구분. 신규 `docs/samples/gate_d_type3_selected_sample_review_2026-07-04.md` 작성 + 292p 문서에 참조 추가.
+  ⑤ **artifact**: 원본·ver2 PDF **모두 repo 미커밋**(submission 정책 E-분류). `.gitignore` `*.pdf` 방어 유지, tracked PDF 0건, hash·관찰만 기록.
+- **Consequences**: 선행조건 3개 중 ①소수 페이지 선별=충족 / ②PII 육안 점검=부분 충족(9p 명시 확인 잔여) / ③출처·공개성=미해소. 남은 조건 + OCR provider 선정(preflight §3)·no-egress evidence(§1/§4)는 Gate D 실행 시. **바로 execution 아님 → Codex Review 후 사용자/ChatGPT 승인 → Gate D execution(2L-3B 등).**
+- **Status**: **docs-only selected sample review update.** OCR provider 설치/실행·모델 다운로드·API·notebook·외부 다운로드·이미지 렌더링·원본/ver2 PDF repo 커밋 없음. 변경: 신규 selected sample 문서 + 292p 문서 참조 1건 + current_status + `.gitignore` 방어 유지(무변경) + 본 D63. 코드/package/lock/schema/validator/renderer/delivery 무변경. L1=implemented+reviewed 유지, L2/L3=Gate D-blocked. Gate D **아직 실행 전**.
+- **Related Files**: `docs/samples/gate_d_type3_selected_sample_review_2026-07-04.md`, `docs/samples/gate_d_type3_sample_suitability_review_2026-07-04.md`, `docs/planning/cycle2l_3_gate_d_preflight_plan.md`, `docs/submission_packaging_policy.md`, `.gitignore`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

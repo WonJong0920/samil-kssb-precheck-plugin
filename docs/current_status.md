@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-3B0 Patch — Type 3 Selected Sample Review (ver2, 9p)**(read-only inspection, 문서만). 사용자가 292p source candidate에서 대표 **9페이지를 선별한 ver2 PDF**
+  (로컬 `[REDACTED_LOCAL_PATH]`, repo 밖)를 read-only 도구(`fitz`·`pdftotext`)로만 검사(이미지 렌더링·OCR·API·notebook·설치 없음). 결과: **9페이지 전면 스캔/이미지 기반, 텍스트 레이어 0**
+  (전 페이지 0자, 두 도구 교차검증), 비암호화, metadata PII 없음, 292p와 **동일 스캔 프로파일**. **SHA-256 `238de8be…c843c5a3`**(source candidate 292p = `be9bfb1a…b2ed363`와 구분). →
+  **Type 3 충족 + Gate D 샘플로 292p보다 우수**(분량 축소로 PII 노출면·determinism 비용 감소, 사람 선별). **권장: ver2 전체 9p 사용 가능**(선별 9p 사용자 PII 확인 + 출처/공개성 확인 전제).
+  선행조건 해소: ①소수 페이지 선별=**충족**(9p) / ②PII 육안 점검=**부분 충족**(선별로 노출면↓, 9p 명시 확인 잔여) / ③출처·공개성=**미해소**(사용자 확인). **바로 Gate D execution 아님 → Codex Review 후 승인.**
+  **원본·ver2 모두 repo 미커밋 유지**(`.gitignore` `*.pdf` 방어 유지, tracked PDF 0건, hash·관찰만). 문서: `docs/samples/gate_d_type3_selected_sample_review_2026-07-04.md`(신규) + 292p suitability 문서에 참조 추가.
+  **L1=implemented+reviewed 유지, L2/L3=Gate D-blocked 유지. Gate D는 아직 실행 전.**
 - **Cycle 2L-3B0 — Type 3 Sample Suitability Review**(read-only inspection, 문서만). 사용자 제공 Gate D 후보 PDF(로컬 `[REDACTED_LOCAL_PATH]`)를
   이미 설치된 read-only 도구(PyMuPDF `fitz`·poppler `pdftotext`)로만 검사(이미지 렌더링·OCR·API·notebook·설치 없음). 결과: **292페이지 전면 스캔/이미지 기반, 텍스트 레이어 0**
   (전 페이지 추출 텍스트 0자, 두 도구 교차검증 일치), **비암호화**, metadata PII 항목 없음(변환 도구명만). **SHA-256 `be9bfb1a…b2ed363`**. →

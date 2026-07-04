@@ -4,6 +4,9 @@
 > OCR provider 설치·모델 다운로드·OCR 실행·외부 API·notebook·이미지 렌더링/래스터화 없음.
 > 상위 규칙: `AGENTS.md`·`docs/operating_principles.md`. 기준 문서: `docs/planning/cycle2l_3_gate_d_preflight_plan.md` §2(Type 3 샘플 기준),
 > `docs/submission_packaging_policy.md`(원본 PDF = E-분류). 원본 PDF는 **repo 미커밋**, 본문은 hash·관찰 요약만 기록한다.
+>
+> **갱신(2L-3B0 Patch)**: 이 문서는 292p **source candidate** 검토다. 사용자가 여기서 대표 **9페이지를 선별한 ver2 selected sample**은
+> `docs/samples/gate_d_type3_selected_sample_review_2026-07-04.md`에서 별도 검토했다(ver2가 Gate D execution에 사용할 실제 후보). 본 292p 기록은 source candidate로 유지된다.
 
 ## Summary
 
