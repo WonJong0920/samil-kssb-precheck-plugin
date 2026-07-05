@@ -23,7 +23,16 @@ Cycle 2L-1에서 동결한 **DEI-candidate 계약**(문서 수준 중간 산출�
         replacementCharRatio,needsOcr}`, qualitySummary: `{needsOcr,ocrCandidatePages}`.
   **"유효하지만 근거 빈약"(예: 스캔 전용, blocks=[]) vs "malformed"(구조 결여)**는 위 필수 신호로 구분한다.
 
-출력: DEI-candidate dict (Cycle 2L-1 §2). 결정적(동일 입력 -> 동일 출력).
+L2 provisional additive 입력(Cycle 2L-4B — Codex review pending, 선택·하위 호환):
+  `ocr_text`: out-of-band runner(예: tesseract.js, Gate D-proven 경로)가 이미 만든 OCR 산출물.
+    필수 provenance: provider/provider_version/model/model_sha256/no_egress_verified/output_sha256 +
+    pages[{page,text,text_sha256}]. **OCR 페이지는 인테이크의 needsOcr 대상과 일치해야 하며(불일치 fail-fast),
+    기존 blocks에 섞이지 않고 별도 `ocr_supplement` 섹션**(extraction_quality="low" 고정)으로만 합류한다.
+  `aux_signals`: stdlib 보조 스캐너(aux_structure_scanner.py)의 문서 수준 카운트. `aux_structure` 섹션으로
+    합류하고, gap 비교(image_detection_gap/table_count_mismatch 등)는 review_priority_hints에만 추가된다.
+  두 입력이 없으면 산출은 기존 L1과 동일(additive — DEI_VERSION "1" 유지).
+
+출력: DEI-candidate dict (Cycle 2L-1 §2 + 2L-4A optional 섹션). 결정적(동일 입력 -> 동일 출력).
 """
 from __future__ import annotations
 
@@ -78,6 +87,69 @@ def _validate_intake_contract(intake: Any) -> dict:
 
 def _int(v: Any, default: int = 0) -> int:
     return v if isinstance(v, bool) is False and isinstance(v, int) else default
+
+
+# ---- L2 provisional additive 계약(2L-4B) -------------------------------------
+
+_OCR_REQUIRED_STR = ("provider", "provider_version", "model", "model_sha256", "output_sha256")
+_AUX_COUNT_KEYS = (
+    "image_resource_count", "image_relationship_count", "image_instance_count",
+    "table_tag_count", "table_top_level_count", "nested_table_count",
+    "heading_style_candidate_count", "heading_recovery_candidate",
+    "caption_candidate_count", "chart_relationship_count",
+)
+_DOC_LEVEL_HINT = "doc-level"  # 문서 수준 신호의 location_hint(페이지 특정 불가)
+
+
+def _validate_ocr_text_contract(ocr: Any, allowed_pages: set[int]) -> dict:
+    """ocr_text.json 최소 계약 강제(provenance 필수·페이지 정합, 위반 시 IntakeError fail-fast).
+
+    provenance가 없으면 Gate D 계열 증거(no-egress·결정성)와 연결할 수 없으므로 거부한다.
+    OCR 페이지가 인테이크의 needsOcr 대상(ocrCandidatePages ∪ pageQuality.needsOcr) 밖이면
+    조용히 합치지 않고 실패한다(텍스트 레이어 원문과의 혼동 방지).
+    """
+    if not isinstance(ocr, dict):
+        raise IntakeError("ocr_text must be a dict/JSON object")
+    for k in _OCR_REQUIRED_STR:
+        v = ocr.get(k)
+        if not isinstance(v, str) or not v.strip():
+            raise IntakeError(f"ocr_text requires non-empty string '{k}' (provenance)")
+    if not isinstance(ocr.get("no_egress_verified"), bool):
+        raise IntakeError("ocr_text requires boolean 'no_egress_verified' (provenance)")
+    pages = ocr.get("pages")
+    if not isinstance(pages, list) or not pages:
+        raise IntakeError("ocr_text requires non-empty 'pages' list")
+    for p in pages:
+        if not isinstance(p, dict):
+            raise IntakeError("ocr_text pages entries must be objects")
+        page = p.get("page")
+        if not isinstance(page, int) or isinstance(page, bool) or page < 1:
+            raise IntakeError("ocr_text page must be int >= 1")
+        if not isinstance(p.get("text"), str):
+            raise IntakeError("ocr_text page requires string 'text'")
+        sha = p.get("text_sha256")
+        if not isinstance(sha, str) or not sha.strip():
+            raise IntakeError("ocr_text page requires non-empty 'text_sha256'")
+        if page not in allowed_pages:
+            raise IntakeError(
+                f"ocr_text page {page} is not an OCR-needed page of this intake (page mismatch)")
+    return ocr
+
+
+def _validate_aux_signals_contract(aux: Any) -> dict:
+    """aux_signals.json 최소 계약 강제(위반 시 IntakeError fail-fast)."""
+    if not isinstance(aux, dict):
+        raise IntakeError("aux_signals must be a dict/JSON object")
+    if aux.get("doc_format") not in ("hwpx", "docx"):
+        raise IntakeError("aux_signals requires doc_format in {'hwpx','docx'}")
+    for k in _AUX_COUNT_KEYS:
+        v = aux.get(k)
+        if not isinstance(v, int) or isinstance(v, bool) or v < 0:
+            raise IntakeError(f"aux_signals requires int >= 0 for '{k}'")
+    rr = aux.get("review_required_reason", [])
+    if not isinstance(rr, list) or not all(isinstance(r, str) for r in rr):
+        raise IntakeError("aux_signals 'review_required_reason' must be a list of strings")
+    return aux
 
 
 def _section_for_page(page: int, outline: list) -> str:
@@ -158,8 +230,14 @@ def _pq_by_page(page_quality: list) -> dict:
     return out
 
 
-def build_dei_candidate(intake: Any, source_id: str, source_title: str = "") -> dict:
-    """인테이크 산출물 -> DEI-candidate dict. 결정적. 판정 미생성. 원문 보존."""
+def build_dei_candidate(intake: Any, source_id: str, source_title: str = "",
+                        ocr_text: Any = None, aux_signals: Any = None) -> dict:
+    """인테이크 산출물 -> DEI-candidate dict. 결정적. 판정 미생성. 원문 보존.
+
+    L2 provisional additive(2L-4B): `ocr_text`/`aux_signals`가 주어지면 각각 optional
+    `ocr_supplement`/`aux_structure` 섹션과 review_priority_hints 항목으로만 합류한다.
+    없으면 산출은 기존 L1과 동일(하위 호환 — 기존 필수 구조·의미 불변).
+    """
     if not source_id or not str(source_id).strip():
         raise IntakeError("source_id is required (maps to findings source_documents.source_id)")
     data = _validate_intake_contract(intake)
@@ -227,9 +305,8 @@ def build_dei_candidate(intake: Any, source_id: str, source_title: str = "") -> 
         if any(c == "SKIPPED_IMAGE" for c in warn_by_page[p]) and p not in ocr_pages:
             hints.append({"location_hint": page_or_section_hint(p, _section_for_page(p, outline)),
                           "reason": "skipped_image", "priority": "medium"})
-    hints.sort(key=lambda h: (h["location_hint"], h["reason"]))
 
-    return {
+    dei: dict = {
         "dei_version": DEI_VERSION,
         "source_id": str(source_id),
         "source_title": str(source_title or ""),
@@ -242,6 +319,55 @@ def build_dei_candidate(intake: Any, source_id: str, source_title: str = "") -> 
         "blocks": out_blocks,
         "review_priority_hints": hints,
     }
+
+    # ---- L2 provisional additive 병합(2L-4B, optional) ----
+    if ocr_text is not None:
+        needs_ocr_pages = {p for p, pq in pq_by_page.items() if bool(pq.get("needsOcr"))}
+        allowed = needs_ocr_pages | set(ocr_pages)
+        ocr = _validate_ocr_text_contract(ocr_text, allowed)
+        # OCR 텍스트는 blocks에 섞지 않는다 — 출처가 구분되는 별도 섹션으로만.
+        # extraction_quality는 "low" 고정: OCR 산출은 정확도 미보증(Gate D 한계 명시 계승).
+        dei["ocr_supplement"] = {
+            "provider": ocr["provider"],
+            "provider_version": ocr["provider_version"],
+            "model": ocr["model"],
+            "model_sha256": ocr["model_sha256"],
+            "no_egress_verified": ocr["no_egress_verified"],
+            "output_sha256": ocr["output_sha256"],
+            "pages": [
+                {
+                    "page": p["page"],
+                    "text": p["text"],
+                    "text_sha256": p["text_sha256"],
+                    "extraction_quality": "low",
+                    "location_hint": page_or_section_hint(p["page"],
+                                                          _section_for_page(p["page"], outline)),
+                }
+                for p in sorted(ocr["pages"], key=lambda x: x["page"])
+            ],
+        }
+
+    if aux_signals is not None:
+        aux = _validate_aux_signals_contract(aux_signals)
+        dei["aux_structure"] = {
+            "aux_signals_version": str(aux.get("aux_signals_version", "")),
+            "doc_format": aux["doc_format"],
+            **{k: aux[k] for k in _AUX_COUNT_KEYS},
+        }
+        # gap 비교는 검수 신호(hint)로만 — 판정/anchor로 매핑하지 않는다.
+        intake_image_blocks = sum(1 for bl in out_blocks if bl["block_type"] == "image")
+        intake_table_blocks = sum(1 for bl in out_blocks if bl["block_type"] == "table")
+        if aux["image_instance_count"] > 0 and intake_image_blocks == 0:
+            hints.append({"location_hint": _DOC_LEVEL_HINT,
+                          "reason": "image_detection_gap", "priority": "medium"})
+        if aux["table_top_level_count"] != intake_table_blocks:
+            hints.append({"location_hint": _DOC_LEVEL_HINT,
+                          "reason": "table_count_mismatch", "priority": "medium"})
+        for r in sorted(set(aux.get("review_required_reason", []))):
+            hints.append({"location_hint": _DOC_LEVEL_HINT, "reason": r, "priority": "medium"})
+
+    hints.sort(key=lambda h: (h["location_hint"], h["reason"]))
+    return dei
 
 
 def load_intake(path: str | Path) -> dict:
@@ -258,9 +384,17 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("intake_json", help="already-extracted intake JSON path (produced out-of-band)")
     ap.add_argument("--source-id", required=True)
     ap.add_argument("--source-title", default="")
+    ap.add_argument("--ocr-text", default="",
+                    help="[optional] out-of-band OCR artifact JSON path (ocr_text contract)")
+    ap.add_argument("--aux-signals", default="",
+                    help="[optional] aux structure signals JSON path (aux_signals contract)")
     ns = ap.parse_args(argv)
     try:
-        dei = build_dei_candidate(load_intake(ns.intake_json), ns.source_id, ns.source_title)
+        dei = build_dei_candidate(
+            load_intake(ns.intake_json), ns.source_id, ns.source_title,
+            ocr_text=load_intake(ns.ocr_text) if ns.ocr_text else None,
+            aux_signals=load_intake(ns.aux_signals) if ns.aux_signals else None,
+        )
     except IntakeError as e:
         print(f"IntakeError: {e}", file=sys.stderr)
         return 2

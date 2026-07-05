@@ -6,6 +6,16 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-4B — L2 Ingest / Aux Scanner Provisional Implementation**(코드 — **provisional, Codex review pending. L2 최종 승격 아님·provider 최종 확정 아님**).
+  Codex 2L-4A **PASS** 권고("runner 없이 ingest 계약부터")에 따라 **repo-side ingest만** 구현: ① 신규 **`src/intake/aux_structure_scanner.py`**(stdlib-only —
+  HWPX/DOCX zip+xml 문서 수준 신호: 이미지 3계층·표 top/nested 분해·caption/heading 후보·chart rels; 방어: member allowlist·bounded read·zip-slip 거부·raw XML/본문 미보존).
+  ② **`dei_producer.py` additive 확장**: 선택 인자 `ocr_text`(provenance 필수 — provider/모델/hash/no_egress_verified, **needsOcr 페이지 불일치 fail-fast**)·`aux_signals`(계약 검증) →
+  **`ocr_supplement`**(blocks 미혼입·extraction_quality="low" 고정)·**`aux_structure`** optional 섹션과 gap hint(image_detection_gap/table_count_mismatch/review_required_reason →
+  review_priority_hints만, 판정 매핑 금지)로만 병합. 인자 없으면 기존 L1과 동일 산출(**DEI_VERSION "1" 유지 — 하위 호환 테스트로 증명**).
+  ③ 테스트: 신규 `tests/test_aux_structure_scanner.py` **26/26** + `tests/test_intake_dei_producer.py` 26→**50/50**(병합 contract·fail-fast·하위 호환·결정성) + 기존 3종
+  **무수정 green**(validator 26·renderer 22·delivery 33) = core 무변경 증거. ④ 문서 좁은 보정: intake README(L2 provisional 경계)·evidence_mapping_rules §6(**OCR 유래 인용 =
+  출처 표기+보수적 매핑 필수**, gap 신호는 검수 신호만)·SKILL.md Inputs. **thin runner 미포함**(Codex 권고 자세 — open question 유지). **provider 실행·설치는 여전히 out-of-band·repo 밖.**
+  schema/validator/renderer/delivery/manifest/package/lock **무변경**, core의 intake import 없음. **다음 단계 = Codex 구현 리뷰**(그 전까지 L2 승격·provider 확정 없음).
 - **Cycle 2L-4A — L2 Adapter Boundary Design**(implementation-prep 설계, 문서만 — **L2 실제 구현 아님·provider 최종 확정 아님**). Codex 2L-3D **PASS** 후 provisional 구도
   (Kordoc+tesseract.js+stdlib aux 스캐너)를 **가역적 adapter boundary**로 설계: ① core는 provider 미실행 — **runner 층**(사용자 로컬 out-of-band, 준비 egress↔파싱 no-egress 분리)과
   **ingest 층**(`src/intake/` stdlib-only 정규화) 분리, 경계 = **artifact 계약 3종**(intake.json 기존 계약 불변 + ocr_text.json(provenance 필수) + aux_signals.json) → 계약만 맞추면 provider 교체 가능.

@@ -59,5 +59,12 @@
   - **bbox 좌표는 어느 경우에도 findings에 넣지 않는다**(DEI 문서수준 재료에만 — 숨은 구조 스키마화 방지).
 - **금지(재확인)**: 판독 불가 구간에서 **차트 수치 읽기·이미지 의미 해석·KSSB 충족 추정 금지.**
   DEI의 `extraction_quality`/`needs_ocr`/priority는 **검수 트리아지 신호**이지 판정이 아니다. 최종 판단은 컨설턴트 검수.
-- **범위 경계**: 실제 OCR 실행(스캔 텍스트 추출)·도표/차트 구조 분류는 **현재 기능이 아니다**(Gate D 이후 L2/L3 대상).
-  L1은 "판독 필요 구간을 감지·위치·질문으로 라우팅"까지다.
+- **(2L-4B provisional) OCR 유래 텍스트(`ocr_supplement`) 취급**: DEI에 `ocr_supplement` 섹션이 있으면 그 텍스트는
+  **out-of-band OCR 산출물**(extraction_quality=low 고정, provenance 포함)이다. 이를 인용으로 쓸 경우
+  ① 인용 출처에 **OCR 유래임을 표기**하고(예: `"…" (OCR 추출)`), ② **OCR 인용 단독으로 confirmed로 승격하지 않는다**
+  — 보수적으로 partial/not_verifiable 쪽으로 매핑하고 원문 확인을 `customer_questions`로 요청한다(컨설턴트 검수 필수).
+- **(2L-4B provisional) 보조 구조 gap 신호(`aux_structure`·hint)**: `image_detection_gap`·`table_count_mismatch`·
+  `review_required_reason` 등은 **검수 신호일 뿐**이다 — 판정·anchor로 변환하지 않고, 필요 시 `missing_info`/
+  `customer_questions`(누락 가능 구간의 자료 요청)로만 라우팅한다.
+- **범위 경계**: OCR **실행**·도표/차트 구조 분류는 **plugin 기능이 아니다**(실행은 사용자 로컬 out-of-band,
+  L2는 ingest provisional 구현 단계로 Codex review pending, L3는 범위 밖). L1은 "판독 필요 구간을 감지·위치·질문으로 라우팅"까지다.

@@ -187,6 +187,124 @@ def main() -> int:
     hit = [m for m in banned if ("import " + m) in src or ("import " + m.split("_")[0]) == ("import " + m)]
     check("core 미import(직접 유입 방지)", not any(m in src for m in banned), f"hit={[m for m in banned if m in src]}")
 
+    # ---- 12. L2 provisional additive 병합(2L-4B) --------------------------------
+
+    def sample_ocr_text() -> dict:
+        return {
+            "provider": "tesseract.js",
+            "provider_version": "7.0.0",
+            "model": "tessdata_fast kor+eng",
+            "model_sha256": "6b85e11d9bbf0786",
+            "no_egress_verified": True,
+            "output_sha256": "546926ecbb43ea02",
+            "pages": [{"page": 5, "text": "스캔 페이지 OCR 텍스트", "text_sha256": "abc123"}],
+        }
+
+    def sample_aux_signals() -> dict:
+        return {
+            "aux_signals_version": "1",
+            "doc_format": "docx",
+            "image_resource_count": 14,
+            "image_relationship_count": 71,
+            "image_instance_count": 70,
+            "table_tag_count": 30,
+            "table_top_level_count": 25,
+            "nested_table_count": 5,
+            "heading_style_candidate_count": 6,
+            "heading_recovery_candidate": 0,
+            "caption_candidate_count": 164,
+            "chart_relationship_count": 0,
+            "review_required_reason": ["heading_styles_defined_but_unused"],
+        }
+
+    # 12a. 하위 호환: 새 인자 없으면 optional 섹션 부재 + DEI_VERSION "1" 유지
+    base = D.build_dei_candidate(sample_intake(), "doc-1", "Sample")
+    check("하위 호환(ocr/aux 없음 -> 섹션 부재)",
+          "ocr_supplement" not in base and "aux_structure" not in base)
+    check("DEI_VERSION '1' 유지", base["dei_version"] == "1")
+
+    # 12b. OCR 병합: ocr_supplement로만 합류, blocks 불변, extraction_quality=low 고정
+    merged = D.build_dei_candidate(sample_intake(), "doc-1", "Sample",
+                                   ocr_text=sample_ocr_text(), aux_signals=sample_aux_signals())
+    check("ocr_supplement 섹션 생성", "ocr_supplement" in merged)
+    check("OCR blocks 불변(미혼입)",
+          json.dumps(merged["blocks"], sort_keys=True, ensure_ascii=False)
+          == json.dumps(base["blocks"], sort_keys=True, ensure_ascii=False))
+    check("OCR 텍스트가 blocks에 없음",
+          all("스캔 페이지 OCR 텍스트" not in bl["text_or_table_md"] for bl in merged["blocks"]))
+    sup = merged["ocr_supplement"]
+    check("OCR provenance 보존",
+          sup["provider"] == "tesseract.js" and sup["no_egress_verified"] is True
+          and sup["model_sha256"] == "6b85e11d9bbf0786")
+    check("OCR extraction_quality=low 고정",
+          all(p["extraction_quality"] == "low" for p in sup["pages"]))
+
+    # 12c. aux 병합: aux_structure 섹션 + gap 플래그는 hint로만
+    check("aux_structure 섹션 생성",
+          merged.get("aux_structure", {}).get("table_top_level_count") == 25)
+    mreasons = {h["reason"] for h in merged["review_priority_hints"]}
+    check("image_detection_gap hint 생성(aux 70 vs intake image 0)",
+          "image_detection_gap" in mreasons)
+    check("table_count_mismatch hint 생성(aux 25 vs intake table 1)",
+          "table_count_mismatch" in mreasons)
+    check("aux review_required_reason -> hint",
+          "heading_styles_defined_but_unused" in mreasons)
+    check("gap이 판정으로 미변환(judgment 키 부재)",
+          not (_all_keys(merged) & _JUDGMENT_KEYS))
+
+    # 12d. 결정성(병합 포함)
+    m1 = json.dumps(D.build_dei_candidate(sample_intake(), "doc-1", "Sample",
+                                          ocr_text=sample_ocr_text(),
+                                          aux_signals=sample_aux_signals()),
+                    sort_keys=True, ensure_ascii=False)
+    m2 = json.dumps(D.build_dei_candidate(sample_intake(), "doc-1", "Sample",
+                                          ocr_text=sample_ocr_text(),
+                                          aux_signals=sample_aux_signals()),
+                    sort_keys=True, ensure_ascii=False)
+    check("결정성(병합 포함)", m1 == m2)
+
+    # 12e. OCR 페이지 불일치 fail-fast (page 2는 needsOcr 대상 아님)
+    bad_page = sample_ocr_text()
+    bad_page["pages"] = [{"page": 2, "text": "x", "text_sha256": "h"}]
+
+    def expect_merge_error(name: str, ocr=None, aux=None) -> None:
+        try:
+            D.build_dei_candidate(sample_intake(), "doc-1", ocr_text=ocr, aux_signals=aux)
+            check(name, False, "no exception")
+        except D.IntakeError:
+            check(name, True)
+
+    expect_merge_error("OCR 페이지 불일치 거부", ocr=bad_page)
+
+    # 12f. OCR provenance 누락/파손 fail-fast
+    for missing in ("provider", "model_sha256", "output_sha256"):
+        o = sample_ocr_text()
+        o.pop(missing)
+        expect_merge_error(f"OCR {missing} 누락 거부", ocr=o)
+    o = sample_ocr_text()
+    o["no_egress_verified"] = "yes"
+    expect_merge_error("OCR no_egress_verified 비-bool 거부", ocr=o)
+    o = sample_ocr_text()
+    o["pages"] = []
+    expect_merge_error("OCR pages 빈 list 거부", ocr=o)
+    o = sample_ocr_text()
+    o["pages"] = [{"page": 5, "text": "x"}]
+    expect_merge_error("OCR text_sha256 누락 거부", ocr=o)
+
+    # 12g. aux malformed fail-fast
+    a = sample_aux_signals()
+    a["doc_format"] = "pdf"
+    expect_merge_error("aux doc_format 비허용 거부", aux=a)
+    a = sample_aux_signals()
+    a["image_instance_count"] = -1
+    expect_merge_error("aux 음수 카운트 거부", aux=a)
+    a = sample_aux_signals()
+    a.pop("table_top_level_count")
+    expect_merge_error("aux 필수 카운트 누락 거부", aux=a)
+    a = sample_aux_signals()
+    a["review_required_reason"] = "not-a-list"
+    expect_merge_error("aux review_required_reason 비-list 거부", aux=a)
+
     passed = sum(1 for _, ok, _ in _results if ok)
     total = len(_results)
     print(f"\n{passed}/{total} checks passed")
