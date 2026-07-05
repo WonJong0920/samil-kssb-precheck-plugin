@@ -79,6 +79,10 @@ def main() -> int:
     check("user_summary 사람 검수 고지", "사람 검수" in us or "컨설턴트" in us)
     check("user_summary 경계 고지(감사/인증/준수 대체 아님)",
           ("감사" in us and "대체" in us) or "감사·인증·준수" in us)
+    # 7'. (2M-5) findings에 human_review_boundary가 있으면 같은 취지의 일반 문구를 중복 출력하지 않음
+    if findings.get("human_review_boundary"):
+        check("사람 검수 안내 중복 없음(boundary 존재 시 일반 문구 생략)",
+              "본 산출물은 컨설턴트 검수용 초안입니다. 최종 판단은 컨설턴트가 수행합니다." not in us)
 
     # 8. 재판정 금지(간접): 출력 판정 라벨 = 입력 판정 라벨
     input_labels = {it.get("judgment_label", "") for a in findings.get("kssb_areas", []) for it in a.get("items", [])}

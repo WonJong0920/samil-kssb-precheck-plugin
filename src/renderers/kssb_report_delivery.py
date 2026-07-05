@@ -107,12 +107,14 @@ def build_user_summary(findings: dict, outputs: dict, preflight_counts: dict) ->
                 hr += 1
     lines.append("")
     lines.append("● 사람 검수 안내")
-    lines.append("  - 본 산출물은 컨설턴트 검수용 초안입니다. 최종 판단은 컨설턴트가 수행합니다.")
-    if hr:
-        lines.append(f"  - 사람 검수 대상(상충·해석 필요 등) 항목: {hr}건")
+    # findings의 human_review_boundary가 있으면 그 문구만 쓴다(같은 취지의 일반 문구 중복 출력 방지).
     boundary = R._s(findings.get("human_review_boundary"))
     if boundary:
         lines.append(f"  - {boundary}")
+    else:
+        lines.append("  - 본 산출물은 컨설턴트 검수용 초안입니다. 최종 판단은 컨설턴트가 수행합니다.")
+    if hr:
+        lines.append(f"  - 사람 검수 대상(상충·해석 필요 등) 항목: {hr}건")
 
     lines.append("")
     lines.append("● 경계 고지")

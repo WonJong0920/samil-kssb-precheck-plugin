@@ -78,6 +78,8 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
    `not_verifiable`는 `missing_info` + `customer_questions` 연결,
    `conflict_or_interpretation_needed`는 `human_review_required` + 사유,
    `out_of_scope_or_not_applicable`는 적용 제외 사유(`missing_info`). 상세는 `docs/findings_schema_contract.md`.
+8. **커버리지·검토 범위 기록**: 텍스트 미추출/판독 불가/미지원 구간이 있으면 그 사실을 **문서별 실제 수치로** `overall_limitations`에
+   명시하고, 카탈로그 대비 실제 검토 항목 수도 1줄로 밝힌다(`evidence_mapping_rules.md` §7 — 커버리지 침묵 금지).
 
 ## Judgment schema (판정 스키마)
 
@@ -147,6 +149,8 @@ findings는 렌더 전 검증기 preflight(위 Workflow 2단계)에서 error 0�
 
 `prohibited_terms.md`의 금지 표현(예: 감사 추적, 인증 의견, 준수 확정, 적합 판정 등)을 사용하지 않는다.
 권장 표현(사전검토, 검토 근거, 보완 필요사항, 고객 확인 질문, 사람 검수 필요 등)을 사용한다.
+사용자-facing findings 텍스트에는 **내부 도구/제공자 이름·영문 상태 문자열·작업 사이클/테스트 하네스 어휘**도 넣지 않는다
+(`evidence_mapping_rules.md` §7 — 사용자 문구는 한국어 표준 문구로).
 
 ## Output policy (산출물 정책)
 

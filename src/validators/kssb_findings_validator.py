@@ -250,6 +250,33 @@ def _iter_items(f: dict) -> Iterator[tuple[str, dict]]:
                 yield (f"kssb_areas[{ai}].items[{ii}]", item)
 
 
+def _check_quote_reuse(f: dict, issues: list[Issue]) -> None:
+    """서로 다른 항목이 동일 quote를 근거 앵커로 재사용하면 warning으로 보고한다(detect-only).
+
+    항목별로 적합한 인용 없이 같은 인용을 여러 공시요구의 근거로 돌려쓰면
+    근거-요구 적합성이 깨진다. 재사용이 항상 잘못은 아니므로 error가 아닌
+    warning으로 표시해 사람 검수를 유도한다.
+    """
+    item_ids_by_quote: dict[str, set[str]] = {}
+    first_loc_by_quote: dict[str, str] = {}
+    for loc, item in _iter_items(f):
+        item_id = _s(item.get("item_id")) or loc
+        for a in item.get("evidence_anchors") or []:
+            if not isinstance(a, dict):
+                continue
+            quote = _s(a.get("quote")).strip()
+            if not quote:
+                continue
+            item_ids_by_quote.setdefault(quote, set()).add(item_id)
+            first_loc_by_quote.setdefault(quote, loc)
+    for quote, item_ids in sorted(item_ids_by_quote.items()):
+        if len(item_ids) > 1:
+            issues.append(Issue(
+                "warning", "evidence.duplicate_quote_reuse", first_loc_by_quote[quote],
+                f"동일 인용이 서로 다른 항목({', '.join(sorted(item_ids))})의 근거로 재사용되었습니다. "
+                "항목별 적합 인용인지 검수가 필요합니다."))
+
+
 def _check_items(f: dict, review_mode: str, source_ids: set[str], issues: list[Issue]) -> None:
     label_map = EXPECTED_LABEL.get(review_mode, {})
     for loc, item in _iter_items(f):
@@ -393,6 +420,7 @@ def validate_findings(findings: Any, prohibited_terms_path: Path | None = None,
     _check_source_modes(findings, review_mode, issues)
     _check_area_structure(findings, issues)
     _check_items(findings, review_mode, source_ids, issues)
+    _check_quote_reuse(findings, issues)
 
     prohibited, warn = _load_prohibited_terms(prohibited_terms_path)
     if warn:

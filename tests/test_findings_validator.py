@@ -173,6 +173,24 @@ def main() -> int:
     V.validate_findings(f)
     check("detect-only(경로 포함 입력 미변경)", json.dumps(f, ensure_ascii=False, sort_keys=True) == snap2)
 
+    # --- Cycle 2M-5: 동일 인용 재사용 감지(detect-only warning) ---
+
+    def warning_codes(findings) -> set[str]:
+        return {i.code for i in V.validate_findings(findings) if i.severity == "warning"}
+
+    # 25. 서로 다른 항목에 동일 quote 재사용 → warning
+    f = copy.deepcopy(base)
+    anchored = [it for a in f["kssb_areas"] for it in a["items"] if it.get("evidence_anchors")]
+    check("중복 인용 테스트 전제(앵커 있는 항목 ≥ 2)", len(anchored) >= 2, f"anchored={len(anchored)}")
+    if len(anchored) >= 2:
+        anchored[1]["evidence_anchors"][0]["quote"] = anchored[0]["evidence_anchors"][0]["quote"]
+        check("동일 인용 재사용 warning 검출", "evidence.duplicate_quote_reuse" in warning_codes(f))
+        check("중복 인용은 error가 아님(warning만)", "evidence.duplicate_quote_reuse" not in codes(f))
+
+    # 26. valid example(항목별 상이한 인용)에는 중복 인용 warning 없음
+    check("valid example 중복 인용 warning 없음",
+          "evidence.duplicate_quote_reuse" not in warning_codes(base))
+
     failed = [r for r in _results if not r[1]]
     print(f"\n총 {len(_results)}건 중 실패 {len(failed)}건")
     return 1 if failed else 0

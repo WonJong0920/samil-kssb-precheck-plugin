@@ -6,6 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2M-5 — Report Output Quality Remediation**(2M-3A/3B 품질 리뷰 반영 — 블랙박스 테스트 전 보정. runner/provider/assisted path 미구현, 2N 분리).
+  보정층 판단: 대부분 findings 작성 품질 → **Skill 지침 층에서 해결** — `evidence_mapping_rules.md` **§7 신설**(커버리지 침묵 금지: 미추출/판독불가 구간을
+  `overall_limitations`에 문서별 실수치 명시 · 검토 항목 수 명시 · 사용자 문구 한국어 표준화(내부 도구/provider명·영문 상태 문자열 금지, 표준 문구 3종) ·
+  인용 품질(문장 경계·목차/표머리 조각 금지·**항목 간 동일 인용 재사용 금지**) · 사유-상황 일치(partial/not_verifiable 분리) · 하네스 어휘 금지) + SKILL.md 포인터 2곳(절차 8단계·금지표현 절).
+  기계 감지 가능 1건은 **validator detect-only warning** 추가(`evidence.duplicate_quote_reuse` — error 아님·사람 검수 유도), 코드 결함 실재 1건은 **delivery 수정**
+  (user_summary에서 human_review_boundary 존재 시 같은 취지 일반 문구 중복 출력 제거). 테스트: validator 26→**30**·delivery 33→**34**(회귀 체크 추가)·renderer 22·intake 56·aux 26 전부 green.
+  미수정(사유 기록): P2 개별화(§7이 원인 커버)·P3 섹션 병기(기존 convention)·P4 U+200C 정규화(F1과 함께 2N/후속)·renderer(결함 없음). 메모: `docs/planning/cycle2m_5_output_quality_remediation_notes.md`.
+  **다음 = Codex 재리뷰 가능.** L2 표현·provider pending 경계 불변.
 - **Cycle 2M-2 — C2M1-MIN-01 Narrow Wording Refresh**(문구 최신화만 — 코드 로직·테스트 로직 무변경). Codex 2M-1 구조 리뷰의 nonblocking minor가 지적한
   Skill/intake 현재-facing 문구의 "L2 provisional / Codex review pending" 계열 표현을 2L-5 closure 상태로 정렬:
   SKILL.md Inputs·evidence_mapping_rules §6(접두 2곳+범위 경계)·intake README(제목+2곳)·dei_producer.py docstring/주석 4곳 →
