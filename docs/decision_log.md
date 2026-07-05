@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -784,6 +784,20 @@
 - **Consequences**: **provisional recommendation = Kordoc(구조·다포맷 인테이크) + tesseract.js(스캔 OCR fallback) 조합 구도** — 단 **provider 최종 확정 아님**(3.15.0 미검증·pdfjs 4.10.x pin 유지 필요·DOCX/HWPX 감지 공백). **다음 = Codex Review**, 이후 사용자/ChatGPT 분기(L2 implementation-prep vs 3.15.0 source 재비교). **L2/L3 구현 계속 금지.**
 - **Status**: comparison evidence 문서만. 원본/raw JSON/OCR 원문/node_modules/venv **미커밋**(tracked 0). schema/validator/renderer/delivery/src/tests/manifest/package/lock 무변경. cloud/외부 API OCR 미사용, KSSB 판단 미생성. tesseract.js 재실행 없음(Gate D 기록 재인용).
 - **Related Files**: `docs/samples/provider_document_analysis_comparison_2026-07-04.md`, `docs/reviews/codex_cycle2l_3b_gate_d_evidence_review.md`, `docs/samples/gate_d_ocr_evidence_2026-07-04.md`, `docs/planning/cycle2i_3b_version_strategy_confirmation.md`.
+
+## D66. 2L-3D aux 스캐너 검토 — stdlib zip+xml 채택 권고(확정 아님), python-docx 비권장(native lxml), gap 3종 실측 해명
+- **Date**: 2026-07-05
+- **Context**: Codex 2L-3C PASS의 follow-up #4(DOCX 이미지 미감지·HWPX heading 0·caption 미지원을 adapter 설계 전 검토)를 이행. L2 실제 구현 전 보조 구조 스캐너의 타당성 검토(2L-3D). 실행·설치는 전부 repo 밖, 제품 코드 미추가.
+- **Decision(검토 의견, 확정 아님)**: sample HWPX/DOCX(hash 2L-3C 기록 일치 재확인)를 stdlib zip+xml 심층 스캔·python-docx 실측·Kordoc 3.13.0 산출물(2L-3C)과 3자 대조 —
+  ① **DOCX 이미지 gap 보강 확정**: Kordoc image 블록 0이나 stdlib이 `w:drawing` 70·image relationship 71·media 리소스 14를 감지(3계층 분해로 파일 재사용까지 식별).
+  ② **표 불일치 해명**: raw 태그 HWPX 32/DOCX 30 vs Kordoc 25 = **중첩 표 각 5**(DOCX는 top-level 25로 Kordoc과 정확 일치) + HWPX 잔여 2(미해명 → review_required 신호로 유지).
+  ③ **caption 후보 164**: "표 제목" 스타일 문단 164(+DOCX "캡션" 스타일 정의·사용 0·SEQ 0) — Kordoc·python-docx 모두 비가시, 스타일 기반 caption 후보 추출 유효.
+  ④ **HWPX heading 0의 실체**: 개요류 스타일 15종 정의·본문 문단 사용 0(표 제목 164·기타 1) → Kordoc heading 0은 이 샘플에선 결손 아님. 매핑 기제는 작동 — 개요 스타일 실사용 샘플로 재검증 항목.
+  ⑤ **python-docx 비권장**: lxml 6.1.1 native `.pyd` 7개 강제(RH-B2 격리 native 클래스·onnxruntime 실패 전례), inline_shapes 과소(68 vs 70), 본문 순회 한계로 셀 내 문단 비가시, HWPX 미지원. **stdlib이 의존성 0으로 전 신호 동등 이상**(2회 스캔 SCAN_SHA `e547efcb…` 동일·네트워크 모듈 미사용). defusedxml=하드닝 후보만, lxml/docx2python=동일 사유 비권장, olefile=범위 밖.
+  ⑥ **auxiliary signal model 설계 제안**: image 3계층(resource/relationship/instance)+detection_gap, table top/nested+mismatch, heading 스타일 정의/사용 분해, caption_candidate_count, review_required_reason — DEI candidate(결정적 사실)와 review-signal(gap 플래그, 판정 매핑 금지)을 분리. findings 스키마 불변 전제.
+- **Consequences**: **provisional 구도(확장) = Kordoc + tesseract.js + stdlib aux 스캐너**(확정 아님). 다음 = **Codex Review** → 승인 시 L2 implementation-prep(가역적 adapter 경계). **L2/L3 구현·provider 최종 확정 계속 금지.** follow-up: HWPX 잔여 표 2건 원인 분류·개요 스타일 실사용 샘플 재검증·defusedxml 판단·(기존) Kordoc 3.15.0 source 재비교.
+- **Status**: evidence 문서만. 준비 egress = `pip install python-docx`(repo 밖 venv, 기록)뿐 — stdlib 경로는 설치 0. project package/lock/requirements/source/schema/validator/renderer/delivery/tests/manifest **무변경**. 원문/raw XML/추출물/venv 미커밋(tracked 0). KSSB 판단 미생성. L1=implemented+reviewed 유지.
+- **Related Files**: `docs/samples/hwpx_docx_auxiliary_structure_scanner_review_2026-07-05.md`, `docs/reviews/codex_cycle2l_3c_provider_comparison_review.md`, `docs/samples/provider_document_analysis_comparison_2026-07-04.md`, `src/intake/dei_producer.py`(read-only 참조).
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

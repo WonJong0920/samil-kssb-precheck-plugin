@@ -6,6 +6,11 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-3D — HWPX/DOCX Auxiliary Structure Scanner Review**(검토 evidence, 문서만 — L2 구현·provider 최종 확정·제품 코드 추가 아님). Codex 2L-3C **PASS** follow-up #4(DOCX 이미지·HWPX heading·caption gap)를 실측 검토.
+  결과: **stdlib zip+xml 스캐너가 auxiliary layer로 적합**(권고·확정 아님) — ① DOCX 이미지 gap 완전 보강(Kordoc 0 vs 실측 **drawing 70·rels 71·media 14** 3계층 분해), ② 표 불일치 해명(raw 30/32 vs Kordoc 25 = **중첩 표 5** + HWPX 잔여 2 → review 신호),
+  ③ **caption 후보 164**("표 제목" 스타일 문단 — Kordoc·python-docx 비가시), ④ HWPX heading 0의 실체 = 개요 스타일 15종 정의·본문 사용 0(Kordoc 결손 아님; 매핑 기제는 작동 → 다른 샘플로 재검증 항목). 스캔 결정적(2회 SCAN_SHA 동일)·stdlib은 네트워크 모듈 미사용(설치 0).
+  **python-docx 비권장**: lxml **native .pyd 7개** 강제(RH-B2 격리 클래스)·inline_shapes 과소(68 vs 70)·HWPX 미지원. defusedxml은 L2 설계 시 하드닝 후보만. auxiliary signal model(이미지 3계층·표 top/nested·caption/heading 후보·review_required_reason) 설계 제안 포함.
+  **provisional 구도 유지+확장(확정 아님): Kordoc + tesseract.js + stdlib aux 스캐너.** 문서: `docs/samples/hwpx_docx_auxiliary_structure_scanner_review_2026-07-05.md`. **L2/L3 구현·provider 최종 확정 계속 금지. 다음 단계 = Codex Review.** 준비 egress는 python-docx pip 설치만(repo 밖 venv·기록), project package/lock/source 무변경.
 - **Cycle 2L-3C — Provider / Document Analysis Capability Comparison**(comparison evidence, 문서만 — L2 구현·provider 최종 확정 아님). **Gate D = PASS 유지**(Codex `codex_cycle2l_3b_gate_d_evidence_review.md`), **tesseract.js = Gate D-proven OCR baseline**, **Kordoc = document-analysis comparison candidate**.
   sample 5종(유형3 스캔 ver2 9p hash 일치 확인·텍스트레이어 PDF 11p·HWP v5·HWPX·DOCX, 전부 repo 밖)으로 비교: **Kordoc npm latest-observed 3.13.0 + pdfjs-dist@4.10.38 fallback**(peer `>=4.0.0`; **pdfjs@6.1.200는 실측 비호환** — `doc.destroy` API 제거 재현 → fallback 사유 기록)
   이 **5포맷 전부 성공·10/10 run 파싱 no-egress(훅, egress 0)·5/5 쌍 결정적**, 텍스트레이어 PDF에서 한글 98.8% 커버 + **heading 3계층·표 25(셀 628)·outline·needsOcr 혼합페이지 신호**, **HWP v5 파싱 유일**, 스캔 ver2는 needsOcr 9/9 신호(OCR은 불가 — tesseract.js와 상호보완). 공백: DOCX 이미지 미감지·HWPX heading 0·caption 미지원.
