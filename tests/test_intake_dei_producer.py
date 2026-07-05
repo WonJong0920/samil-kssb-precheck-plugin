@@ -189,16 +189,22 @@ def main() -> int:
 
     # ---- 12. L2 provisional additive 병합(2L-4B) --------------------------------
 
+    import hashlib
+
     def sample_ocr_text() -> dict:
-        return {
+        # 2L-4C: text_sha256/output_sha256은 실제 무결성 값이어야 한다(placeholder 불가).
+        text = "스캔 페이지 OCR 텍스트"
+        ocr = {
             "provider": "tesseract.js",
             "provider_version": "7.0.0",
             "model": "tessdata_fast kor+eng",
-            "model_sha256": "6b85e11d9bbf0786",
+            "model_sha256": "6b85e11d9bbf0786",  # 외부 모델 provenance — presence-only(재계산 불가)
             "no_egress_verified": True,
-            "output_sha256": "546926ecbb43ea02",
-            "pages": [{"page": 5, "text": "스캔 페이지 OCR 텍스트", "text_sha256": "abc123"}],
+            "pages": [{"page": 5, "text": text,
+                       "text_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()}],
         }
+        ocr["output_sha256"] = D.canonical_ocr_output_sha256(ocr)
+        return ocr
 
     def sample_aux_signals() -> dict:
         return {
@@ -263,9 +269,11 @@ def main() -> int:
                     sort_keys=True, ensure_ascii=False)
     check("결정성(병합 포함)", m1 == m2)
 
-    # 12e. OCR 페이지 불일치 fail-fast (page 2는 needsOcr 대상 아님)
+    # 12e. OCR 페이지 불일치 fail-fast (page 2는 needsOcr 대상 아님 — text hash는 유효하게 준다)
     bad_page = sample_ocr_text()
-    bad_page["pages"] = [{"page": 2, "text": "x", "text_sha256": "h"}]
+    bad_page["pages"] = [{"page": 2, "text": "x",
+                          "text_sha256": hashlib.sha256(b"x").hexdigest()}]
+    bad_page["output_sha256"] = D.canonical_ocr_output_sha256(bad_page)
 
     def expect_merge_error(name: str, ocr=None, aux=None) -> None:
         try:
@@ -290,6 +298,44 @@ def main() -> int:
     o = sample_ocr_text()
     o["pages"] = [{"page": 5, "text": "x"}]
     expect_merge_error("OCR text_sha256 누락 거부", ocr=o)
+
+    # 12h. OCR hash 무결성(2L-4C, C2L4B-MIN-01) — presence-only가 아니라 실제 검증
+    # 12h-1. 정상 artifact는 hash 검증 PASS(12b의 merged가 이미 증명 — 명시 재확인)
+    ok = D.build_dei_candidate(sample_intake(), "doc-1", ocr_text=sample_ocr_text())
+    check("OCR hash 무결성: 정상 artifact PASS", "ocr_supplement" in ok)
+
+    # 12h-2. page text 변경 + 기존 text_sha256 유지 -> FAIL
+    tampered = sample_ocr_text()
+    tampered["pages"][0]["text"] = "변조된 OCR 텍스트"  # hash는 그대로
+    tampered["output_sha256"] = D.canonical_ocr_output_sha256(tampered)  # output은 재계산해도
+    expect_merge_error("OCR text 변조(text_sha256 불일치) 거부", ocr=tampered)
+
+    # 12h-3. output_sha256 mismatch -> FAIL (page hash는 유효)
+    wrong_out = sample_ocr_text()
+    wrong_out["output_sha256"] = "0" * 64
+    expect_merge_error("OCR output_sha256 불일치 거부", ocr=wrong_out)
+
+    # 12h-4. canonical output hash가 key 순서에 독립적
+    reordered = {}
+    for k in reversed(list(sample_ocr_text().keys())):
+        reordered[k] = sample_ocr_text()[k]
+    check("canonical hash key-order 독립",
+          D.canonical_ocr_output_sha256(reordered) == D.canonical_ocr_output_sha256(sample_ocr_text()))
+    try:
+        D.build_dei_candidate(sample_intake(), "doc-1", ocr_text=reordered)
+        check("key 순서 바뀐 artifact 병합 PASS", True)
+    except D.IntakeError as e:
+        check("key 순서 바뀐 artifact 병합 PASS", False, str(e))
+
+    # 12h-5. 대문자 hex 허용(정규화 비교)
+    upper = sample_ocr_text()
+    upper["pages"][0]["text_sha256"] = upper["pages"][0]["text_sha256"].upper()
+    upper["output_sha256"] = D.canonical_ocr_output_sha256(upper).upper()
+    try:
+        D.build_dei_candidate(sample_intake(), "doc-1", ocr_text=upper)
+        check("대문자 hex hash 허용(정규화)", True)
+    except D.IntakeError as e:
+        check("대문자 hex hash 허용(정규화)", False, str(e))
 
     # 12g. aux malformed fail-fast
     a = sample_aux_signals()

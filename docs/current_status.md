@@ -6,6 +6,12 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-4C — OCR Hash Integrity Narrow Hardening Patch**(Codex 2L-4B nonblocking minor **C2L4B-MIN-01**만 좁게 보정 — L2 승격·provider 확정 아님).
+  `_validate_ocr_text_contract`의 `text_sha256`/`output_sha256`을 **presence-only → 실제 무결성 검증**으로 격상: ① `pages[].text_sha256` = 해당 text(UTF-8)의 SHA-256 재계산 일치(불일치 IntakeError),
+  ② `output_sha256` = **`canonical_ocr_output_sha256()`**(신규 공개 함수 — top-level output_sha256 제외, `json.dumps(sort_keys, ensure_ascii=False, separators=(",",":"))` UTF-8 SHA-256; key 순서 독립·결정적·stdlib만) 일치,
+  ③ hex 대소문자 정규화 비교, ④ **`model_sha256`은 presence-only 유지**(외부 모델 파일의 runner-제공 provenance — ingest 재계산 불가, 문서화된 한계).
+  테스트 50→**56/56**(+6: 정상 PASS·text 변조 거부·output 불일치 거부·key-order 독립·재정렬 병합 PASS·대문자 hex 허용; fixture는 실제 hash 계산으로 교체). 기존 4종 무수정 green(aux 26·validator 26·renderer 22·delivery 33).
+  변경 = `dei_producer.py`+`test_intake_dei_producer.py`+status/decision만. **다음 = Codex patch review.** L2는 계속 provisional(runner 정책 등 잔여 follow-up 유지).
 - **Cycle 2L-4B — L2 Ingest / Aux Scanner Provisional Implementation**(코드 — **provisional, Codex review pending. L2 최종 승격 아님·provider 최종 확정 아님**).
   Codex 2L-4A **PASS** 권고("runner 없이 ingest 계약부터")에 따라 **repo-side ingest만** 구현: ① 신규 **`src/intake/aux_structure_scanner.py`**(stdlib-only —
   HWPX/DOCX zip+xml 문서 수준 신호: 이미지 3계층·표 top/nested 분해·caption/heading 후보·chart rels; 방어: member allowlist·bounded read·zip-slip 거부·raw XML/본문 미보존).

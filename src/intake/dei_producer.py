@@ -26,7 +26,9 @@ Cycle 2L-1에서 동결한 **DEI-candidate 계약**(문서 수준 중간 산출�
 L2 provisional additive 입력(Cycle 2L-4B — Codex review pending, 선택·하위 호환):
   `ocr_text`: out-of-band runner(예: tesseract.js, Gate D-proven 경로)가 이미 만든 OCR 산출물.
     필수 provenance: provider/provider_version/model/model_sha256/no_egress_verified/output_sha256 +
-    pages[{page,text,text_sha256}]. **OCR 페이지는 인테이크의 needsOcr 대상과 일치해야 하며(불일치 fail-fast),
+    pages[{page,text,text_sha256}]. **text_sha256/output_sha256은 실제 무결성 검증**(2L-4C —
+    canonical 규칙은 `canonical_ocr_output_sha256()`, mismatch는 IntakeError; model_sha256은 presence-only 유지).
+    **OCR 페이지는 인테이크의 needsOcr 대상과 일치해야 하며(불일치 fail-fast),
     기존 blocks에 섞이지 않고 별도 `ocr_supplement` 섹션**(extraction_quality="low" 고정)으로만 합류한다.
   `aux_signals`: stdlib 보조 스캐너(aux_structure_scanner.py)의 문서 수준 카운트. `aux_structure` 섹션으로
     합류하고, gap 비교(image_detection_gap/table_count_mismatch 등)는 review_priority_hints에만 추가된다.
@@ -37,6 +39,7 @@ L2 provisional additive 입력(Cycle 2L-4B — Codex review pending, 선택·하
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -92,6 +95,24 @@ def _int(v: Any, default: int = 0) -> int:
 # ---- L2 provisional additive 계약(2L-4B) -------------------------------------
 
 _OCR_REQUIRED_STR = ("provider", "provider_version", "model", "model_sha256", "output_sha256")
+
+
+def _sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def canonical_ocr_output_sha256(ocr: dict) -> str:
+    """ocr_text artifact의 canonical output hash (2L-4C, C2L4B-MIN-01).
+
+    규칙: **top-level `output_sha256` 필드만 제외**한 dict를
+    `json.dumps(..., sort_keys=True, ensure_ascii=False, separators=(",", ":"))`로
+    직렬화(UTF-8)한 바이트의 SHA-256. `sort_keys`로 key 순서에 독립적이고,
+    compact separator·ensure_ascii=False로 결정적이다(표준 라이브러리만 사용).
+    runner가 산출물을 만들 때도 동일 규칙으로 `output_sha256`을 계산해야 한다.
+    """
+    body = {k: v for k, v in ocr.items() if k != "output_sha256"}
+    blob = json.dumps(body, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 _AUX_COUNT_KEYS = (
     "image_resource_count", "image_relationship_count", "image_instance_count",
     "table_tag_count", "table_top_level_count", "nested_table_count",
@@ -102,11 +123,18 @@ _DOC_LEVEL_HINT = "doc-level"  # 문서 수준 신호의 location_hint(페이지
 
 
 def _validate_ocr_text_contract(ocr: Any, allowed_pages: set[int]) -> dict:
-    """ocr_text.json 최소 계약 강제(provenance 필수·페이지 정합, 위반 시 IntakeError fail-fast).
+    """ocr_text.json 최소 계약 강제(provenance 필수·페이지 정합·**hash 무결성**, 위반 시 IntakeError fail-fast).
 
     provenance가 없으면 Gate D 계열 증거(no-egress·결정성)와 연결할 수 없으므로 거부한다.
     OCR 페이지가 인테이크의 needsOcr 대상(ocrCandidatePages ∪ pageQuality.needsOcr) 밖이면
     조용히 합치지 않고 실패한다(텍스트 레이어 원문과의 혼동 방지).
+
+    hash 무결성(2L-4C, C2L4B-MIN-01 — presence-only에서 격상):
+    - `pages[].text_sha256` = 해당 `text`(UTF-8)의 SHA-256과 일치해야 한다.
+    - `output_sha256` = `canonical_ocr_output_sha256()` 규칙(top-level output_sha256 제외,
+      sort_keys canonical JSON)의 값과 일치해야 한다.
+    - `model_sha256`은 외부 모델 파일의 runner-제공 provenance라 ingest가 재계산할 수 없으므로
+      presence-only를 유지한다(문서화된 한계).
     """
     if not isinstance(ocr, dict):
         raise IntakeError("ocr_text must be a dict/JSON object")
@@ -130,9 +158,16 @@ def _validate_ocr_text_contract(ocr: Any, allowed_pages: set[int]) -> dict:
         sha = p.get("text_sha256")
         if not isinstance(sha, str) or not sha.strip():
             raise IntakeError("ocr_text page requires non-empty 'text_sha256'")
+        computed = _sha256_text(p["text"])
+        if sha.strip().lower() != computed:
+            raise IntakeError(
+                f"ocr_text page {page} text_sha256 mismatch (integrity check failed)")
         if page not in allowed_pages:
             raise IntakeError(
                 f"ocr_text page {page} is not an OCR-needed page of this intake (page mismatch)")
+    expected_output = canonical_ocr_output_sha256(ocr)
+    if str(ocr["output_sha256"]).strip().lower() != expected_output:
+        raise IntakeError("ocr_text output_sha256 mismatch (canonical output integrity check failed)")
     return ocr
 
 
