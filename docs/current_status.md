@@ -6,6 +6,15 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-5 — L2 Closure / Promotion Decision**(status decision, 문서만 — 코드 무변경). 근거 체인: Codex 2L-4A 설계 **PASS** → 2L-4B 구현 **PASS**(minor 1) →
+  2L-4C patch **PASS**(findings 0, C2L4B-MIN-01 종결, required fixes 없음). 판단:
+  **승격 = "L2 repo-side ingest boundary → `implemented+reviewed`"로 한정** — 승격 범위는 리뷰된 표면 그대로: `aux_structure_scanner.py`(stdlib 보조 스캐너) +
+  `dei_producer.py` additive 병합(`ocr_supplement`/`aux_structure`) + artifact 계약 3종(intake/ocr_text/aux_signals — hash 무결성 검증 포함) + 경계 테스트(56+26 및 기존 3종 green).
+  **승격하지 않는 것(별도 pending 명시)**: ① provider 최종 확정(Kordoc+tesseract.js는 계속 provisional·가역), ② runner 구현/통합(스크립트 배치 정책 open question),
+  ③ **full OCR execution capability — plugin은 OCR을 실행하지 않으며 실행은 사용자 로컬 out-of-band**(이 경계가 승격 라벨의 핵심 한정), ④ L3(이미지/차트/표 의미 분석),
+  ⑤ Kordoc 3.15.0 source 최종 비교, ⑥ OS 레벨 no-egress·defusedxml·HWPX 잔여 표 2건·개요 스타일 샘플(비차단 hardening).
+  표현 규칙: 제품 문서에는 "L2 완료/OCR 지원"으로 쓰지 않고 **"repo-side ingest boundary implemented+reviewed / provider execution·final selection pending"**으로 분리 표기.
+  변경 = current_status(Ledger 갱신 포함)·decision_log(D70)만.
 - **Cycle 2L-4C — OCR Hash Integrity Narrow Hardening Patch**(Codex 2L-4B nonblocking minor **C2L4B-MIN-01**만 좁게 보정 — L2 승격·provider 확정 아님).
   `_validate_ocr_text_contract`의 `text_sha256`/`output_sha256`을 **presence-only → 실제 무결성 검증**으로 격상: ① `pages[].text_sha256` = 해당 text(UTF-8)의 SHA-256 재계산 일치(불일치 IntakeError),
   ② `output_sha256` = **`canonical_ocr_output_sha256()`**(신규 공개 함수 — top-level output_sha256 제외, `json.dumps(sort_keys, ensure_ascii=False, separators=(",",":"))` UTF-8 SHA-256; key 순서 독립·결정적·stdlib만) 일치,
@@ -81,7 +90,10 @@
   **schema/validator/renderer/delivery 코드 무변경**(별도 schema-evolution 불필요로 판단). 테스트: 신규 `tests/test_intake_dei_producer.py` **14/14 PASS**, 기존 검증기 26·렌더러 22·전달 33 **전부 유지(실패 0)**.
   경계: DEI는 renderer/validator 직접 유입 금지(테스트로 강제)·priority→판정 직접 매핑 금지·OCR/native/model/egress 없음·L2/L3는 현재 기능 아님(Gate D 대상). 완료 보고: `docs/cycle2l_2_l1_intake_completion_report.md`.
   **OCR provider 미설치/미실행, package/dependency 미변경, API/notebook/업로드 없음.** Codex Review 대기.
-- **Capability Status Ledger**: **L0=implemented+reviewed** / **L1=implemented+reviewed**(구현 `045e617` + patch `0fa52d8`, Codex patch review PASS `e8f9016`) / **L2=planned(Gate D-blocked)** / **L3=planned(Gate D+설계 blocked)** / **L4=out-of-preliminary-scope**. 2L-3(Gate D)=착수 가능, 아직 실행 전.
+- **Capability Status Ledger**(2L-5 갱신): **L0=implemented+reviewed** / **L1=implemented+reviewed**(구현 `045e617` + patch `0fa52d8`, Codex patch review PASS `e8f9016`) /
+  **L2=partially implemented — repo-side ingest boundary `implemented+reviewed`**(Gate D PASS + 구현 `d1f1e42` + hash patch `8042cdd`, Codex 2L-4B/4C PASS;
+  **provider execution·runner 통합·provider 최종 확정은 pending** — plugin은 OCR을 실행하지 않음, 실행은 사용자 로컬 out-of-band) /
+  **L3=planned(설계·승인 blocked, 의미 분석 금지 유지)** / **L4=out-of-preliminary-scope**.
 - **Cycle 2L-1 — L1 Implementation-Prep**(문서 + RH-B2 로컬 검증, L1 코드 미구현). **RH-B2 종결(PASS)**: `--omit=optional` 클린 설치
   (`kordoc@3.8.2 + pdfjs-dist@4.10.38`, native/optional 전부 부재·`.node` 0건)에서 유형1·유형2 파싱 4/4 성공, 산출물 해시가 **Gate A와 바이트 일치** →
   optional/native는 v1 텍스트 경로에 무영향(evidence: `docs/samples/rh_b2_optional_exclusion_evidence_2026-07-03.md`). 이어 **L1 schema-free DEI-후보 계약 동결**,
