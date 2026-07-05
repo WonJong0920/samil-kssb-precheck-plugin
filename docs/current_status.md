@@ -6,6 +6,9 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-5A — Historical Wording Cleanup**(docs-only, Codex 2L-5 review **PASS**의 nonblocking minor **C2L5-MIN-01** 해소).
+  과거 2L-3C/3D/4A/4B/4C bullet의 당시 기준 "Codex review pending / 다음 = Codex review" 문구에 **historical 주석**(이후 PASS·2L-5 closure 반영)을 덧붙여
+  현재 상태와의 충돌을 제거(과거 기록 자체는 보존). 2L-5 closure 판단·Ledger(L2=partially implemented, provider execution·final selection pending) **불변**.
 - **Cycle 2L-5 — L2 Closure / Promotion Decision**(status decision, 문서만 — 코드 무변경). 근거 체인: Codex 2L-4A 설계 **PASS** → 2L-4B 구현 **PASS**(minor 1) →
   2L-4C patch **PASS**(findings 0, C2L4B-MIN-01 종결, required fixes 없음). 판단:
   **승격 = "L2 repo-side ingest boundary → `implemented+reviewed`"로 한정** — 승격 범위는 리뷰된 표면 그대로: `aux_structure_scanner.py`(stdlib 보조 스캐너) +
@@ -20,8 +23,10 @@
   ② `output_sha256` = **`canonical_ocr_output_sha256()`**(신규 공개 함수 — top-level output_sha256 제외, `json.dumps(sort_keys, ensure_ascii=False, separators=(",",":"))` UTF-8 SHA-256; key 순서 독립·결정적·stdlib만) 일치,
   ③ hex 대소문자 정규화 비교, ④ **`model_sha256`은 presence-only 유지**(외부 모델 파일의 runner-제공 provenance — ingest 재계산 불가, 문서화된 한계).
   테스트 50→**56/56**(+6: 정상 PASS·text 변조 거부·output 불일치 거부·key-order 독립·재정렬 병합 PASS·대문자 hex 허용; fixture는 실제 hash 계산으로 교체). 기존 4종 무수정 green(aux 26·validator 26·renderer 22·delivery 33).
-  변경 = `dei_producer.py`+`test_intake_dei_producer.py`+status/decision만. **다음 = Codex patch review.** L2는 계속 provisional(runner 정책 등 잔여 follow-up 유지).
-- **Cycle 2L-4B — L2 Ingest / Aux Scanner Provisional Implementation**(코드 — **provisional, Codex review pending. L2 최종 승격 아님·provider 최종 확정 아님**).
+  변경 = `dei_producer.py`+`test_intake_dei_producer.py`+status/decision만. *(historical — 이후 **Codex 2L-4C patch review PASS(findings 0)**로 종결되고,
+  **2L-5 closure에서 repo-side ingest boundary가 implemented+reviewed로 승격 판단됨.** runner 정책 등 잔여 follow-up은 pending 유지.)*
+- **Cycle 2L-4B — L2 Ingest / Aux Scanner Provisional Implementation**(코드 — 당시 provisional. *(historical — 이후 **Codex 2L-4B review PASS**(minor 1건은 2L-4C에서 종결),
+  **2L-5 closure에서 repo-side ingest boundary만 implemented+reviewed로 승격됨.** provider 최종 확정은 여전히 아님.)*)
   Codex 2L-4A **PASS** 권고("runner 없이 ingest 계약부터")에 따라 **repo-side ingest만** 구현: ① 신규 **`src/intake/aux_structure_scanner.py`**(stdlib-only —
   HWPX/DOCX zip+xml 문서 수준 신호: 이미지 3계층·표 top/nested 분해·caption/heading 후보·chart rels; 방어: member allowlist·bounded read·zip-slip 거부·raw XML/본문 미보존).
   ② **`dei_producer.py` additive 확장**: 선택 인자 `ocr_text`(provenance 필수 — provider/모델/hash/no_egress_verified, **needsOcr 페이지 불일치 fail-fast**)·`aux_signals`(계약 검증) →
@@ -30,7 +35,7 @@
   ③ 테스트: 신규 `tests/test_aux_structure_scanner.py` **26/26** + `tests/test_intake_dei_producer.py` 26→**50/50**(병합 contract·fail-fast·하위 호환·결정성) + 기존 3종
   **무수정 green**(validator 26·renderer 22·delivery 33) = core 무변경 증거. ④ 문서 좁은 보정: intake README(L2 provisional 경계)·evidence_mapping_rules §6(**OCR 유래 인용 =
   출처 표기+보수적 매핑 필수**, gap 신호는 검수 신호만)·SKILL.md Inputs. **thin runner 미포함**(Codex 권고 자세 — open question 유지). **provider 실행·설치는 여전히 out-of-band·repo 밖.**
-  schema/validator/renderer/delivery/manifest/package/lock **무변경**, core의 intake import 없음. **다음 단계 = Codex 구현 리뷰**(그 전까지 L2 승격·provider 확정 없음).
+  schema/validator/renderer/delivery/manifest/package/lock **무변경**, core의 intake import 없음. **다음 단계 = Codex 구현 리뷰**(당시) — *(historical — 이후 PASS로 완료, 2L-5 closure 반영.)*
 - **Cycle 2L-4A — L2 Adapter Boundary Design**(implementation-prep 설계, 문서만 — **L2 실제 구현 아님·provider 최종 확정 아님**). Codex 2L-3D **PASS** 후 provisional 구도
   (Kordoc+tesseract.js+stdlib aux 스캐너)를 **가역적 adapter boundary**로 설계: ① core는 provider 미실행 — **runner 층**(사용자 로컬 out-of-band, 준비 egress↔파싱 no-egress 분리)과
   **ingest 층**(`src/intake/` stdlib-only 정규화) 분리, 경계 = **artifact 계약 3종**(intake.json 기존 계약 불변 + ocr_text.json(provenance 필수) + aux_signals.json) → 계약만 맞추면 provider 교체 가능.
@@ -38,17 +43,17 @@
   기존 §6 not_verifiable/missing_info/customer_questions 경로 전용, 판정 매핑 금지) 분리(Codex 2L-3D 목록 준수). ④ **findings 스키마/validator/renderer/delivery 무변경**(DEI additive optional만).
   ⑤ pin/fail-fast(kordoc 3.13.0·pdfjs 4.10.38·tesseract.js 7.0.0·traineddata hash)·no-egress 훅·artifact redaction 계승. 테스트 전략(aux contract·병합 contract·core 미import·기존 4종 green)과
   2L-4B 구현 파일 목록·불가침 목록 확정. open questions: runner 스크립트 repo 커밋 여부(기본안: thin runner 커밋)·DEI_VERSION 유지(기본안 "1")·OCR 인용 표기.
-  문서: `docs/planning/cycle2l_4a_l2_adapter_boundary_design.md`. **다음 단계 = Codex Review** → 승인 후 2L-4B 구현. 그 전까지 L2/L3 코드 없음.
+  문서: `docs/planning/cycle2l_4a_l2_adapter_boundary_design.md`. **다음 단계 = Codex Review**(당시) — *(historical — 이후 Codex 2L-4A review PASS → 2L-4B 구현 진행됨.)*
 - **Cycle 2L-3D — HWPX/DOCX Auxiliary Structure Scanner Review**(검토 evidence, 문서만 — L2 구현·provider 최종 확정·제품 코드 추가 아님). Codex 2L-3C **PASS** follow-up #4(DOCX 이미지·HWPX heading·caption gap)를 실측 검토.
   결과: **stdlib zip+xml 스캐너가 auxiliary layer로 적합**(권고·확정 아님) — ① DOCX 이미지 gap 완전 보강(Kordoc 0 vs 실측 **drawing 70·rels 71·media 14** 3계층 분해), ② 표 불일치 해명(raw 30/32 vs Kordoc 25 = **중첩 표 5** + HWPX 잔여 2 → review 신호),
   ③ **caption 후보 164**("표 제목" 스타일 문단 — Kordoc·python-docx 비가시), ④ HWPX heading 0의 실체 = 개요 스타일 15종 정의·본문 사용 0(Kordoc 결손 아님; 매핑 기제는 작동 → 다른 샘플로 재검증 항목). 스캔 결정적(2회 SCAN_SHA 동일)·stdlib은 네트워크 모듈 미사용(설치 0).
   **python-docx 비권장**: lxml **native .pyd 7개** 강제(RH-B2 격리 클래스)·inline_shapes 과소(68 vs 70)·HWPX 미지원. defusedxml은 L2 설계 시 하드닝 후보만. auxiliary signal model(이미지 3계층·표 top/nested·caption/heading 후보·review_required_reason) 설계 제안 포함.
-  **provisional 구도 유지+확장(확정 아님): Kordoc + tesseract.js + stdlib aux 스캐너.** 문서: `docs/samples/hwpx_docx_auxiliary_structure_scanner_review_2026-07-05.md`. **L2/L3 구현·provider 최종 확정 계속 금지. 다음 단계 = Codex Review.** 준비 egress는 python-docx pip 설치만(repo 밖 venv·기록), project package/lock/source 무변경.
+  **provisional 구도 유지+확장(확정 아님): Kordoc + tesseract.js + stdlib aux 스캐너.** 문서: `docs/samples/hwpx_docx_auxiliary_structure_scanner_review_2026-07-05.md`. **L2/L3 구현·provider 최종 확정 계속 금지. 다음 단계 = Codex Review**(당시 — *historical: 이후 Codex 2L-3D review PASS*). 준비 egress는 python-docx pip 설치만(repo 밖 venv·기록), project package/lock/source 무변경.
 - **Cycle 2L-3C — Provider / Document Analysis Capability Comparison**(comparison evidence, 문서만 — L2 구현·provider 최종 확정 아님). **Gate D = PASS 유지**(Codex `codex_cycle2l_3b_gate_d_evidence_review.md`), **tesseract.js = Gate D-proven OCR baseline**, **Kordoc = document-analysis comparison candidate**.
   sample 5종(유형3 스캔 ver2 9p hash 일치 확인·텍스트레이어 PDF 11p·HWP v5·HWPX·DOCX, 전부 repo 밖)으로 비교: **Kordoc npm latest-observed 3.13.0 + pdfjs-dist@4.10.38 fallback**(peer `>=4.0.0`; **pdfjs@6.1.200는 실측 비호환** — `doc.destroy` API 제거 재현 → fallback 사유 기록)
   이 **5포맷 전부 성공·10/10 run 파싱 no-egress(훅, egress 0)·5/5 쌍 결정적**, 텍스트레이어 PDF에서 한글 98.8% 커버 + **heading 3계층·표 25(셀 628)·outline·needsOcr 혼합페이지 신호**, **HWP v5 파싱 유일**, 스캔 ver2는 needsOcr 9/9 신호(OCR은 불가 — tesseract.js와 상호보완). 공백: DOCX 이미지 미감지·HWPX heading 0·caption 미지원.
   **Version discrepancy 기록**: GitHub source `kordoc@3.15.0` ≠ npm observed latest `3.13.0`; source install은 dist 부재로 실행 불가(limitation — 3.13.0은 npm-published baseline로만 해석). 독립 baseline pdfjs-dist@6.1.200 별도 행 비교. PyMuPDF/poppler는 AGPL/GPL이라 검사용만.
-  **provisional recommendation(확정 아님): Kordoc(구조·다포맷 인테이크) + tesseract.js(스캔 OCR fallback) 조합 구도.** 문서: `docs/samples/provider_document_analysis_comparison_2026-07-04.md`. **L2/L3 구현·provider 최종 확정은 계속 금지(Codex Review + 승인 후 별도 결정). 다음 단계 = Codex Review.** 원본/raw 산출물 미커밋(tracked 0), project package/lock/source 무변경.
+  **provisional recommendation(확정 아님): Kordoc(구조·다포맷 인테이크) + tesseract.js(스캔 OCR fallback) 조합 구도.** 문서: `docs/samples/provider_document_analysis_comparison_2026-07-04.md`. **L2/L3 구현·provider 최종 확정은 계속 금지(Codex Review + 승인 후 별도 결정). 다음 단계 = Codex Review**(당시 — *historical: 이후 Codex 2L-3C review PASS*). 원본/raw 산출물 미커밋(tracked 0), project package/lock/source 무변경.
 - **Cycle 2L-3B — Gate D Execution Evidence**(로컬 OCR provider 실행 검증, evidence 문서). Codex 2L-3B0 PASS + 사용자 확인(ver2 9p **PII 없음**·**공식 홈페이지 다운로드**) 후,
   preflight 기준으로 로컬 OCR 실행을 증거화(**모두 repo 밖 임시 디렉터리**, sample/PNG/OCR원문/모델/venv/node_modules 미커밋). 샘플 hash **일치**(`238de8be…`, 9p) 확인 후 진행.
   provider 후보 2종 평가: **rapidocr-onnxruntime 기각**(onnxruntime **native DLL 초기화 실패** — preflight §3 native/Windows 리스크 실사례) → **tesseract.js 7.0.0 선정**(순수 JS+WASM, **native 0**, Apache-2.0/MIT/BSD, tessdata_fast kor+eng).
