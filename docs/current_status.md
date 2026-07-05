@@ -6,6 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2L-4A — L2 Adapter Boundary Design**(implementation-prep 설계, 문서만 — **L2 실제 구현 아님·provider 최종 확정 아님**). Codex 2L-3D **PASS** 후 provisional 구도
+  (Kordoc+tesseract.js+stdlib aux 스캐너)를 **가역적 adapter boundary**로 설계: ① core는 provider 미실행 — **runner 층**(사용자 로컬 out-of-band, 준비 egress↔파싱 no-egress 분리)과
+  **ingest 층**(`src/intake/` stdlib-only 정규화) 분리, 경계 = **artifact 계약 3종**(intake.json 기존 계약 불변 + ocr_text.json(provenance 필수) + aux_signals.json) → 계약만 맞추면 provider 교체 가능.
+  ② OCR 텍스트는 blocks 미혼입 — **별도 `ocr_supplement` optional 섹션**(extraction_quality=low 고정·출처 구분 유지). ③ aux 신호 = DEI 재료(counts·사실) vs review-signal(gap 플래그 →
+  기존 §6 not_verifiable/missing_info/customer_questions 경로 전용, 판정 매핑 금지) 분리(Codex 2L-3D 목록 준수). ④ **findings 스키마/validator/renderer/delivery 무변경**(DEI additive optional만).
+  ⑤ pin/fail-fast(kordoc 3.13.0·pdfjs 4.10.38·tesseract.js 7.0.0·traineddata hash)·no-egress 훅·artifact redaction 계승. 테스트 전략(aux contract·병합 contract·core 미import·기존 4종 green)과
+  2L-4B 구현 파일 목록·불가침 목록 확정. open questions: runner 스크립트 repo 커밋 여부(기본안: thin runner 커밋)·DEI_VERSION 유지(기본안 "1")·OCR 인용 표기.
+  문서: `docs/planning/cycle2l_4a_l2_adapter_boundary_design.md`. **다음 단계 = Codex Review** → 승인 후 2L-4B 구현. 그 전까지 L2/L3 코드 없음.
 - **Cycle 2L-3D — HWPX/DOCX Auxiliary Structure Scanner Review**(검토 evidence, 문서만 — L2 구현·provider 최종 확정·제품 코드 추가 아님). Codex 2L-3C **PASS** follow-up #4(DOCX 이미지·HWPX heading·caption gap)를 실측 검토.
   결과: **stdlib zip+xml 스캐너가 auxiliary layer로 적합**(권고·확정 아님) — ① DOCX 이미지 gap 완전 보강(Kordoc 0 vs 실측 **drawing 70·rels 71·media 14** 3계층 분해), ② 표 불일치 해명(raw 30/32 vs Kordoc 25 = **중첩 표 5** + HWPX 잔여 2 → review 신호),
   ③ **caption 후보 164**("표 제목" 스타일 문단 — Kordoc·python-docx 비가시), ④ HWPX heading 0의 실체 = 개요 스타일 15종 정의·본문 사용 0(Kordoc 결손 아님; 매핑 기제는 작동 → 다른 샘플로 재검증 항목). 스캔 결정적(2회 SCAN_SHA 동일)·stdlib은 네트워크 모듈 미사용(설치 0).
