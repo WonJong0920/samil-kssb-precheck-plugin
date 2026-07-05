@@ -1,4 +1,4 @@
-# src/intake — Optional Intake → DEI-candidate Adapter (Cycle 2L-2 L1 + 2L-4B L2 provisional)
+# src/intake — Optional Intake → DEI-candidate Adapter (Cycle 2L-2 L1 + 2L-4B/2L-5 L2 ingest)
 
 > **경계**: 이 폴더는 **plugin core가 아니다.** Skill·validator·renderer·delivery·schema로 이루어진 findings 파이프라인의
 > **바깥(opt-in/local)** 계층이다. Cycle 2I-3B 설계·2L-1 prep·2L-4A adapter boundary 설계·Codex Review에 정합.
@@ -7,7 +7,7 @@
 
 - `dei_producer.py`: 이미 로컬에서 추출된 **문서 인테이크 산출물**(예: Kordoc `--format json`)을 받아,
   Cycle 2L-1에서 동결한 **DEI-candidate 계약**(문서 수준 중간 산출물)으로 **결정적으로** 정규화하는 표준 라이브러리 전용 어댑터.
-  - **(2L-4B, L2 provisional — Codex review pending)** 선택 인자 `ocr_text`/`aux_signals`를 받으면
+  - **(2L-4B 구현 — repo-side ingest boundary, 2L-5 closure에서 implemented+reviewed로 승격)** 선택 인자 `ocr_text`/`aux_signals`를 받으면
     out-of-band OCR 산출물(provenance 필수·needsOcr 페이지 정합 fail-fast)을 **별도 `ocr_supplement` 섹션**
     (extraction_quality="low" 고정, **기존 blocks에 미혼입**)으로, 보조 구조 신호를 `aux_structure` 섹션과
     review/gap hint로만 **additive 병합**한다. 두 인자가 없으면 산출은 기존 L1과 동일(DEI_VERSION "1" 유지).
@@ -27,9 +27,10 @@
 ## Capability ladder 위치
 
 - 이 어댑터는 **L1(스캔/이미지/도표 존재 감지 + 검수 라우팅)**의 재료 생산기다.
-- **L2는 provisional implementation 단계다(2L-4B — Codex review pending, 최종 승격 아님)**: 이 폴더는
-  OCR을 **실행하지 않고**, out-of-band runner(사용자 로컬 — Gate D-proven 경로)가 이미 만든 OCR 산출물의
-  **ingest(정규화·병합)만** 담당한다. provider 실행·설치는 여전히 repo/core 밖이며 provider 최종 확정도 아니다.
+- **L2는 partially implemented다 — repo-side ingest boundary는 `implemented+reviewed`(2L-4B 구현 → 2L-5 closure 승격),
+  provider execution·runner 통합·provider 최종 확정은 pending**: 이 폴더는
+  OCR을 **실행하지 않고**(plugin-side OCR 실행 미구현), out-of-band runner(사용자 로컬 — Gate D-proven 경로)가 이미 만든 OCR 산출물의
+  **ingest(정규화·병합)만** 담당한다. provider 실행·설치는 여전히 repo/core 밖이다.
 - **L3(도표/차트 구조 분류)는 범위 밖**이다.
 
 ## Skill 연결

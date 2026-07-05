@@ -6,6 +6,12 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2M-2 — C2M1-MIN-01 Narrow Wording Refresh**(문구 최신화만 — 코드 로직·테스트 로직 무변경). Codex 2M-1 구조 리뷰의 nonblocking minor가 지적한
+  Skill/intake 현재-facing 문구의 "L2 provisional / Codex review pending" 계열 표현을 2L-5 closure 상태로 정렬:
+  SKILL.md Inputs·evidence_mapping_rules §6(접두 2곳+범위 경계)·intake README(제목+2곳)·dei_producer.py docstring/주석 4곳 →
+  **"L2 = partially implemented, repo-side ingest boundary = implemented+reviewed(2L-5), provider execution·runner 통합·최종 확정 = pending,
+  plugin-side OCR 실행 = 미구현, L3 = planned/미구현"**으로 통일. 금지 표현(L2 완료/OCR 지원/확정) 미사용 확인.
+  테스트 5종 전부 green(56/26/26/22/33 — 로직 무변경 증명). **샘플 폴더 전수 산출물 테스트(Codex) 진행 가능 상태.**
 - **Cycle 2L-5A — Historical Wording Cleanup**(docs-only, Codex 2L-5 review **PASS**의 nonblocking minor **C2L5-MIN-01** 해소).
   과거 2L-3C/3D/4A/4B/4C bullet의 당시 기준 "Codex review pending / 다음 = Codex review" 문구에 **historical 주석**(이후 PASS·2L-5 closure 반영)을 덧붙여
   현재 상태와의 충돌을 제거(과거 기록 자체는 보존). 2L-5 closure 판단·Ledger(L2=partially implemented, provider execution·final selection pending) **불변**.

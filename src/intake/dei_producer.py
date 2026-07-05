@@ -23,7 +23,8 @@ Cycle 2L-1에서 동결한 **DEI-candidate 계약**(문서 수준 중간 산출�
         replacementCharRatio,needsOcr}`, qualitySummary: `{needsOcr,ocrCandidatePages}`.
   **"유효하지만 근거 빈약"(예: 스캔 전용, blocks=[]) vs "malformed"(구조 결여)**는 위 필수 신호로 구분한다.
 
-L2 provisional additive 입력(Cycle 2L-4B — Codex review pending, 선택·하위 호환):
+L2 additive 입력(2L-4B 구현 — repo-side ingest boundary는 2L-5 closure에서 implemented+reviewed로 승격.
+provider 실행·runner 통합·provider 최종 확정은 pending. 선택·하위 호환):
   `ocr_text`: out-of-band runner(예: tesseract.js, Gate D-proven 경로)가 이미 만든 OCR 산출물.
     필수 provenance: provider/provider_version/model/model_sha256/no_egress_verified/output_sha256 +
     pages[{page,text,text_sha256}]. **text_sha256/output_sha256은 실제 무결성 검증**(2L-4C —
@@ -92,7 +93,7 @@ def _int(v: Any, default: int = 0) -> int:
     return v if isinstance(v, bool) is False and isinstance(v, int) else default
 
 
-# ---- L2 provisional additive 계약(2L-4B) -------------------------------------
+# ---- L2 ingest additive 계약(2L-4B 구현, 2L-5 승격) ----------------------------
 
 _OCR_REQUIRED_STR = ("provider", "provider_version", "model", "model_sha256", "output_sha256")
 
@@ -269,7 +270,7 @@ def build_dei_candidate(intake: Any, source_id: str, source_title: str = "",
                         ocr_text: Any = None, aux_signals: Any = None) -> dict:
     """인테이크 산출물 -> DEI-candidate dict. 결정적. 판정 미생성. 원문 보존.
 
-    L2 provisional additive(2L-4B): `ocr_text`/`aux_signals`가 주어지면 각각 optional
+    L2 ingest additive(2L-4B): `ocr_text`/`aux_signals`가 주어지면 각각 optional
     `ocr_supplement`/`aux_structure` 섹션과 review_priority_hints 항목으로만 합류한다.
     없으면 산출은 기존 L1과 동일(하위 호환 — 기존 필수 구조·의미 불변).
     """
@@ -355,7 +356,7 @@ def build_dei_candidate(intake: Any, source_id: str, source_title: str = "",
         "review_priority_hints": hints,
     }
 
-    # ---- L2 provisional additive 병합(2L-4B, optional) ----
+    # ---- L2 ingest additive 병합(2L-4B, optional) ----
     if ocr_text is not None:
         needs_ocr_pages = {p for p, pq in pq_by_page.items() if bool(pq.get("needsOcr"))}
         allowed = needs_ocr_pages | set(ocr_pages)
