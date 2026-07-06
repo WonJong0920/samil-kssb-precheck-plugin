@@ -6,7 +6,23 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2N-4D-A — Node Runner CLI Failure Safety Patch**(narrow patch — Codex 2N-4D **CONDITIONAL PASS**의 required fix 보정).
+- **Cycle 2N-4E — Portable Node B안 계획**(계획 문서만 — 코드·다운로드·설치·hash 실행·Kordoc/npm 없음. 구현은 Codex 리뷰 후).
+  2N-4D-A **PASS** 후 다음 단계: Node 부재 일반 사용자 fallback을 §7.1 B안(D76 — C안 배제 불변) 기반으로 실행 계획화.
+  핵심: ① **탐지 우선순위 고정** — 시스템 Node(현행 which — 설치 제안 안 함) → tool-cache portable(절대 경로·버전 일치) →
+  B안 승인 안내, 거부/실패 전부 A안 수렴. ② **승인 UX** — 기존 U3/U5 패턴 확장(출처 nodejs.org/dist 고정 URL·용량·위치·
+  hash 검증·제거=폴더 삭제·준비만 네트워크 고지), marker=approvals.json 신규 kind, **bootstrap은 Windows 내장 PowerShell**
+  (source-only ps1 — `-ExecutionPolicy Bypass`는 프로세스 1회 한정, 닭-달걀 해소: Node 전무 환경에서 runner 실행 전 준비).
+  ③ **이중 hash 검증** — repo-pinned 기대 SHA-256(최초 관측 기록, traineddata 방식) + SHASUMS256.txt 교차, 어느 한쪽
+  불일치도 fail-fast(부분 파일 정리→A안), 해제 후 node --version 자가 확인. pin 후보=v24 LTS 계열(Gate D/2N-4/P0 검증
+  major — 상이 시 AVR-07 재검증). ④ **경계 연결** — detectNode 확장만(exit/플래그/게이트 계약 불변), Kordoc U1 불변
+  (portable npm.cmd 절대 경로), nethook·provenance 불변. ⑤ **실패 매트릭스** — 8개 실패 지점 전부 A안 수렴(§7 커버리지
+  문구 경로). ⑥ **단계**: (가칭)2N-4F mock 구현(+narrow review) → 2N-4G 승인 실측 evidence(이중 검증 성공+고의 불일치
+  실증+portable에서 nethook 관측, +review) → 2N-5 배치 판단. **B안 완료 ≠ 2N-5 unblock**(ingest/core Python 트랙 별도).
+  사용자 결정 요청 5건(B안 채택·pin 확정·Bypass 동의·zip 미포함·Python runner 확장 여부).
+  문서: `docs/planning/cycle2n_4e_portable_node_b_plan.md`. **다음 = Codex 계획 리뷰.**
+- **Cycle 2N-4D-A — Node Runner CLI Failure Safety Patch**(narrow patch — Codex 2N-4D **CONDITIONAL PASS**의 required fix 보정
+  *(historical — 이후 **Codex 2N-4D-A re-review PASS**(required fixes 없음)로 종결 — Node runner를 assisted 실행 evidence
+  수단으로 사용 가능)*).
   ① **C2N4D-MAJ-01 해소**: evidence 모드 no-egress 실패가 uncaught RunnerError로 새어 stack trace·로컬 코드 경로 노출 +
   exit 1이 되던 문제 → main 내부에서 RunnerError를 잡아 **정직한 provenance(no_egress_verified=false)를 run_log에 기록**한 뒤
   한국어 실패 문구 + **문서화된 exit 7**로 통제 종료. CLI 경계(require.main)에도 방어 catch 추가(어떤 경로로도 stack 미노출).
