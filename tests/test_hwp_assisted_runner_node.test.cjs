@@ -413,9 +413,84 @@ test("which(): PATHEXT로 npm.cmd 선택, npm.ps1 배제(P0/AVR-04)", () => {
 });
 
 test("detectNode: node는 process.execPath로 자기 보장(문서화된 차이)", () => {
-  const d = R.detectNode(() => null);
+  const d = R.detectNode(() => null, tmpdir("kssb-node-tc-")); // portable 부재 임시 tool-cache
   assert.equal(d.node, process.execPath);
   assert.equal(d.npm, null);
+  assert.equal(d.source, "missing");
+});
+
+// ---- 4b. portable Node 탐지 계층(2N-4F — 2N-4E §2 우선순위) ----------------------
+
+function makePortable(tc) {
+  const dir = R.portableNodeDir(tc);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "node.exe"), "fake");
+  fs.writeFileSync(path.join(dir, "npm.cmd"), "fake");
+  return dir;
+}
+
+test("detectNode: 시스템 Node/npm 우선(portable 존재해도 시스템 선택)", () => {
+  const tc = tmpdir("kssb-node-tc-");
+  makePortable(tc);
+  const d = R.detectNode(mockWhich, tc);
+  assert.equal(d.source, "system");
+  assert.equal(d.npm, "C:\\fake\\node\\npm.CMD");
+});
+
+test("detectNode: 시스템 부재 → tool-cache portable 차선(절대 경로)", () => {
+  const tc = tmpdir("kssb-node-tc-");
+  const dir = makePortable(tc);
+  const d = R.detectNode(() => null, tc);
+  assert.equal(d.source, "portable");
+  assert.equal(d.node, path.join(dir, "node.exe"));
+  assert.equal(d.npm, path.join(dir, "npm.cmd"));
+});
+
+test("detectNode: portable 불완전(npm.cmd 없음) → missing(혼용 금지)", () => {
+  const tc = tmpdir("kssb-node-tc-");
+  const dir = R.portableNodeDir(tc);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "node.exe"), "fake"); // npm.cmd 없음
+  const d = R.detectNode(() => null, tc);
+  assert.equal(d.source, "missing");
+});
+
+test("실행 흐름: portable 탐지 시 run 명령의 node가 portable 절대 경로", () => {
+  const dir = tmpdir("kssb-node-");
+  const doc = makeDoc(dir, "doc.hwp");
+  const tc = path.join(dir, "tc");
+  preinstallKordoc(tc);
+  const pdir = makePortable(tc);
+  const { calls, fn } = mockExec(0, OK_SUMMARY);
+  const r = runMain([doc, "--out-dir", path.join(dir, "out"), "--tool-cache", tc, "--approve-run"],
+    { which: () => null, execFn: fn });
+  assert.equal(r.rc, R.EXIT_OK);
+  assert.equal(calls[0].cmd[0], path.join(pdir, "node.exe"));
+});
+
+test("Node/npm 부재 안내에 B안 승인 절차 표시(무단 설치 없음)", () => {
+  const dir = tmpdir("kssb-node-");
+  const doc = makeDoc(dir, "doc.hwp");
+  const { calls, fn } = mockExec();
+  const r = runMain([doc, "--out-dir", path.join(dir, "out"), "--tool-cache", path.join(dir, "tc")],
+    { which: () => null, execFn: fn });
+  assert.equal(r.rc, R.EXIT_NODE_MISSING);
+  assert.equal(calls.length, 0); // 무단 설치/실행 없음
+  assert.ok(r.out.includes("prepare_portable_node.ps1"));
+  assert.ok(r.out.includes("-ApproveRuntime"));
+  assert.ok(r.out.includes("SHA-256"));
+  assert.ok(r.out.includes("폴더 삭제"));
+});
+
+test("parity: portable pin이 bootstrap ps1 기본값과 동일 + v24 계열", () => {
+  const ps1 = fs.readFileSync(
+    path.join(REPO, "src", "intake", "runners", "prepare_portable_node.ps1"), "utf8");
+  const m = ps1.match(/\$PinVersion = "([^"]+)"/);
+  assert.ok(m, "PinVersion default not found in ps1");
+  assert.equal(m[1], R.PORTABLE_NODE_VERSION);
+  assert.ok(R.PORTABLE_NODE_VERSION.startsWith("24."), "pin must stay in v24 LTS line (user decision 2)");
+  // fail-closed: 실 다운로드용 기대 hash 상수는 아직 미기록이어야 한다(2N-4G에서 기록)
+  assert.match(ps1, /\$PINNED_ZIP_SHA256_CONST = ""/);
 });
 
 // ---- 5. 기록 형식·경계 ------------------------------------------------------------

@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80) → Cycle 2N-4B HWP-family ingest 계약 결정(D81) → Cycle 2N-4C 실행 런타임 전략 계획(D82) → Codex P0 Runtime Probe(D83) → Cycle 2N-4D runner Node port(D84) → Cycle 2N-4D-A Node runner 실패 처리 보정(D85) → Cycle 2N-4E portable Node B안 계획(D86).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80) → Cycle 2N-4B HWP-family ingest 계약 결정(D81) → Cycle 2N-4C 실행 런타임 전략 계획(D82) → Codex P0 Runtime Probe(D83) → Cycle 2N-4D runner Node port(D84) → Cycle 2N-4D-A Node runner 실패 처리 보정(D85) → Cycle 2N-4E portable Node B안 계획(D86) → Cycle 2N-4F portable Node mock 구현(D87).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -1127,6 +1127,42 @@
 - **Related Files**: `docs/planning/cycle2n_4e_portable_node_b_plan.md`, `docs/planning/cycle2n_0b_runner_provider_ux_design.md`(§7.1),
   `docs/reviews/codex_cycle2n_4d_a_node_runner_safety_patch_review.md`, `docs/samples/codex_runtime_probe_evidence_p0.md`,
   `docs/samples/codex_runtime_probe_evidence_p0b.md`, `docs/planning/cycle2n_4c_runtime_strategy_python_reduction_plan.md`.
+
+## D87. 2N-4F portable Node B안 mock 구현 — 승인 게이트 bootstrap + 이중 hash fail-fast + 탐지 계층, 실 다운로드 0
+- **Date**: 2026-07-06
+- **Context**: 2N-4E 계획 리뷰 **PASS**(required fixes 없음, OBS-01~03은 이번 테스트 범위·2N-4G 요건으로 반영) 후 착수.
+  **사용자 결정 5건 승인 기록**(C2N4E-OBS-01 대응): ①B안 구현 경로 채택 ②pin=v24 LTS 계열 ③PowerShell
+  `-ExecutionPolicy Bypass` 1회 사용을 승인 UX에 포함 ④submission.zip에 portable Node 바이너리 미포함 ⑤Python runner
+  미확장. 이번 사이클은 **mock 전용** — 실 다운로드·nodejs.org 접속·npm install·Kordoc 재설치·tool-cache 실 runtime
+  설치 전부 금지 준수.
+- **Decision(구현)**:
+  ① **`prepare_portable_node.ps1`**(신규 — Windows 내장 PowerShell만, source-only): 무승인 호출=승인 안내만·파일 생성
+  0(exit 5 — 승인 문구에 대상/출처(nodejs.org/dist 고정)/용량/위치/이중 검증/시스템 무변경/Bypass 1회/거부 fallback 전부
+  고지). **이중 SHA-256 검증**: (1차) repo-pinned 기대값 + (2차) SHASUMS256.txt 해당 행 교차 — 불일치·파싱 실패는 부분
+  파일 정리 후 중단(해제 금지), 해제 후 `node.exe --version`=pin 자가 확인 + npm.cmd 동봉 확인(실패 시 배치 정리).
+  approvals.json `runtime` marker + prep_egress_log(provider=nodejs-portable, key 정렬, **BOM 없는 UTF-8** — Node
+  JSON.parse 호환). **`$PINNED_ZIP_SHA256_CONST=""`(미기록) + 실(https) 출처 → 네트워크·파일 생성 전 fail-closed 거부**
+  (기대값 기록은 2N-4G evidence 사이클). `-SourceRoot` 로컬 디렉터리 지정으로 테스트 fixture 검증(출처가 로그에 남음).
+  pin 후보 `24.16.0`(Gate D·2N-4·P0 실측 major — 최종 확정 2N-4G). 종료 코드 0/5/7.
+  **인코딩 실증**: PS5.1은 BOM 없는 UTF-8 .ps1을 CP949로 읽어 파싱 실패 — **ps1은 UTF-8 BOM 필수**(2M-3 전례, README 기록).
+  ② **runner 탐지 계층**(`hwp_assisted_runner.cjs`): `PORTABLE_NODE_VERSION` 상수 + `portableNodeDir/Paths()` +
+  `detectNode(which, toolCache)` = **시스템(둘 다) → portable(node.exe+npm.cmd 절대 경로 — 불완전 시 혼용 금지 missing) →
+  부재**(source 마커). 부재 안내(exit 4)에 B안 승인 절차(bootstrap 명령) 표시. exit/플래그/승인 게이트/nethook/
+  provenance/Kordoc U1 계약 **불변**(2N-4D-A PASS 상태 — 기존 테스트 무수정 유지로 증명).
+  ③ **테스트**: 신규 `tests/test_portable_node_bootstrap.test.cjs` **9/9** — 무승인 게이트(파일 0)·fail-closed(실 URL+pin
+  미기록, tool-cache 미생성으로 선행성 증명)·성공 경로(**실 node.exe를 테스트 시점에 fixture zip으로 동봉** — 바이너리
+  커밋 0·자가 버전 확인 실통과·marker/로그 검증)·pinned 불일치·SHASUMS 불일치·파싱 실패·손상 zip(hash 통과+해제 실패)·
+  다운로드 실패·가짜 exe 버전 확인 실패+배치 정리 — **전부 로컬 fixture(실 네트워크 0)**. runner 스위트 29→**35/35**
+  (탐지 우선순위·portable run 명령 절대 경로·B안 안내·ps1↔cjs pin parity·`24.` 계열 고정·hash 상수 미기록 확인).
+- **Consequences**: **다음 = Codex 2N-4F review** → (가칭)**2N-4G 승인 실측 evidence**(실 다운로드 1회 — pin·기대 hash
+  최초 관측 기록, 고의 불일치 실증, portable node에서 runner/nethook 관측, portable npm.cmd로 Kordoc 설치 성립 —
+  C2N4E-OBS-03). B안 mock 완료 ≠ 채택 완료·2N-5 unblock 아님(ingest/core Python 트랙 별도) — no-overclaim 유지.
+- **Status**: 변경 = ps1(신규)·runner .cjs(탐지 계층)·테스트 2파일·runners README·status/decision. Python runner/core/
+  ingest/nethook/schema/manifest/package 무변경. 실 다운로드·설치·submission.zip 없음, repo에 바이너리/zip 커밋 없음.
+- **Related Files**: `src/intake/runners/prepare_portable_node.ps1`, `src/intake/runners/hwp_assisted_runner.cjs`,
+  `tests/test_portable_node_bootstrap.test.cjs`, `tests/test_hwp_assisted_runner_node.test.cjs`,
+  `src/intake/runners/README.md`, `docs/planning/cycle2n_4e_portable_node_b_plan.md`,
+  `docs/reviews/codex_cycle2n_4e_portable_node_b_plan_review.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

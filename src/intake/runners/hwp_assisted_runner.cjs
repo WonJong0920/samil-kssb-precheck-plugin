@@ -30,6 +30,9 @@ const { spawnSync } = require("node:child_process");
 const KORDOC_VERSION = "3.13.0";
 const PDFJS_VERSION = "4.10.38";
 const NPM_SOURCE = "registry.npmjs.org";
+// portable Node pin 후보(2N-4E/F — v24 LTS 계열, Gate D·2N-4·P0 실측 major. 사용자 결정 2).
+// 최종 pin·기대 hash는 2N-4G evidence 사이클에서 확정(prepare_portable_node.ps1과 동일 값 유지 — parity 테스트).
+const PORTABLE_NODE_VERSION = "24.16.0";
 
 // HWP-first 지원 확장자(스캔/이미지 OCR 계열은 범위 밖).
 const SUPPORTED_EXTENSIONS = new Set([".hwp", ".hwpx", ".docx"]);
@@ -93,9 +96,29 @@ function which(cmd, env = process.env) {
   return null;
 }
 
-function detectNode(whichFn = which) {
-  // node는 자기 자신으로 항상 보장(문서화된 Python과의 차이) — npm만 실질 탐지 대상.
-  return { node: whichFn("node") || process.execPath, npm: whichFn("npm") };
+function portableNodeDir(toolCache) {
+  return path.join(String(toolCache), `node@v${PORTABLE_NODE_VERSION}-win-x64`);
+}
+
+function portableNodePaths(toolCache) {
+  // 승인 하에 기설치된 portable Node(절대 경로) — node.exe와 동봉 npm.cmd가 모두 있어야 유효.
+  const dir = portableNodeDir(toolCache);
+  const node = path.join(dir, "node.exe");
+  const npm = path.join(dir, "npm.cmd");
+  if (fs.existsSync(node) && fs.existsSync(npm)) return { node, npm };
+  return null;
+}
+
+function detectNode(whichFn = which, toolCache = defaultToolCache()) {
+  // 탐지 우선순위(2N-4E §2): ① 시스템 Node/npm(둘 다 — 설치 제안 안 함) →
+  // ② tool-cache portable(승인 기설치분, 절대 경로) → ③ 부재(승인 안내 대상).
+  // node는 최후에도 자기 자신(process.execPath)으로 보장(문서화된 Python과의 차이) — npm만 실질 게이트.
+  const sysNode = whichFn("node");
+  const sysNpm = whichFn("npm");
+  if (sysNode && sysNpm) return { node: sysNode, npm: sysNpm, source: "system" };
+  const portable = portableNodePaths(toolCache);
+  if (portable) return { node: portable.node, npm: portable.npm, source: "portable" };
+  return { node: sysNode || process.execPath, npm: sysNpm, source: "missing" };
 }
 
 function checkKordoc(toolCache) {
@@ -179,10 +202,15 @@ function runApprovalMessage(inputName) {
 }
 
 function nodeMissingMessage() {
+  const ps1 = path.join(__dirname, "prepare_portable_node.ps1");
   return (
     "■ Node.js/npm이 확인되지 않았습니다\n" +
     "  - 보조 판독 경로(HWP/HWPX/DOCX 구조 판독)에는 Node.js 실행 환경이 필요합니다.\n" +
     "  - Node.js는 공식 사이트(nodejs.org)에서 직접 설치하실 수 있습니다(이 도구가 대신 설치하지 않습니다).\n" +
+    "  - (선택) 사용자 승인 하에 저장소 밖 로컬 전용 폴더로 portable 실행 환경을 준비할 수도 있습니다:\n" +
+    `    powershell -NoProfile -ExecutionPolicy Bypass -File "${ps1}" -ApproveRuntime\n` +
+    "    (공식 nodejs.org 배포 zip · SHA-256 이중 검증 · OS 설치 프로그램/PATH 영구 수정/관리자 권한 없음 ·\n" +
+    "     제거는 폴더 삭제 — 승인 문구가 먼저 표시되며 거부하면 아무것도 설치되지 않습니다)\n" +
     "  - 지금은 기본 텍스트 기반 검토로 계속 진행합니다. 판독 불가 구간은 확인 불가로 표시되고\n" +
     "    고객 확인 질문으로 연결됩니다."
   );
@@ -354,8 +382,8 @@ function main(argv, opts = {}) {
     console.log("주의: --out-dir이 git 저장소 내부로 보입니다. 산출물은 저장소 밖 폴더를 권장합니다.");
   }
 
-  // 3) npm 확인(node는 process.execPath로 자기 보장 — 문서화된 차이)
-  const node = detectNode(whichFn);
+  // 3) Node/npm 확인 — 시스템 우선 → tool-cache portable 차선(2N-4E §2), 부재 시 B안 승인 안내 포함
+  const node = detectNode(whichFn, toolCache);
   if (!node.node || !node.npm) {
     console.log(nodeMissingMessage());
     return EXIT_NODE_MISSING;
@@ -442,6 +470,7 @@ module.exports = {
   KORDOC_VERSION,
   PDFJS_VERSION,
   NPM_SOURCE,
+  PORTABLE_NODE_VERSION,
   SUPPORTED_EXTENSIONS,
   EXIT_OK,
   EXIT_USAGE,
@@ -457,6 +486,8 @@ module.exports = {
   kordocCliPath,
   nethookPath,
   which,
+  portableNodeDir,
+  portableNodePaths,
   detectNode,
   checkKordoc,
   isInsideRepo,

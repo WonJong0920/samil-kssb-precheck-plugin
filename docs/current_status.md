@@ -6,7 +6,26 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2N-4E — Portable Node B안 계획**(계획 문서만 — 코드·다운로드·설치·hash 실행·Kordoc/npm 없음. 구현은 Codex 리뷰 후).
+- **Cycle 2N-4F — Portable Node B안 Mock Implementation**(실 다운로드 0 — Codex review 대기. 2N-4E 계획 리뷰 **PASS** +
+  **사용자 결정 5건 승인 기록**: ①B안 구현 경로 채택 ②pin=v24 LTS 계열 ③`-ExecutionPolicy Bypass` 1회 사용을 승인 UX에
+  포함 ④submission.zip에 portable Node 바이너리 미포함 ⑤Python runner 미확장).
+  ① **`src/intake/runners/prepare_portable_node.ps1` 신규**(Windows 내장 PowerShell만 — 닭-달걀 해소): 무승인=승인 안내만
+  출력·파일 생성 0(exit 5), **이중 SHA-256 검증**(repo-pinned + SHASUMS256.txt 교차 — 어느 한쪽 불일치/파싱 실패도 부분
+  정리 후 중단·해제 금지), 해제 후 node --version=pin 자가 확인·npm.cmd 동봉 확인, approvals `runtime` marker·prep_egress
+  기록(BOM 없는 UTF-8), 전 실패 A안 수렴. **기대 hash 상수 미기록 → 실(https) 다운로드는 fail-closed 거부**(기록은
+  2N-4G evidence에서). pin 후보 `v24.16.0`(Gate D·2N-4·P0 실측 major). 인코딩 주의: ps1은 UTF-8 **BOM**(PS5.1이 BOM 없는
+  UTF-8을 CP949로 읽는 문제 실증 — 2M-3 전례, README 기록).
+  ② **runner 탐지 계층 확장**(`hwp_assisted_runner.cjs`): detectNode = 시스템 Node/npm(둘 다) → tool-cache portable
+  (node.exe+npm.cmd 절대 경로, 혼용 금지) → 부재(source 마커 반환). 부재 안내(exit 4)에 B안 승인 절차(bootstrap 명령·
+  SHA-256·폴더 삭제 고지) 표시 — **무단 설치 없음**(exec 0). exit/플래그/게이트/nethook/provenance 계약은 2N-4D-A PASS
+  상태 불변(기존 테스트 유지로 증명). ③ **테스트**: bootstrap mock 신규 **9/9**(무승인 게이트·실URL+pin미기록 fail-closed
+  (네트워크·파일 생성 전)·성공 경로(실 node.exe 동봉 fixture zip을 테스트 시점 생성 — 커밋 0)·pinned/SHASUMS 불일치·
+  파싱 실패·손상 zip 해제 실패·다운로드 실패·버전 자가확인 실패+정리 — **전부 로컬 fixture, 실제 네트워크 0**) +
+  runner 스위트 29→**35/35**(탐지 우선순위 4종·portable 절대 경로 run 명령·B안 안내 문구·ps1↔cjs pin parity·
+  hash 상수 미기록 fail-closed 확인). Python 회귀 무수정 green. **다음 = Codex 2N-4F review → (가칭)2N-4G 승인 실측 evidence.**
+- **Cycle 2N-4E — Portable Node B안 계획**(계획 문서만 — 코드·다운로드·설치·hash 실행·Kordoc/npm 없음. 구현은 Codex 리뷰 후
+  *(historical — 이후 **Codex 2N-4E plan review PASS**(nonblocking OBS 3건 — 2N-4F 테스트 범위·2N-4G evidence 요건으로 이관)
+  → 사용자 결정 5건 승인 → 2N-4F mock 구현 착수*)).
   2N-4D-A **PASS** 후 다음 단계: Node 부재 일반 사용자 fallback을 §7.1 B안(D76 — C안 배제 불변) 기반으로 실행 계획화.
   핵심: ① **탐지 우선순위 고정** — 시스템 Node(현행 which — 설치 제안 안 함) → tool-cache portable(절대 경로·버전 일치) →
   B안 승인 안내, 거부/실패 전부 A안 수렴. ② **승인 UX** — 기존 U3/U5 패턴 확장(출처 nodejs.org/dist 고정 URL·용량·위치·

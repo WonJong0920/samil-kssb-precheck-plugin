@@ -25,6 +25,19 @@
   정직한 provenance(no_egress_verified=false)를 run_log에 남긴 뒤 한국어 문구 + **exit 7**로 종료(stack trace·로컬 경로
   미노출, CLI subprocess 테스트로 강제). check 모드의 설치 명령 표시도 실제 실행과 동일한 **resolved npm 경로**(Windows:
   npm.cmd)를 쓴다(bare npm 표시 금지). Python runner의 동일 보정은 이번 patch 범위 밖(변경 금지) — 후속 결정 항목.
+- `prepare_portable_node.ps1` **(2N-4F 신규 — portable Node B안 bootstrap, mock 검증만·실 다운로드 미수행)**:
+  시스템 Node가 없는 사용자를 위한 **승인 기반** portable Node 준비 스크립트(Windows 내장 PowerShell만 — Node/Python 불요,
+  닭-달걀 해소). `-ApproveRuntime` 없이는 어떤 파일도 만들지 않고 승인 안내만 출력(exit 5). **이중 SHA-256 검증**
+  (repo-pinned 기대값 + 공식 SHASUMS256.txt 교차 — 어느 한쪽 불일치/파싱 실패도 부분 파일 정리 후 중단, 해제 금지),
+  해제 후 `node.exe --version`=pin 자가 확인, approvals.json `runtime` marker·prep_egress_log 기록(BOM 없는 UTF-8),
+  모든 실패는 A안(기본 텍스트 검토 계속) 수렴. **기대 hash 상수는 미기록 상태이며 실(https) 다운로드는 fail-closed로
+  거부된다** — 실측·기록은 (가칭)2N-4G evidence 사이클에서 수행. pin 후보 `v24.16.0`(v24 LTS 계열 — 사용자 결정,
+  Gate D·2N-4·P0 실측 major). OS installer/PATH 영구 수정/관리자 권한 없음(제거=폴더 삭제), `-ExecutionPolicy Bypass`는
+  프로세스 1회 한정(승인 문구 고지). **주의: 이 파일은 UTF-8 BOM 인코딩이어야 한다**(PowerShell 5.1이 BOM 없는 UTF-8을
+  CP949로 읽어 한국어 문구가 깨짐 — 2M-3 인코딩 전례).
+- **runner 탐지 계층(2N-4F)**: `detectNode()`가 **시스템 Node/npm(둘 다) → tool-cache portable(node.exe+npm.cmd 절대
+  경로, 혼용 금지) → 부재** 순서로 동작하고, 부재 안내(exit 4)에 B안 승인 절차(bootstrap 명령)를 표시한다 —
+  **무단 설치는 없다**(exec 0 테스트). exit code·플래그·승인 게이트·nethook·provenance 계약은 2N-4D-A PASS 상태 그대로.
 - `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**(block 모드),
   `worker_threads` 전파, 종료 시 `[NETHOOK-SUMMARY]` 출력. runner는 **요약이 실제 관측되고 egress 시도 0인 실행에만
   `no_egress_verified=true`**를 기록한다(evidence 모드에서는 미관측=실패).
