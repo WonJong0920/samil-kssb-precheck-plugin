@@ -65,9 +65,31 @@ ingest(dei_producer·aux_scanner)는 이미 구현·리뷰된 그대로 소비�
   kordoc@3.13.0/            (package.json은 여기에만 생성, npm --prefix 설치, --omit=optional 필수)
   tesseract.js@7.0.0/
   tessdata_fast/kor.traineddata (+.sha256)       ← Gate D 기록 hash로 검증
+  node@<LTS버전>/                                 ← (U2-B 채택 시에만) portable Node — §7.1
   approvals.json                                  ← 승인 marker (대상·버전·hash·시각)
   prep_egress_log.jsonl                           ← 준비 egress 기록 (명령·출처·시각 — 내부 전용)
 ```
+
+### 7.1 (2N-0B-A 보정) Node/npm 부재 시 선택지 — portable Node 후보
+
+U2를 3안 구조로 보정한다. **"Node 자동 전역 설치"와 "portable Node 설치"는 다른 것**이며 이 구분이 핵심이다:
+
+- **A. Node/npm 설치 안내 + baseline 계속** — 기본 안전 fallback(현행 권고 유지). 시스템 상태 무변경.
+- **B. 사용자 승인 후 repo 밖 tool-cache에 portable Node 설치**(신규 후보) — nodejs.org 공식 배포 **zip**(예: `node-v<LTS>-win-x64.zip`)을
+  tool-cache의 `node@<버전>/`에 **압축 해제만** 한다. **OS installer 미실행·시스템 PATH 영구 수정 없음·관리자 권한 불요·레지스트리 무흔적** —
+  호출은 tool-cache 내 `node.exe` **절대 경로로만** 하며, 제거는 폴더 삭제로 완결된다. npm은 zip에 동봉되어 `--prefix` 설치가 그대로 성립한다.
+- **C. 사용자 승인 후 OS installer 실행 / 시스템 PATH 영구 수정** — **배제**(시스템 대변경·관리자 권한·제거 흔적 — 기존 "외부 앱/CLI 상태 변경은 사용자 직접" 원칙과도 충돌).
+
+**B안 설계 세부(채택 시 — 2N-1 확인 전 확정 금지)**:
+1. **탐지 우선순위**: 시스템 Node 존재+버전 적합 → 그것을 사용(설치 제안 안 함) → 부재/부적합 시에만 B안 승인 대화 제시.
+2. **무결성 검증**: nodejs.org는 배포별 `SHASUMS256.txt`를 제공 — traineddata와 동일한 규율로 다운로드 zip의 SHA-256을 검증 후 해제(불일치 fail-fast). 준비 egress로 `prep_egress_log`에 기록.
+3. **버전 pin**: LTS 1개 버전 고정(runner 검증 조합의 일부). 단 Gate D는 v24에서 검증됐으므로 **pin 후보 버전에서의 실측 재검증을 rasterizer spike에 포함**.
+4. **범위 한정**: 우선 **win-x64만**(현 대상 환경). 기타 플랫폼/아키텍처는 A안 fallback.
+5. **승인 대화 고지 추가 항목**: 용량(~30MB 다운로드/약 80MB 해제)·출처(nodejs.org/dist 고정)·hash 검증 수행·**제거 방법=폴더 삭제**.
+6. **AV 유의**: portable 실행 파일을 백신이 차단할 수 있음(2N-0A 리스크 연계) — 실패 시 A안 수렴 + 원인 한국어 안내.
+
+**권고**: C안 배제 확정, A안을 기본 fallback으로 유지, **B안은 별도 후보로 설계에 포함하되 2N-1 Codex 리뷰에서 보안·제출 정책상 허용 여부를 확인 후 사용자 결정**.
+B안 채택 시에도 시스템 PATH 영구 수정·관리자 권한 요구·OS installer 실행은 **금지 불변**.
 - **버전 pin**: kordoc@3.13.0(npm-published baseline) + pdfjs-dist@4.10.38(v6 비호환 실측) + tesseract.js/core@7.0.0 + traineddata hash(Gate D 기록 재사용). **버전별 디렉터리**라 드리프트가 구조적으로 감지된다(경로 불일치=미설치). 미검증 버전 fail-fast·auto-upgrade 금지(Version Strategy 계승).
 - **repo에는 package.json을 만들지 않는다**(현 구조 유지 — 제출물 표면 불변).
 
@@ -120,7 +142,7 @@ ingest(dei_producer·aux_scanner)는 이미 구현·리뷰된 그대로 소비�
 | # | 선택지 | 장점 | 단점/충돌 | 구현 비용 | 권고 |
 |---|---|---|---|---|---|
 | **U1 설치 위치** | ①외부 전용 tool-cache ②npm global ③npx ④repo 내부 | ①오염 0·버전 디렉터리·승인 명확 / ②간단 / ③설치 없음 | ②머신 전역 상태 변경·드리프트 / ③**실행마다 egress(분리 붕괴)+버전 부동** / ④package.json 생성=제출 표면 변경(금지 충돌) | ①낮음 | **① tool-cache** (③·④는 배제 권고) |
-| **U2 Node 부재** | ①안내+baseline 계속 ②Node 설치 안내 | ①정직·안전 / ②커버리지↑ | ②시스템 대변경·관리자 권한·범위 초과 | ①0 | **①** |
+| **U2 Node 부재** (2N-0B-A 보정) | **A**안내+baseline **B**승인 후 tool-cache에 **portable Node**(zip 해제, PATH 무수정·installer 미실행 — §7.1) **C**OS installer/PATH 영구 수정 | A정직·안전 / B커버리지↑·시스템 무흔적·폴더 삭제로 제거 | B는 보안·제출 정책 확인 필요(2N-1)·AV 간섭 가능 / **C는 시스템 대변경·관리자 권한 → 배제** | A=0 / B=중 | **A 기본 fallback + B 별도 후보(2N-1 확인 후 사용자 결정) / C 배제** |
 | **U3 승인 단위** | ①설치=도구·버전당 1회 + 실행=세션 1회, marker 기록 ②매 실행 승인 ③전역 1회 | ①균형 / ②안전하나 피로 / ③최소 마찰 | ③버전 변경 시 무승인 위험 | ①낮음 | **①**(marker는 tool-cache 내) |
 | **U4 runner 커밋/zip** | ①커밋+zip 포함 ②docs 절차만 | ①재현성·리뷰 가능·심사 서사 / ②표면 최소 | ①zip 내 실행 스크립트 인상(packaging 문구 필요) / ②재현성 취약(2N-0A) | ①중 | **①**(조건: core 미import 테스트·자동 실행 없음·기본 비실행 명시) |
 | **U5 provider명** | ①3층 분리(§11) ②전면 금지 ③전면 허용 | ①consent+§7 양립 | ②승인이 깜깜이 / ③§7 위반 | ①0 | **①** |
@@ -137,12 +159,12 @@ ingest(dei_producer·aux_scanner)는 이미 구현·리뷰된 그대로 소비�
 5. runner는 단일 문서 CLI + `--out-dir` 필수 + `.gitignore` artifact 패턴 방어.
 6. provider명 3층 분리 정책.
 7. rasterizer는 spike 후 결정(1순위 @napi-rs/canvas + Gate B 재검토 묶음).
-8. Node 부재·거부·실패는 전부 "baseline 계속 + §7 한계 문구" 수렴.
+8. Node 부재·거부·실패는 전부 "baseline 계속 + §7 한계 문구" 수렴 — (2N-0B-A) U2-B(portable Node) 채택 시에도 B의 거부·다운로드 실패·AV 차단은 동일하게 A로 수렴한다.
 
 ## 15. 사용자 결정 필요사항
 
 - **U1** 권고(외부 tool-cache) 채택 여부 — 특히 위치를 사용자 홈 하위로 신설하는 데 동의하는가.
-- **U2** Node 부재 시 baseline 종료로 한정할지.
+- **U2** (2N-0B-A 보정) A안(안내+baseline)만으로 한정할지, **B안(portable Node를 tool-cache에 설치 — §7.1)**을 후보로 채택할지 — B안은 2N-1 확인 후 결정. C안(OS installer/PATH 수정)은 배제 확정.
 - **U3** 승인 단위 권고(설치 1회+실행 세션 1회, marker 기록) 채택 여부.
 - **U4** runner 커밋 + submission.zip 포함 여부(packaging 정책 문구 추가 포함).
 - **U5** provider명 3층 분리 정책 승인.
@@ -159,6 +181,8 @@ ingest(dei_producer·aux_scanner)는 이미 구현·리뷰된 그대로 소비�
 5. 부분 성공 정책(§5)·거부/실패 수렴 UX(§3)의 타당성.
 6. hash Python-주입 설계(§10)가 계약 무결성 검증 취지를 훼손하지 않는가.
 7. 능력 표현 정련(§11 — "사용자 승인 하의 로컬 보조 실행")이 과대표현 금지 규칙과 양립하는가.
+8. **(2N-0B-A) portable Node B안(§7.1)**이 보안·제출 정책·"외부 앱/CLI 상태 변경은 사용자 직접 수행" 원칙과 양립하는가 —
+   특히 "승인 하 tool-cache 압축 해제(PATH 무수정·installer 미실행·폴더 삭제로 제거)"를 OS installer류 시스템 변경과 구분해 허용할 수 있는지.
 
 ## 17. 2N-2 구현 전제 조건
 

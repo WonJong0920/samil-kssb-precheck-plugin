@@ -6,6 +6,12 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-0B-A — Node/npm 부재 UX 설계 보정**(설계 문서 보정만 — 코드/설치/실행 없음). U2를 3안 구조로 보정:
+  **A** 설치 안내+baseline 계속(기본 안전 fallback) / **B** 사용자 승인 후 repo 밖 tool-cache에 **portable Node**(nodejs.org 공식 zip 해제만 —
+  **OS installer 미실행·PATH 영구 수정 없음·관리자 권한 불요·폴더 삭제로 제거**, SHASUMS256 검증·LTS pin·win-x64 한정·시스템 Node 우선 탐지) /
+  **C** OS installer 실행·PATH 영구 수정 = **배제 확정**. "Node 자동 전역 설치"와 "portable Node 설치"를 명확 구분(§7.1).
+  B안은 별도 후보로 포함하되 **2N-1 Codex 리뷰(쟁점 8번 신설)에서 보안·제출 정책·"외부 상태 변경은 사용자 직접" 원칙과의 양립 확인 후 사용자 결정**.
+  B 실패·거부·AV 차단은 전부 A로 수렴(§14). 문서: `docs/planning/cycle2n_0b_runner_provider_ux_design.md` §7.1·§13 U2·§15·§16-8 보정.
 - **Cycle 2N-0B — Runner / Provider UX 설계**(설계 문서만 — **구현 아님**, provider 설치·실행·샘플 재실행 없음. runner/provider/OCR/provider finalization 여전히 pending).
   2N-0A U1~U8을 선택지 비교+권고안+**사용자 결정 필요** 분리로 설계: ① 외부 전용 **tool-cache**(버전 디렉터리+approvals/prep-egress marker — repo package.json 미생성) 권고,
   ② **HWP/OCR 이중 경로 분리 승인**(HWP=Kordoc만·기검증·저리스크 → 구현 선행 권고 / OCR=+rasterizer+traineddata), ③ 준비 egress↔실행 no-egress 분리(nethook 재작성·커밋은 2N-2),
