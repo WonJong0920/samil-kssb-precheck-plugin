@@ -90,6 +90,9 @@ def main() -> int:
     check("install: global/npx 미사용", "-g" not in cmd and "--global" not in joined
           and "npx" not in joined)
     check("repo 루트 package.json 미생성", not (REPO / "package.json").exists())
+    # (2N-4/AVR-04) 탐지된 npm 경로를 명령에 반영(Windows npm.CMD — PowerShell npm.ps1 우회)
+    cmd2 = R.build_install_command(cache, npm_exe=r"C:\Program Files\nodejs\npm.CMD")
+    check("install: npm_exe 해석 경로 사용", cmd2[0].endswith("npm.CMD"))
 
     # 5. 승인 flag 없이는 install/run 실행 안 됨(무승인 실행 금지)
     rc, out_text, calls = run_main([str(doc), "--out-dir", str(out), "--tool-cache", str(cache)])

@@ -6,6 +6,17 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4 — HWP-first Assisted Retest**(승인 기반 **실 실행 evidence** — Codex 2N-3B PASS 후). 결과 요지:
+  ① **승인 게이트 라이브 증거**: check(plan)→무플래그 rc=5(설치 승인 문구)→`--approve-install`(실 npm 설치)→**설치 후에도 rc=6**(실행 승인 분리)→`--approve-run --evidence-mode`.
+  ② **Kordoc 준비 성공**: `<홈>/.samil-kssb-precheck/tools/kordoc@3.13.0`에 pin 일치 설치(cli.js 확인 — AVR-02), **native 0**(--omit=optional 실효), prep_egress_log/approvals 기록.
+  **npm 해석 blocker 발견→좁은 patch**: PowerShell은 npm→npm.ps1(정책 위험 실증), runner가 `shutil.which` 해석 경로(npm.CMD)를 설치 명령에 쓰도록 보정(AVR-04).
+  ③ **실 Kordoc 4회 실행 전부 no-egress 검증**(AVR-01): hook_observed=true·egress 0·`no_egress_verified=true`(evidence 모드). intake 바이트가 2L-3C와 동일(교차 결정성).
+  ④ **PowerShell + 한국어·공백·괄호 파일명 성공**(AVR-05): 한국어 out-dir·UTF-8 stdout·artifact 한글 10,057자 보존.
+  ⑤ **핵심 발견(blocker)**: Kordoc의 HWP/HWPX/DOCX JSON에는 `pageQuality`/`qualitySummary`가 없고 DOCX는 `pageCount:null` →
+  **HWP-계열 intake가 L1 ingest 계약(PDF 형태 기준)에서 설계된 fail-fast로 거부됨**(PDF 대조군은 rc=0 정상). 계약 변경 금지에 따라 미패치 —
+  **비페이지 포맷 계약 확장은 별도 결정+리뷰 사이클(2N-4B 권고)**. ⑥ 오염 0(repo package/lock/node_modules/artifact 없음), 테스트 전부 green
+  (nethook 29·runner 49(+npm patch 검증)·기존 5종). (관찰) Kordoc이 out-dir에 images/ 70개 추출 — artifact 정책 명시 필요.
+  보고서: `docs/planning/cycle2n_4_hwp_first_assisted_retest_report.md`. **2N-5는 ingest 계약 결정 후 진행 권고.** OCR/rasterizer/portable Node gated 유지.
 - **Cycle 2N-3A — nethook Coverage Patch**(Codex 2N-3 **CONDITIONAL PASS**의 **C2N3-MAJ-01** 해소 — narrow patch). 보정:
   ① **host 추출 일관화** — net/tls option object의 `host`/`hostname`/`servername` 모두 처리(누락 시 loopback 오인 차단), http(s)는
   URL 객체 포함 `hostname` 우선, **로컬 IPC(`path`/named pipe)와 host-부재 option은 loopback 취급 허용**(원격 호스트명에 경로 구분자가

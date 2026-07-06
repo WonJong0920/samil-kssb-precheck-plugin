@@ -113,11 +113,16 @@ def is_inside_repo(path: Path) -> bool:
 
 # ---- 명령 빌더 (실행하지 않음 — 실행은 승인 게이트 뒤에서만) --------------------
 
-def build_install_command(tool_cache: Path) -> list[str]:
-    """Kordoc 설치 명령(U1 pin·`--omit=optional` 필수). npm global/npx/repo 설치 아님."""
+def build_install_command(tool_cache: Path, npm_exe: str = "npm") -> list[str]:
+    """Kordoc 설치 명령(U1 pin·`--omit=optional` 필수). npm global/npx/repo 설치 아님.
+
+    npm_exe: 탐지된 npm 실행 경로(2N-4/AVR-04 — Windows에서 `shutil.which("npm")`은
+    `npm.CMD`를 반환하며, PowerShell의 npm.ps1 실행 정책 문제를 우회하는 안전한 경로다.
+    리터럴 "npm"은 Windows CreateProcess에서 .cmd 해석이 안 돼 실패할 수 있다).
+    """
     prefix = kordoc_prefix(tool_cache)
     return [
-        "npm", "install",
+        npm_exe, "install",
         "--prefix", str(prefix),
         "--omit=optional",          # RH-B2: native optional 재유입 방지(필수)
         "--no-audit", "--no-fund",
@@ -348,7 +353,7 @@ def main(argv: list[str] | None = None,
         if not ns.approve_install:
             print(install_approval_message(tool_cache))
             return EXIT_INSTALL_APPROVAL_REQUIRED
-        cmd = build_install_command(tool_cache)
+        cmd = build_install_command(tool_cache, npm_exe=node["npm"])
         record_approval(tool_cache, "install", f"kordoc@{KORDOC_VERSION}")
         append_prep_egress(tool_cache, action="install", status="started",
                            command_summary=" ".join(cmd[:6]) + " ...")
