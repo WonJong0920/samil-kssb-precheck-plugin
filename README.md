@@ -95,6 +95,8 @@ Samil KSSB Precheck Plugin/
 │   ├── schemas/                            # findings 데이터 계약(JSON Schema) + 예시
 │   ├── validators/                         # 내부: findings detect-only preflight 검증기(표준 라이브러리)
 │   ├── renderers/                          # 내부: findings → DOCX/HTML 형식 변환기(표준 라이브러리)
+│   ├── intake/                             # 선택적(opt-in) 인테이크·ingest 경계 — core·Skill entrypoint 아님
+│   │                                       #   (DEI 정규화 + 승인 기반 HWP/HWPX/DOCX 보조 판독 runner. OCR 실행 미구현)
 │   └── reference/python_engine/README.md   # 기존 Python 엔진 참고(코드 미포함)
 ├── tests/                                   # 재사용 검증기·렌더러 점검(표준 라이브러리)
 ├── docs/                                    # 설계·검증·현황·의사결정·완료보고·workflow_usage

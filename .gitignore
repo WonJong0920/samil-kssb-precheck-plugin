@@ -26,6 +26,10 @@ out/
 # Gate D Type 3 샘플 등 로컬 검토용 원본은 repo 밖 취급, 실수 커밋 방지.
 *.pdf
 *.PDF
+# HWP-계열 원본/테스트 샘플도 동일 정책(PDF 방어와 대칭 — 2N-4H hygiene)
+*.hwp
+*.hwpx
+*.docx
 
 # assisted runner 중간 산출물(2N-2 — --out-dir은 repo 밖 권장이나 실수 낙하 대비 방어)
 *.intake.json
