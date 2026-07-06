@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Codex P0 — Runtime Probe / Execution Environment Evidence**(실측 evidence, 구현·설치·다운로드 없음).
+  2N-4C 계획과 Codex 2N-4C 리뷰 권고에 따라 Codex 세션의 runtime surface를 no-install로 확인했다.
+  결과: `python`/`py`/`python3`은 WindowsApps alias/stub로 resolve되지만 실행 시 access failure → 현재 Codex 세션에서는 Python 런타임 사용 불가.
+  일반 설치 후보 경로도 미발견. 반면 Node는 system Node `v24.16.0`로 실행 가능하고, npm은 bare PowerShell `npm`이 `npm.ps1`
+  실행 정책에 막히므로 `npm.cmd`(`11.13.0`) 또는 explicit executable 사용이 필요하다. repo 밖 `<TEMP>` absolute script와 fake tool-cache script 실행은 성공 후 삭제되어,
+  PATH 밖 executable/script 호출 자체는 가능함을 확인했다. 다운로드·설치·Kordoc 재실행·OCR·tool-cache runtime adoption은 미수행.
+  evidence: `docs/samples/codex_runtime_probe_evidence_p0.md`. **다음 = 사용자/ChatGPT가 2N-5 실행 환경 정의 및 S0/S1/S2/S3 분기 결정.**
 - **Cycle 2N-4C — 실행 런타임 전략 계획**(계획 문서만 — 코드·설치·다운로드·실행 없음. 구현은 Codex 계획 리뷰 이후).
   계기: Codex 리뷰 세션 2회 연속 **Python 실행 불가 실측**(WindowsApps stub — C2N3B-OBS-02·C2N4B-OBS-01) vs **Node v24 가용** →
   ① 검증 공백(Codex가 Python 테스트를 직접 실행 못함), ② 실행 계층 전부(core/ingest/runner)가 Python이라 사용자 E2E 실행 불가 위험.
