@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-0B — Runner / Provider UX 설계**(설계 문서만 — **구현 아님**, provider 설치·실행·샘플 재실행 없음. runner/provider/OCR/provider finalization 여전히 pending).
+  2N-0A U1~U8을 선택지 비교+권고안+**사용자 결정 필요** 분리로 설계: ① 외부 전용 **tool-cache**(버전 디렉터리+approvals/prep-egress marker — repo package.json 미생성) 권고,
+  ② **HWP/OCR 이중 경로 분리 승인**(HWP=Kordoc만·기검증·저리스크 → 구현 선행 권고 / OCR=+rasterizer+traineddata), ③ 준비 egress↔실행 no-egress 분리(nethook 재작성·커밋은 2N-2),
+  ④ **hash는 Python 헬퍼 주입**(canonical 규칙 단일 소스 — Node 교차 언어 위험 제거), 결정성 2회는 evidence 모드 한정, ⑤ 단일 문서 CLI+`--out-dir` 필수+`.gitignore` artifact 방어,
+  ⑥ **provider명 3층 분리**(승인 대화=명시/보고서=금지(§7)/내부 evidence=명시), ⑦ **rasterizer는 spike 후 결정**(1순위 @napi-rs/canvas — native 수용 시 Gate B 재검토 전제, 유일한 공급망 공백),
+  ⑧ 거부·Node 부재·실패는 전부 "baseline 계속+§7 한계 문구" 수렴. 경계 정련("자동 실행 금지"→**"무승인 실행 금지"**)·Skill 중개 양립성 등 7개 쟁점을 2N-1 Codex 리뷰 확인 대상으로 명시.
+  문서: `docs/planning/cycle2n_0b_runner_provider_ux_design.md`. **다음 = 사용자 U1~U8 결정 + Codex 2N-1 설계 리뷰.** 2N-2 구현 전제 4건(§17) 정의.
 - **Cycle 2N-0A — Runner / Provider UX Blindspot Pass**(planning만 — 설계 확정·구현·설치·실행 없음). Codex 2M-6 **PASS**로 2M 종료 가능 확인 후,
   2N-0B 설계 전 blindspot 도출: 핵심 발견 — ① **rasterizer 공백**(tesseract.js는 이미지 입력만·Gate D는 AGPL PyMuPDF로 렌더(검사용)·Kordoc 이미지 경로는 native canvas 필요 →
   OCR 경로의 유일한 미해결 공급망, U8), ② **HWP 경로와 OCR 경로는 별개 assisted path**(승인·egress 프로파일 상이 — 포맷별 분리 승인 권고), ③ OCR은 Kordoc intake 선행 의존
