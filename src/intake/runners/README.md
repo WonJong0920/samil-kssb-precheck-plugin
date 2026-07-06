@@ -1,4 +1,4 @@
-# src/intake/runners — HWP-first Assisted Runner (Cycle 2N-2, source-only)
+# src/intake/runners — HWP-first Assisted Runner (Cycle 2N-2, source-only / Node port 2N-4D)
 
 > **경계**: 이 폴더는 **plugin core가 아니며 Skill entrypoint도 아니다.** core(schema/validator/renderer/delivery)는
 > 이 폴더를 참조하지 않는다(테스트로 강제). Skill이 사용자 승인 절차를 **중개**할 때만 안내되는 opt-in 보조 도구다.
@@ -11,6 +11,16 @@
   repo 밖 tool-cache(`npm --prefix`, **`--omit=optional` 필수**, pin `kordoc@3.13.0 + pdfjs-dist@4.10.38`),
   준비 egress 기록(`prep_egress_log.jsonl`)·승인 marker(`approvals.json`)·실행 로그(tool-cache 내부 전용),
   `--out-dir` 필수, artifact 규약 `<stem>.intake.json`/`<stem>.aux_signals.json`.
+- `hwp_assisted_runner.cjs` **(2N-4D 신규 — Node port, Codex review 대기)**: 위 Python runner와 **CLI 계약 동일**
+  (플래그·exit code·한국어 승인 문구·tool-cache 레이아웃·pin·로그 형식·provenance 규칙)한 Node 구현(내장 모듈만,
+  외부 의존성 0 — repo package.json 미생성). **동기**: Codex 실행환경에서 Python이 WindowsApps stub으로 실행 불가,
+  Node는 가용(P0 probe 실측 — 2N-4C 계획 S1 1단계). 테스트는 `node:test` 내장 러너
+  (`node --test tests/test_hwp_assisted_runner_node.test.cjs`) — **Codex가 리뷰에서 직접 실행 가능**.
+  **v1 의도적 차이(문서화)**: ① **aux_signals 미생성**(HWPX/DOCX 보조 신호는 Python 경로 전용 — Node 내장에
+  zip/XML parser 부재; 기존 설계상 aux 부재 허용, 건너뜀 안내 출력) ② node 실행 파일은 자기 자신(process.execPath)으로
+  보장(부재 케이스 구조적 없음 — npm 부재만 exit 4) ③ npm은 PATH+PATHEXT 해석(Windows npm.cmd — bare npm의
+  npm.ps1 정책 차단 위회, P0/AVR-04). **Python runner는 reference로 유지**(제거 아님 — 최종 처리는 별도 결정).
+  실 Kordoc 실행 parity evidence는 미수행(이번 사이클 실행 승인 없음 — follow-up).
 - `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**(block 모드),
   `worker_threads` 전파, 종료 시 `[NETHOOK-SUMMARY]` 출력. runner는 **요약이 실제 관측되고 egress 시도 0인 실행에만
   `no_egress_verified=true`**를 기록한다(evidence 모드에서는 미관측=실패).

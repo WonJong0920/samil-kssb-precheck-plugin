@@ -11,7 +11,7 @@
     out-of-band OCR 산출물(provenance 필수·needsOcr 페이지 정합 fail-fast)을 **별도 `ocr_supplement` 섹션**
     (extraction_quality="low" 고정, **기존 blocks에 미혼입**)으로, 보조 구조 신호를 `aux_structure` 섹션과
     review/gap hint로만 **additive 병합**한다. 두 인자가 없으면 산출은 기존 L1과 동일(DEI_VERSION "1" 유지).
-  - **(2N-4B 구현 — document-level 변형 계약, Codex review 대기)** Kordoc HWP/HWPX/DOCX 출력에는 `pageQuality`/`qualitySummary`가
+  - **(2N-4B 구현 — document-level 변형 계약, Codex 2N-4B review PASS로 종결)** Kordoc HWP/HWPX/DOCX 출력에는 `pageQuality`/`qualitySummary`가
     없고 DOCX는 `pageCount`도 없다(2N-4 실측). **`fileType`이 {hwp,hwpx,docx}이고 두 필드가 모두 부재**할 때만 별도의
     document-level 변형으로 수용한다: 없는 페이지/품질 신호를 **합성하지 않고** additive 필드
     (`doc_quality.pagination="document_level"`·`page_count_basis`·`quality_signal="not_reported"`)로 부재를 명시,
@@ -19,8 +19,10 @@
     블록 품질은 블록 자체 텍스트의 깨짐 신호로만 보수 계산(상한 medium), 빈 blocks·내용 없는 blocks는 거부(fail-fast 유지),
     이 변형에서 `ocr_text` 병합은 **명시 거부**(needsOcr 정합 기준 없음). 조건 밖 입력(예: fileType="pdf")은
     기존 paginated 계약이 **경로·산출 모두 무변경**으로 적용된다(PDF 대조군 byte-identical 확인).
-- `runners/` **(2N-2 신규, source-only)**: HWP-first assisted runner skeleton — **무승인 설치/실행 금지**, repo 밖 tool-cache,
-  no-egress 훅(nethook.cjs), OCR/portable Node 범위 밖. 경계 상세는 `runners/README.md`(core는 이 폴더를 참조하지 않는다).
+- `runners/` **(2N-2 신규, source-only / 2N-4D Node port 추가)**: HWP-first assisted runner skeleton — **무승인 설치/실행 금지**, repo 밖 tool-cache,
+  no-egress 훅(nethook.cjs), OCR/portable Node(다운로드) 범위 밖. Python(`.py`)과 Node(`.cjs`, 2N-4D — CLI 계약 동일,
+  Codex-like 무-Python 환경 대응·aux 미생성 등 v1 차이는 README 명시) 두 구현이 있으며 Python은 reference 유지.
+  경계 상세는 `runners/README.md`(core는 이 폴더를 참조하지 않는다).
 - `aux_structure_scanner.py` **(2L-4B 신규, provisional)**: 로컬 HWPX/DOCX zip+xml 구조에서 **문서 수준 보조 신호**
   (이미지 리소스/relationship/인스턴스 3계층, 표 top-level/중첩 분해, caption/heading 후보, chart relationship)를
   결정적으로 추출하는 표준 라이브러리 전용 스캐너. 주 추출기 결과의 **교차확인·gap 신호 재료**일 뿐 판정·의미 해석을 하지 않는다.

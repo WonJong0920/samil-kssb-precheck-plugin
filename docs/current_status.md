@@ -6,6 +6,24 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4D — HWP Assisted Runner Node Port**(S1 1단계 구현 — Codex review 대기. 근거: 2N-4C 계획 리뷰 PASS + P0 probe
+  (Python stub 불가·Node v24 가용·PATH 밖 절대 경로 실행 가능) + 사용자 판단(S1 runner 우선·core 보류·2N-5 보류)으로 착수).
+  ① **`src/intake/runners/hwp_assisted_runner.cjs` 신규**(Node 내장 모듈만 — 외부 의존성 0, repo package.json 미생성):
+  Python runner와 **CLI 계약 동일** — 플래그(`--check/--approve-install/--approve-run/--evidence-mode/--out-dir/--tool-cache`),
+  exit code(0/2/3/4/5/6/7), 한국어 승인 문구(U5), tool-cache 레이아웃·pin(kordoc 3.13.0+pdfjs 4.10.38·`--omit=optional`),
+  prep_egress/approvals/run_log 형식(key 정렬 JSON), provenance 규칙(**요약 실관측+egress 0에만 no_egress_verified=true**,
+  evidence 모드 미관측=실패) — nethook.cjs 무변경 재사용. ② **v1 의도적 차이(README 문서화)**: aux_signals 미생성(Node 내장에
+  zip/XML parser 부재 — Python 경로 전용, 건너뜀 안내 출력), node=process.execPath 자기 보장(npm 부재만 exit 4),
+  npm은 PATH+PATHEXT 해석(npm.cmd — bare npm의 npm.ps1 정책 차단 우회, P0/AVR-04). ③ **테스트 신규
+  `tests/test_hwp_assisted_runner_node.test.cjs` 27/27**(node:test 내장 러너, `node --test`로 실행 — **Codex가 리뷰에서 직접
+  실행 가능**): 게이트(무승인 exec 0)·승인 분리(U3)·builder pin·provenance 4상태·한국어/공백/괄호 파일명·which PATHEXT·
+  로그 형식·core 미참조·내장 require만·**Python 소스 텍스트 대조 parity**(버전 pin·exit code·요약 정규식·artifact 규약).
+  라이브 게이트 확인: 무인자 rc=2·무승인 rc=5(한국어 문구)·check rc=0·side-effect 0(tool-cache 미생성).
+  ④ **Python runner는 reference 유지**(무변경 — 최종 처리는 별도 결정), core/ingest 무변경, portable Node/Python 다운로드 없음,
+  **실 Kordoc 실행 parity evidence 미수행**(이번 지시에 실행 승인 없음 — follow-up, 2N-2 mock 패턴 준수).
+  겸사: intake README "2N-4B review 대기" 문구를 PASS 종결로 최신화. **정직한 완료 표현: assisted 산출물 생성까지 Node
+  단일화 — 산출물의 ingest 합류·보고서 생성은 여전히 Python 필요(2N-4D는 2N-5 unblock이 아님).**
+  **다음 = Codex 2N-4D review.** 병행: P0-B probe(실제 Python 절대 경로 — Codex 측, 프롬프트 전달됨).
 - **Codex P0 — Runtime Probe / Execution Environment Evidence**(실측 evidence, 구현·설치·다운로드 없음).
   2N-4C 계획과 Codex 2N-4C 리뷰 권고에 따라 Codex 세션의 runtime surface를 no-install로 확인했다.
   결과: `python`/`py`/`python3`은 WindowsApps alias/stub로 resolve되지만 실행 시 access failure → 현재 Codex 세션에서는 Python 런타임 사용 불가.
