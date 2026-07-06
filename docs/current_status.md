@@ -6,6 +6,19 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-2 — HWP-first Narrow Implementation**(코드 — **runner skeleton 구현. full HWP+OCR+portable Node는 여전히 미구현/gated,
+  provider finalization 아님, L2 전체 완료 아님**). 2N-1A scope대로 구현: ① **`src/intake/runners/hwp_assisted_runner.py`**(source-only,
+  stdlib) — check/plan 모드, **무승인 설치/실행 금지**(승인 플래그 없으면 한국어 승인 문구 출력 후 종료, exec 호출 0 테스트 증명),
+  HWP/HWPX/DOCX 외 확장자 정중 종료, Node 부재 시 설치 안내+baseline 수렴(**portable Node 미제안**), repo 밖 tool-cache
+  (`npm --prefix`·**`--omit=optional` 필수**·pin kordoc@3.13.0+pdfjs-dist@4.10.38·global/npx 미사용), 준비 egress 기록(prep_egress_log.jsonl)·
+  승인 marker(approvals.json)·run 로그 전부 tool-cache 내부, `--out-dir` 필수+repo 내부 경고, artifact 규약 `<stem>.intake/.aux_signals.json`
+  (**ocr_text는 HWP-first 범위 밖 — 미생성**), HWPX/DOCX는 aux 스캐너 in-process 연계. ② **`nethook.cjs`**(source-only, AVR-04 사양) —
+  dns/net/tls/http/https 차단(비-loopback은 **패킷 발신 전 기록 후 throw**)·worker_threads 전파·`[NETHOOK-SUMMARY]` 요약.
+  **`no_egress_verified=true`는 훅 요약 실관측+egress 0인 실행에만**(미관측=false, evidence 모드=실패). ③ `.gitignore`에 artifact 3패턴 방어.
+  ④ 테스트: 신규 **runner 48/48**(승인 게이트·builder·prep log·provenance 정책·한국어/공백 파일명·UTF-8·core 미참조/미import — 전부 mock·tmp,
+  실제 설치/실행/네트워크 없음) + **nethook 12/12**(실 Node로 차단·worker 전파·요약 — 외부 트래픽 없음: block은 pre-connect throw) +
+  기존 5종 무수정 green(30/22/34/56/26). repo 루트 package.json/lock/node_modules 없음·실제 홈 tool-cache 미생성 확인.
+  **다음 = Codex 2N-3 구현 리뷰.** OCR/rasterizer/tesseract.js/portable Node는 gated 유지.
 - **Cycle 2N-1A — HWP-first Scope Decision**(scope decision 문서만 — 구현·설치·실행 없음). Codex 2N-1 **CONDITIONAL PASS**(C2N1-MAJ-01:
   full HWP+OCR+portable Node 2N-2는 blocking / 문서화된 HWP-only slice는 non-blocking)에 대응해 **2N-2 = HWP-first narrow implementation으로 확정**.
   U1~U8 처리: U1(외부 tool-cache·kordoc pin만)·U3(설치 1회+실행 세션/실행 단위 승인, marker는 tool-cache)·U4(runner source-only 커밋, zip 포함은 후보)·

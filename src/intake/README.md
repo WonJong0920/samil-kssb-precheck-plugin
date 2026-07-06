@@ -11,6 +11,8 @@
     out-of-band OCR 산출물(provenance 필수·needsOcr 페이지 정합 fail-fast)을 **별도 `ocr_supplement` 섹션**
     (extraction_quality="low" 고정, **기존 blocks에 미혼입**)으로, 보조 구조 신호를 `aux_structure` 섹션과
     review/gap hint로만 **additive 병합**한다. 두 인자가 없으면 산출은 기존 L1과 동일(DEI_VERSION "1" 유지).
+- `runners/` **(2N-2 신규, source-only)**: HWP-first assisted runner skeleton — **무승인 설치/실행 금지**, repo 밖 tool-cache,
+  no-egress 훅(nethook.cjs), OCR/portable Node 범위 밖. 경계 상세는 `runners/README.md`(core는 이 폴더를 참조하지 않는다).
 - `aux_structure_scanner.py` **(2L-4B 신규, provisional)**: 로컬 HWPX/DOCX zip+xml 구조에서 **문서 수준 보조 신호**
   (이미지 리소스/relationship/인스턴스 3계층, 표 top-level/중첩 분해, caption/heading 후보, chart relationship)를
   결정적으로 추출하는 표준 라이브러리 전용 스캐너. 주 추출기 결과의 **교차확인·gap 신호 재료**일 뿐 판정·의미 해석을 하지 않는다.
