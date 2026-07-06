@@ -30,8 +30,8 @@
   닭-달걀 해소). `-ApproveRuntime` 없이는 어떤 파일도 만들지 않고 승인 안내만 출력(exit 5). **이중 SHA-256 검증**
   (repo-pinned 기대값 + 공식 SHASUMS256.txt 교차 — 어느 한쪽 불일치/파싱 실패도 부분 파일 정리 후 중단, 해제 금지),
   해제 후 `node.exe --version`=pin 자가 확인, approvals.json `runtime` marker·prep_egress_log 기록(BOM 없는 UTF-8),
-  모든 실패는 A안(기본 텍스트 검토 계속) 수렴. **기대 hash 상수는 미기록 상태이며 실(https) 다운로드는 fail-closed로
-  거부된다** — 실측·기록은 (가칭)2N-4G evidence 사이클에서 수행. pin 후보 `v24.16.0`(v24 LTS 계열 — 사용자 결정,
+  모든 실패는 A안(기본 텍스트 검토 계속) 수렴. **기대 hash 상수는 2N-4G real-download evidence에서
+  공식 SHASUMS256.txt와 실제 zip hash를 교차 확인해 기록했다**. pin `v24.16.0`(v24 LTS 계열 — 사용자 결정,
   Gate D·2N-4·P0 실측 major). OS installer/PATH 영구 수정/관리자 권한 없음(제거=폴더 삭제), `-ExecutionPolicy Bypass`는
   프로세스 1회 한정(승인 문구 고지). **주의: 이 파일은 UTF-8 BOM 인코딩이어야 한다**(PowerShell 5.1이 BOM 없는 UTF-8을
   CP949로 읽어 한국어 문구가 깨짐 — 2M-3 인코딩 전례).

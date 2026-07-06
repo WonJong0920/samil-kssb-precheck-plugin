@@ -6,7 +6,7 @@
  * **실제 네트워크 0**: -SourceRoot에 로컬 fixture 디렉터리를 주고, 성공 zip은 테스트 시점에
  * 실제 node.exe(process.execPath 복사)로 임시 생성한다(바이너리 커밋 없음 · 다운로드 없음).
  * 검증 대상(C2N4E-OBS-02): 무승인 게이트 / 이중 hash(불일치 2종) / SHASUMS 파싱 실패 /
- * 해제 실패 / cleanup / 실 URL+pin 미기록 fail-closed / 성공 경로(마커·로그·자가 버전 확인).
+ * 해제 실패 / cleanup / 공식 remote override fail-fast / 성공 경로(마커·로그·자가 버전 확인).
  */
 
 const { test, before } = require("node:test");
@@ -22,6 +22,14 @@ const PS1 = path.join(REPO, "src", "intake", "runners", "prepare_portable_node.p
 const VER = process.version.slice(1); // 실행 중 Node의 실제 버전 — 자가 버전 확인이 통과하도록
 const ZIP_NAME = `node-v${VER}-win-x64.zip`;
 const IS_WIN = process.platform === "win32";
+const REAL_NODE_WIN_X64_SHA256 = "edaca9bd58ec8e92037dac4e877d52f6b8f430b81c18b57e264b4e2fb111cd56";
+
+test("2N-4G: official remote repo-pinned hash is recorded; live download is evidence-only", { skip: !IS_WIN }, () => {
+  const ps1 = fs.readFileSync(PS1, "utf8");
+  const m = ps1.match(/\$PINNED_ZIP_SHA256_CONST = "([0-9a-f]{64})"/);
+  assert.ok(m, "repo-pinned hash constant must be recorded after 2N-4G evidence");
+  assert.equal(m[1], REAL_NODE_WIN_X64_SHA256);
+});
 
 function tmpdir(prefix) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -70,10 +78,12 @@ test("무승인 호출 → 승인 안내 + exit 5 + 파일 생성 0", { skip: !I
   assert.ok(!fs.existsSync(tc), "unapproved call must not create files");
 });
 
-test("실 URL + pin 미기록 → 네트워크·파일 생성 전 fail-closed exit 7", { skip: !IS_WIN }, () => {
+test("공식 원격 + -PinnedZipSha256 override → 네트워크·파일 생성 전 fail-fast exit 7", { skip: !IS_WIN }, () => {
   const tc = path.join(tmpdir("kssb-pnode-"), "tc");
-  // SourceRoot 미지정(기본 https 공식) + PinnedZipSha256 미지정(상수도 미기록) → 다운로드 시도 전 거부
-  const r = runPs1(["-ToolCache", tc, "-PinVersion", VER, "-ApproveRuntime"]);
+  // 원격 경로는 repo-pinned 상수만 허용하므로 override는 다운로드 시도 전 거부된다.
+  const r = runPs1(["-ToolCache", tc, "-PinVersion", VER,
+    "-SourceRoot", `https://nodejs.org/dist/v${VER}/`,
+    "-PinnedZipSha256", FIX.hash, "-ApproveRuntime"]);
   assert.equal(r.status, 7);
   assert.ok(!fs.existsSync(tc), "fail-closed must precede any file creation");
 });

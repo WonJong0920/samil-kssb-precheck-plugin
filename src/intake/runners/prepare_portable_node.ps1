@@ -6,8 +6,8 @@
 #   설치 위치는 repo 밖 tool-cache이며 제거는 폴더 삭제로 완결된다.
 # - 이중 hash 검증(fail-fast): (1차) repo-pinned SHA-256 + (2차) SHASUMS256.txt 해당 행 교차 —
 #   어느 한쪽 불일치/파싱 실패도 부분 파일을 정리하고 중단한다(해제 금지).
-# - $PINNED_ZIP_SHA256_CONST가 비어 있는 동안 실제(https) 출처 다운로드는 fail-closed로 거부된다.
-#   (실측 evidence 사이클(2N-4G)에서 최초 관측값을 기록한 뒤에만 실 다운로드 가능 — 이번 사이클은 mock 전용.)
+# - $PINNED_ZIP_SHA256_CONST는 2N-4G real-download evidence에서 공식 SHASUMS256.txt와 교차 확인한
+#   `node-v24.16.0-win-x64.zip` SHA-256 값이다. 원격 경로는 이 repo-pinned 값만 사용한다.
 # - -SourceRoot 에 로컬 디렉터리를 주면 테스트 fixture로 검증할 수 있다(테스트 전용 — prep 로그에 출처가 남는다).
 # - 이 스크립트는 Node/Python 없이 Windows 내장 PowerShell만으로 동작한다(닭-달걀 해소).
 #   호출 형태: powershell -NoProfile -ExecutionPolicy Bypass -File prepare_portable_node.ps1 -ApproveRuntime
@@ -25,8 +25,8 @@ param(
 )
 
 # pin 후보 근거: v24 LTS 계열(사용자 결정 2) — Gate D·2N-4·P0에서 실측된 major.
-# 최종 pin·아래 상수는 2N-4G evidence 사이클에서 최초 관측 hash와 함께 확정한다.
-$PINNED_ZIP_SHA256_CONST = ""   # 미기록(fail-closed) — 2N-4G에서 기록 전까지 실 다운로드 불가
+# pin·아래 상수는 2N-4G evidence 사이클에서 공식 SHASUMS256.txt와 실제 zip hash를 교차 확인해 기록했다.
+$PINNED_ZIP_SHA256_CONST = "edaca9bd58ec8e92037dac4e877d52f6b8f430b81c18b57e264b4e2fb111cd56"
 
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 

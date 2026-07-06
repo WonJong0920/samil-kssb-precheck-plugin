@@ -529,8 +529,9 @@ test("parity: portable pin이 bootstrap ps1 기본값과 동일 + v24 계열", (
   assert.ok(m, "PinVersion default not found in ps1");
   assert.equal(m[1], R.PORTABLE_NODE_VERSION);
   assert.ok(R.PORTABLE_NODE_VERSION.startsWith("24."), "pin must stay in v24 LTS line (user decision 2)");
-  // fail-closed: 실 다운로드용 기대 hash 상수는 아직 미기록이어야 한다(2N-4G에서 기록)
-  assert.match(ps1, /\$PINNED_ZIP_SHA256_CONST = ""/);
+  // 2N-4G: 실 다운로드용 기대 hash 상수는 공식 SHASUMS256.txt와 실제 zip hash 교차 확인 후 기록된다.
+  assert.match(ps1,
+    /\$PINNED_ZIP_SHA256_CONST = "edaca9bd58ec8e92037dac4e877d52f6b8f430b81c18b57e264b4e2fb111cd56"/);
 });
 
 // ---- 5. 기록 형식·경계 ------------------------------------------------------------

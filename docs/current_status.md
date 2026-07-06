@@ -6,7 +6,16 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2N-4F-A — Portable Node Safety Patch**(narrow patch — Codex 2N-4F **CONDITIONAL PASS**의 Major 2건 해소, 실 네트워크 0).
+- **Cycle 2N-4G — Portable Node real-download evidence**(Codex 실행 evidence — 공식 `nodejs.org/dist/v24.16.0/` 접근 및 zip 1회 다운로드 수행, 2N-5 실행 아님).
+  공식 `SHASUMS256.txt`의 `node-v24.16.0-win-x64.zip` row와 실제 zip SHA-256이
+  `edaca9bd58ec8e92037dac4e877d52f6b8f430b81c18b57e264b4e2fb111cd56`로 일치했고, 이 값을
+  `prepare_portable_node.ps1` repo-pinned 상수로 기록. 공식 remote bootstrap은 exit 0으로 `<TOOL_CACHE>\node@v24.16.0-win-x64`
+  배치, `node.exe --version=v24.16.0`, `npm.cmd --version=11.13.0`, prep log `started→ok` 확인.
+  고의 mismatch(local fixture)는 exit 7 `failed pinned-hash-mismatch`, 배치 폴더 미생성으로 fail-fast 확인.
+  portable detection은 system Node/npm을 숨긴 조건에서 `source=portable`, nethook은 clean run `egressAttempts=0` 및 control run `egressAttempts=1`
+  관찰. 테스트: `git diff --check` PASS(LF/CRLF warning only), bootstrap 12/12, Node runner 39/39, Python runner 49/49, nethook 29/29.
+  repo contamination scan: runtime zip/binary/node_modules/package-lock/submission.zip/generated artifacts 미커밋. **B안 채택 완료·2N-5 unblock·L2 complete·OCR support·provider finalization 선언 아님.**
+- **Cycle 2N-4F-A — Portable Node Safety Patch** *(historical — 이후 2N-4G evidence 완료)* (narrow patch — Codex 2N-4F **CONDITIONAL PASS**의 Major 2건 해소, 실 네트워크 0).
   ① **C2N4F-MAJ-01 해소**: portable Node 탐지가 파일 존재만으로 인정하던 것 → `portableNodeVersionProbe()`(spawnSync
   `node.exe --version`, timeout 10s)로 **실측 버전 = pin 정확 일치 시에만 유효**. 명령 실패/timeout/비정상 출력/불일치/
   파일 누락은 전부 missing/corrupt → 승인 안내/A안 수렴(probe 주입식 — 테스트는 mock, 실체 probe는 실제 node.exe로 검증).
