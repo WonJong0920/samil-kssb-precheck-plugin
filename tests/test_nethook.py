@@ -109,10 +109,74 @@ def main() -> int:
     prov = R.build_run_provenance(out)
     check("runner 파서 정합(no_egress_verified=true)", prov["no_egress_verified"] is True)
 
+    # ---- 2N-3A (C2N3-MAJ-01): 누락됐던 outbound call form 커버리지 ----
+    # 모든 원격 시도는 원본 호출 전에 throw되므로 외부 트래픽이 발생하지 않는다.
+
+    # 9. net/tls option object의 host/hostname/servername 형태 차단
+    rc, out = run_node(
+        "function probe(label, fn) {\n"
+        "  try { fn(); console.log(label + ':NOT_BLOCKED'); }\n"
+        "  catch (e) { console.log(label + ':' + (e.message.indexOf('NETHOOK_BLOCKED')>=0 ? 'BLOCKED' : 'OTHER:'+e.message)); }\n"
+        "}\n"
+        "const net = require('net'); const tls = require('tls');\n"
+        "probe('net-host',       () => net.connect({ host: '8.8.8.8', port: 53 }));\n"
+        "probe('net-hostname',   () => net.connect({ hostname: '8.8.8.8', port: 53 }));\n"
+        "probe('tls-hostname',   () => tls.connect({ hostname: '8.8.8.8', port: 443 }));\n"
+        "probe('tls-servername', () => tls.connect({ servername: 'example.com', port: 443 }));\n")
+    for label in ("net-host", "net-hostname", "tls-hostname", "tls-servername"):
+        check(f"option object 차단: {label}", f"{label}:BLOCKED" in out)
+    check("option object 4형태 egress 집계", "egressAttempts=4" in out)
+
+    # 10. http/https: options.hostname 및 URL 객체 형태 차단
+    rc, out = run_node(
+        "function probe(label, fn) {\n"
+        "  try { fn(); console.log(label + ':NOT_BLOCKED'); }\n"
+        "  catch (e) { console.log(label + ':' + (e.message.indexOf('NETHOOK_BLOCKED')>=0 ? 'BLOCKED' : 'OTHER')); }\n"
+        "}\n"
+        "const http = require('http'); const https = require('https');\n"
+        "probe('http-hostname', () => http.request({ hostname: '93.184.216.34', port: 80 }));\n"
+        "probe('http-url-obj',  () => http.request(new URL('http://93.184.216.34/')));\n"
+        "probe('https-hostname',() => https.request({ hostname: '93.184.216.34', port: 443 }));\n")
+    for label in ("http-hostname", "http-url-obj", "https-hostname"):
+        check(f"http(s) 형태 차단: {label}", f"{label}:BLOCKED" in out)
+
+    # 11. DNS resolve-family: callback·promises·Resolver 차단
+    rc, out = run_node(
+        "function probe(label, fn) {\n"
+        "  try { fn(); console.log(label + ':NOT_BLOCKED'); }\n"
+        "  catch (e) { console.log(label + ':' + (e.message.indexOf('NETHOOK_BLOCKED')>=0 ? 'BLOCKED' : 'OTHER')); }\n"
+        "}\n"
+        "const dns = require('dns');\n"
+        "probe('cb-resolveMx',    () => dns.resolveMx('example.com', ()=>{}));\n"
+        "probe('cb-resolveTxt',   () => dns.resolveTxt('example.com', ()=>{}));\n"
+        "probe('cb-reverse',      () => dns.reverse('8.8.8.8', ()=>{}));\n"
+        "probe('p-resolve4',      () => dns.promises.resolve4('example.com'));\n"
+        "probe('p-resolveSrv',    () => dns.promises.resolveSrv('example.com'));\n"
+        "probe('resolver-cb',     () => new dns.Resolver().resolve4('example.com', ()=>{}));\n"
+        "probe('resolver-prom',   () => new dns.promises.Resolver().resolve6('example.com'));\n")
+    for label in ("cb-resolveMx", "cb-resolveTxt", "cb-reverse", "p-resolve4",
+                  "p-resolveSrv", "resolver-cb", "resolver-prom"):
+        check(f"DNS 차단: {label}", f"{label}:BLOCKED" in out)
+
+    # 12. 로컬 IPC(path)·host 부재 option은 계속 허용(loopback 취급, egress 0)
+    rc, out = run_node(
+        "const net = require('net');\n"
+        "try { const s = net.connect({ path: '\\\\\\\\.\\\\pipe\\\\kssb-test-pipe' }); s.on('error', ()=>{}); } catch (e) { console.log('IPC_THROWN:' + e.message); }\n"
+        "try { const s2 = net.connect({ host: '127.0.0.1', port: 9 }); s2.on('error', ()=>{}); } catch (e) { console.log('LOOP_THROWN:' + e.message); }\n"
+        "setTimeout(()=>process.exit(0), 300);")
+    check("로컬 IPC(path)·loopback object 허용(차단 없음)",
+          "IPC_THROWN" not in out and "LOOP_THROWN" not in out)
+    check("허용 형태 egress 0", "egressAttempts=0" in out)
+
     passed = sum(1 for _, ok, _ in _results if ok)
     total = len(_results)
     print(f"\n{passed}/{total} checks passed")
     return 0 if passed == total else 1
+
+
+def test_nethook_standalone():
+    """pytest 수집용 래퍼(C2N3-MIN-01) — standalone 실행(python tests/test_nethook.py)도 계속 지원."""
+    assert main() == 0
 
 
 if __name__ == "__main__":

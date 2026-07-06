@@ -6,6 +6,16 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-3A — nethook Coverage Patch**(Codex 2N-3 **CONDITIONAL PASS**의 **C2N3-MAJ-01** 해소 — narrow patch). 보정:
+  ① **host 추출 일관화** — net/tls option object의 `host`/`hostname`/`servername` 모두 처리(누락 시 loopback 오인 차단), http(s)는
+  URL 객체 포함 `hostname` 우선, **로컬 IPC(`path`/named pipe)와 host-부재 option은 loopback 취급 허용**(원격 호스트명에 경로 구분자가
+  올 수 없어 안전 — 판단 불가 형태는 fail-closed 유지). ② **DNS 커버리지 전면 확장** — callback+**promises**+**Resolver(양쪽 prototype)**의
+  lookup·resolve-family 전체(resolve/4/6/Any/Cname/Caa/Mx/Naptr/Ns/Ptr/Soa/Srv/Txt·reverse) 패치, **claim=patch 범위 일치** 원칙으로
+  README에 커버 범위·한계(dgram·child_process·native raw syscall 미차단 — 프로세스 레벨) 정직 표기. ③ 요약 형식·provenance 정책 불변
+  (`no_egress_verified=true`는 요약 실관측+egress 0에만 — 느슨해진 것 없음). ④ 테스트: nethook 12→**29/29**(option object 4형태·
+  http hostname/URL 객체·DNS 7형태(cb/promises/Resolver)·IPC/loopback 허용 — 전부 **pre-call throw라 외부 트래픽 0**) +
+  **pytest 래퍼 추가**(C2N3-MIN-01 — standalone 실행 계속 지원, 단 이 환경에 pytest 미설치라 수집은 미확인). runner 48/48·기존 5종 green 유지.
+  **다음 = Codex 2N-3A patch review → 2N-4 assisted retest.** OCR/rasterizer/portable Node는 gated 유지, provider finalization·L2 완료 아님.
 - **Cycle 2N-2 — HWP-first Narrow Implementation**(코드 — **runner skeleton 구현. full HWP+OCR+portable Node는 여전히 미구현/gated,
   provider finalization 아님, L2 전체 완료 아님**). 2N-1A scope대로 구현: ① **`src/intake/runners/hwp_assisted_runner.py`**(source-only,
   stdlib) — check/plan 모드, **무승인 설치/실행 금지**(승인 플래그 없으면 한국어 승인 문구 출력 후 종료, exec 호출 0 테스트 증명),

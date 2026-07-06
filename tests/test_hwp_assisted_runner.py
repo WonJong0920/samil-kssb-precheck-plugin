@@ -222,5 +222,10 @@ def main() -> int:
     return 0 if passed == total else 1
 
 
+def test_hwp_assisted_runner_standalone():
+    """pytest 수집용 래퍼(C2N3-MIN-01) — standalone 실행도 계속 지원."""
+    assert main() == 0
+
+
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -11,9 +11,15 @@
   repo 밖 tool-cache(`npm --prefix`, **`--omit=optional` 필수**, pin `kordoc@3.13.0 + pdfjs-dist@4.10.38`),
   준비 egress 기록(`prep_egress_log.jsonl`)·승인 marker(`approvals.json`)·실행 로그(tool-cache 내부 전용),
   `--out-dir` 필수, artifact 규약 `<stem>.intake.json`/`<stem>.aux_signals.json`.
-- `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — dns/net/tls/http/https 인터셉트,
-  block 모드는 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**, `worker_threads` 전파, 종료 시 `[NETHOOK-SUMMARY]` 출력.
-  runner는 **요약이 실제 관측되고 egress 시도 0인 실행에만 `no_egress_verified=true`**를 기록한다(evidence 모드에서는 미관측=실패).
+- `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**(block 모드),
+  `worker_threads` 전파, 종료 시 `[NETHOOK-SUMMARY]` 출력. runner는 **요약이 실제 관측되고 egress 시도 0인 실행에만
+  `no_egress_verified=true`**를 기록한다(evidence 모드에서는 미관측=실패).
+  - **커버 범위(2N-3A 보정 — claim과 patch 일치)**: `net.Socket.connect`/`tls.connect`(위치 인자·option object의
+    `host`/`hostname`/`servername`·정규화 args 배열), `http(s).request/get`(URL 문자열·URL 객체·option object),
+    `dns` **callback+promises+Resolver의 lookup·resolve-family 전체**(resolve/4/6/Any/Cname/Caa/Mx/Naptr/Ns/Ptr/Soa/Srv/Txt·reverse).
+    로컬 IPC(`path`/named pipe)와 loopback은 허용.
+  - **한계(정직 표기)**: `dgram`(UDP 직접 사용)·`child_process`로 별도 spawn된 프로세스(worker_threads는 전파됨)·
+    native addon의 raw syscall은 이 훅의 범위 밖이다 — 프로세스(Node 런타임) 레벨 검증이며 OS/커널 방화벽이 아니다(Gate A/D와 동일 한계).
 
 ## 하지 않는 것 (HWP-first 범위 밖 — gated)
 
