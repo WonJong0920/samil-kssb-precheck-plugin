@@ -6,6 +6,13 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-0A — Runner / Provider UX Blindspot Pass**(planning만 — 설계 확정·구현·설치·실행 없음). Codex 2M-6 **PASS**로 2M 종료 가능 확인 후,
+  2N-0B 설계 전 blindspot 도출: 핵심 발견 — ① **rasterizer 공백**(tesseract.js는 이미지 입력만·Gate D는 AGPL PyMuPDF로 렌더(검사용)·Kordoc 이미지 경로는 native canvas 필요 →
+  OCR 경로의 유일한 미해결 공급망, U8), ② **HWP 경로와 OCR 경로는 별개 assisted path**(승인·egress 프로파일 상이 — 포맷별 분리 승인 권고), ③ OCR은 Kordoc intake 선행 의존
+  (needsOcr 정합 fail-fast), ④ canonical hash는 Python 규칙(Node 구현 시 불일치 위험), ⑤ repo에 package.json 없음·중간 JSON 산출물 gitignore 미방어·nethook 자산 repo 부재,
+  ⑥ "자동 실행 금지"(2L-4A/4B) ↔ 2N-5 블랙박스 흐름은 **"무승인 실행 금지"로 정련 필요(Codex 리뷰로 확정)**, ⑦ §7 provider명 금지 ↔ 승인 대화 명시의 이중 정책 필요.
+  사용자 결정 8건(U1 설치 위치·U2 Node 부재 범위·U3 승인 단위·U4 runner 커밋·U5 provider명 이중 정책·U6 결정성 범위·U7 경로별 승인 분리·U8 rasterizer) 정리.
+  문서: `docs/planning/cycle2n_0a_runner_provider_blindspot_pass.md`. **다음 = 사용자 결정 → 2N-0B 설계.** 2M-7 독립 블랙박스는 미진행(2N-5로 통합).
 - **Cycle 2M-5 — Report Output Quality Remediation**(2M-3A/3B 품질 리뷰 반영 — 블랙박스 테스트 전 보정. runner/provider/assisted path 미구현, 2N 분리).
   보정층 판단: 대부분 findings 작성 품질 → **Skill 지침 층에서 해결** — `evidence_mapping_rules.md` **§7 신설**(커버리지 침묵 금지: 미추출/판독불가 구간을
   `overall_limitations`에 문서별 실수치 명시 · 검토 항목 수 명시 · 사용자 문구 한국어 표준화(내부 도구/provider명·영문 상태 문자열 금지, 표준 문구 3종) ·
