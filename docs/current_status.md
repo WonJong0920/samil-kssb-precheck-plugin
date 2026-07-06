@@ -6,7 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2N-4D — HWP Assisted Runner Node Port**(S1 1단계 구현 — Codex review 대기. 근거: 2N-4C 계획 리뷰 PASS + P0 probe
+- **Cycle 2N-4D-A — Node Runner CLI Failure Safety Patch**(narrow patch — Codex 2N-4D **CONDITIONAL PASS**의 required fix 보정).
+  ① **C2N4D-MAJ-01 해소**: evidence 모드 no-egress 실패가 uncaught RunnerError로 새어 stack trace·로컬 코드 경로 노출 +
+  exit 1이 되던 문제 → main 내부에서 RunnerError를 잡아 **정직한 provenance(no_egress_verified=false)를 run_log에 기록**한 뒤
+  한국어 실패 문구 + **문서화된 exit 7**로 통제 종료. CLI 경계(require.main)에도 방어 catch 추가(어떤 경로로도 stack 미노출).
+  ② **C2N4D-MIN-01 해소**: check 모드의 설치 명령 표시가 bare `npm install`이던 것 → 실제 실행과 동일한 **resolved npm 경로**
+  (Windows: npm.cmd)로 표시(P0/AVR-04 정책 정합 — 사용자 복붙 오유도 방지). ③ **테스트 27→29/29**: 기존 evidence 테스트를
+  통제된 실패 계약(rc=7·throw 없음·정직 로그)으로 갱신 + **CLI subprocess 실검증 신규**(실제 `node runner.cjs --approve-run
+  --evidence-mode` + fake tool-cache cli.js의 차단된 DNS 시도(원본 호출 전 throw — 외부 트래픽 0) → exit 7·"RunnerError"/
+  stack "at "/코드 위치/repo 경로 미노출·hook_observed=true·egress≥1·verified=false 로그) + check 모드 npm.cmd 표시 테스트.
+  ④ 범위 준수: nethook/Python runner/core/ingest 무변경(Python runner의 동일 evidence 실패 보정은 후속 결정 항목으로 기록),
+  portable 다운로드·Kordoc 실행 없음. runners README에 보정 내용 문서화. **다음 = Codex 2N-4D-A 재리뷰(narrow).**
+- **Cycle 2N-4D — HWP Assisted Runner Node Port**(S1 1단계 구현 — *historical: 이후 **Codex 2N-4D review CONDITIONAL PASS**
+  (C2N4D-MAJ-01 evidence-mode CLI 실패 처리·C2N4D-MIN-01 check 표시 — 2N-4D-A에서 보정) — node:test 27/27과 P0-B 절대 경로
+  Python으로 회귀 7종 전부 Codex가 직접 실행 확인*. 근거: 2N-4C 계획 리뷰 PASS + P0 probe
   (Python stub 불가·Node v24 가용·PATH 밖 절대 경로 실행 가능) + 사용자 판단(S1 runner 우선·core 보류·2N-5 보류)으로 착수).
   ① **`src/intake/runners/hwp_assisted_runner.cjs` 신규**(Node 내장 모듈만 — 외부 의존성 0, repo package.json 미생성):
   Python runner와 **CLI 계약 동일** — 플래그(`--check/--approve-install/--approve-run/--evidence-mode/--out-dir/--tool-cache`),

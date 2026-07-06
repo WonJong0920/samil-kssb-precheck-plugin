@@ -290,7 +290,7 @@ test("provenance 4상태(AVR-04 정책 유지)", () => {
   assert.throws(() => R.buildRunProvenance("no summary", true), R.RunnerError);
 });
 
-test("evidence 모드에서 훅 미관측 실행 → RunnerError 전파(성공 위장 금지)", () => {
+test("evidence 모드 훅 미관측 → 통제된 실패 exit 7 + 정직한 로그(성공 위장·stack 노출 금지, C2N4D-MAJ-01)", () => {
   const dir = tmpdir("kssb-node-");
   const doc = makeDoc(dir, "doc.hwp");
   const tc = path.join(dir, "tc");
@@ -298,7 +298,59 @@ test("evidence 모드에서 훅 미관측 실행 → RunnerError 전파(성공 �
   const { fn } = mockExec(0, "no hook output");
   const r = runMain([doc, "--out-dir", path.join(dir, "out"), "--tool-cache", tc, "--approve-run", "--evidence-mode"],
     { which: mockWhich, execFn: fn });
-  assert.ok(r.thrown instanceof R.RunnerError);
+  assert.equal(r.thrown, null); // 더 이상 예외가 CLI로 새지 않는다
+  assert.equal(r.rc, R.EXIT_RUN_FAILED);
+  assert.ok(r.out.includes("evidence 모드"));
+  assert.ok(r.out.includes("기본 텍스트 기반 검토로 계속하십시오"));
+  // 정직한 provenance가 run_log에 남는다(no_egress_verified=false)
+  const runLog = fs.readFileSync(path.join(tc, "run_log.jsonl"), "utf8").trim().split("\n");
+  const entry = JSON.parse(runLog[runLog.length - 1]);
+  assert.equal(entry.no_egress_verified, false);
+  assert.equal(entry.hook_observed, false);
+});
+
+test("CLI subprocess: evidence 모드 실패 → exit 7, stack/로컬 경로 미노출 (C2N4D-MAJ-01)", () => {
+  const dir = tmpdir("kssb-node-cli-");
+  const doc = makeDoc(dir, "doc.hwp");
+  const tc = path.join(dir, "tc");
+  preinstallKordoc(tc);
+  // fake cli.js: nethook(block)이 차단하는 원격 DNS 시도 — 원본 호출 전 throw라 외부 트래픽 0.
+  // 요약에 egressAttempts>=1이 찍혀 evidence 모드가 실패해야 하는 케이스.
+  fs.writeFileSync(
+    path.join(R.kordocPrefix(tc), "node_modules", "kordoc", "dist", "cli.js"),
+    'try { require("node:dns").lookup("blocked.invalid", () => {}); } catch (e) {}\n',
+    "utf8");
+  const { spawnSync } = require("node:child_process");
+  const runner = path.join(REPO, "src", "intake", "runners", "hwp_assisted_runner.cjs");
+  const proc = spawnSync(process.execPath,
+    [runner, doc, "--out-dir", path.join(dir, "out"), "--tool-cache", tc,
+      "--approve-run", "--evidence-mode"],
+    { encoding: "utf8" });
+  const all = (proc.stdout || "") + (proc.stderr || "");
+  assert.equal(proc.status, R.EXIT_RUN_FAILED); // 문서화된 7 — uncaught exit 1 아님
+  assert.ok(all.includes("evidence 모드"));
+  assert.ok(!all.includes("RunnerError"), "error class name leaked");
+  assert.ok(!/\n\s+at /.test(all), "stack trace leaked");
+  assert.ok(!all.includes("hwp_assisted_runner.cjs:"), "code location leaked");
+  assert.ok(!all.includes(REPO), "local repo path leaked");
+  // 정직한 provenance 기록: hook 관측 + egress>=1 + verified=false
+  const runLog = fs.readFileSync(path.join(tc, "run_log.jsonl"), "utf8").trim().split("\n");
+  const entry = JSON.parse(runLog[runLog.length - 1]);
+  assert.equal(entry.no_egress_verified, false);
+  assert.equal(entry.hook_observed, true);
+  assert.ok(entry.egress_attempts >= 1);
+});
+
+test("check 모드: 설치 명령이 resolved npm 경로로 표시 — bare npm 금지 (C2N4D-MIN-01)", () => {
+  const dir = tmpdir("kssb-node-");
+  const doc = makeDoc(dir, "doc.hwp");
+  const { fn } = mockExec();
+  const r = runMain([doc, "--out-dir", path.join(dir, "out"), "--tool-cache", path.join(dir, "tc"), "--check"],
+    { which: mockWhich, execFn: fn });
+  assert.equal(r.rc, R.EXIT_OK);
+  assert.ok(r.out.includes("npm.CMD install"), "resolved npm path not displayed");
+  assert.ok(!r.out.includes("npm install --prefix") || r.out.includes("npm.CMD install --prefix"));
+  assert.ok(!/설치 명령\(승인 후 실행\): npm install/.test(r.out), "bare npm displayed");
 });
 
 test("실행 실패(rc≠0) → exit 7 (provenance는 기록됨)", () => {

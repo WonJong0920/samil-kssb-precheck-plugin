@@ -370,7 +370,9 @@ function main(argv, opts = {}) {
     console.log("  - Node/npm: 확인됨");
     console.log(`  - Kordoc ${KORDOC_VERSION}: ${installNeeded ? "설치 필요" : "준비됨"}`);
     if (installNeeded) {
-      console.log(`  - 설치 명령(승인 후 실행): ${buildInstallCommand(toolCache).join(" ")}`);
+      // C2N4D-MIN-01: plan 표시도 실제 실행과 동일한 resolved npm 경로(Windows: npm.cmd)를 쓴다
+      // — bare "npm"은 PowerShell에서 npm.ps1 정책 차단 위험(P0/AVR-04), 사용자 복붙 오유도 방지.
+      console.log(`  - 설치 명령(승인 후 실행): ${buildInstallCommand(toolCache, node.npm).join(" ")}`);
       console.log(installApprovalMessage(toolCache));
     }
     console.log(runApprovalMessage(path.basename(inputPath)));
@@ -407,7 +409,18 @@ function main(argv, opts = {}) {
   const paths = artifactPaths(inputPath, outDir);
   const [cmd, envExtra] = buildRunCommand(node.node, inputPath, paths.intake, toolCache);
   const [rc, output] = execFn(cmd, envExtra);
-  const provenance = buildRunProvenance(output, ns.evidenceMode);
+  let provenance;
+  try {
+    provenance = buildRunProvenance(output, ns.evidenceMode);
+  } catch (e) {
+    if (!(e instanceof RunnerError)) throw e;
+    // C2N4D-MAJ-01: evidence 모드 실패는 통제된 실패다 — 정직한 provenance(no_egress_verified=false)를
+    // 기록하고, stack trace/로컬 경로 없이 한국어 문구 + 문서화된 exit 7로 종료한다.
+    appendRunLog(toolCache, buildRunProvenance(output, false), path.basename(inputPath), opts);
+    console.log(e.message);
+    console.log("문서 판독 실행에 실패했습니다. 기본 텍스트 기반 검토로 계속하십시오.");
+    return EXIT_RUN_FAILED;
+  }
   appendRunLog(toolCache, provenance, path.basename(inputPath), opts);
   if (rc !== 0) {
     console.log("문서 판독 실행에 실패했습니다. 기본 텍스트 기반 검토로 계속하십시오.");
@@ -464,5 +477,18 @@ module.exports = {
 };
 
 if (require.main === module) {
-  process.exit(main(process.argv.slice(2)));
+  // CLI 경계 방어(C2N4D-MAJ-01): RunnerError는 어떤 경로로도 stack trace/로컬 경로를
+  // 사용자에게 노출하지 않고 문서화된 실패 코드(7)로 수렴한다.
+  let code;
+  try {
+    code = main(process.argv.slice(2));
+  } catch (e) {
+    if (e instanceof RunnerError) {
+      console.log(e.message);
+      code = EXIT_RUN_FAILED;
+    } else {
+      throw e;
+    }
+  }
+  process.exit(code);
 }

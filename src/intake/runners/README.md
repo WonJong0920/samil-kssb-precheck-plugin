@@ -21,6 +21,10 @@
   보장(부재 케이스 구조적 없음 — npm 부재만 exit 4) ③ npm은 PATH+PATHEXT 해석(Windows npm.cmd — bare npm의
   npm.ps1 정책 차단 위회, P0/AVR-04). **Python runner는 reference로 유지**(제거 아님 — 최종 처리는 별도 결정).
   실 Kordoc 실행 parity evidence는 미수행(이번 사이클 실행 승인 없음 — follow-up).
+  **(2N-4D-A 보정 — C2N4D-MAJ-01/MIN-01)**: evidence 모드 실패는 **통제된 실패**다 — RunnerError가 CLI 밖으로 새지 않고
+  정직한 provenance(no_egress_verified=false)를 run_log에 남긴 뒤 한국어 문구 + **exit 7**로 종료(stack trace·로컬 경로
+  미노출, CLI subprocess 테스트로 강제). check 모드의 설치 명령 표시도 실제 실행과 동일한 **resolved npm 경로**(Windows:
+  npm.cmd)를 쓴다(bare npm 표시 금지). Python runner의 동일 보정은 이번 patch 범위 밖(변경 금지) — 후속 결정 항목.
 - `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**(block 모드),
   `worker_threads` 전파, 종료 시 `[NETHOOK-SUMMARY]` 출력. runner는 **요약이 실제 관측되고 egress 시도 0인 실행에만
   `no_egress_verified=true`**를 기록한다(evidence 모드에서는 미관측=실패).
