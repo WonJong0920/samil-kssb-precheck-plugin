@@ -90,6 +90,10 @@ U2를 3안 구조로 보정한다. **"Node 자동 전역 설치"와 "portable No
 
 **권고**: C안 배제 확정, A안을 기본 fallback으로 유지, **B안은 별도 후보로 설계에 포함하되 2N-1 Codex 리뷰에서 보안·제출 정책상 허용 여부를 확인 후 사용자 결정**.
 B안 채택 시에도 시스템 PATH 영구 수정·관리자 권한 요구·OS installer 실행은 **금지 불변**.
+
+> *(2N-4C 갱신)* Codex 실행환경의 Python 실행 불가 문제(C2N3B-OBS-02·C2N4B-OBS-01)를 계기로 **B안 도입 검토가 재개**됐다 —
+> Python 의존 축소·portable 런타임 전략의 구체 계획은 `docs/planning/cycle2n_4c_runtime_strategy_python_reduction_plan.md` 참조
+> (계획 단계 — 채택 확정 아님, 본 절의 설계 세부·C안 배제는 그대로 계승).
 - **버전 pin**: kordoc@3.13.0(npm-published baseline) + pdfjs-dist@4.10.38(v6 비호환 실측) + tesseract.js/core@7.0.0 + traineddata hash(Gate D 기록 재사용). **버전별 디렉터리**라 드리프트가 구조적으로 감지된다(경로 불일치=미설치). 미검증 버전 fail-fast·auto-upgrade 금지(Version Strategy 계승).
 - **repo에는 package.json을 만들지 않는다**(현 구조 유지 — 제출물 표면 불변).
 

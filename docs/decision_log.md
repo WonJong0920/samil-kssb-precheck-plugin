@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80) → Cycle 2N-4B HWP-family ingest 계약 결정(D81).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80) → Cycle 2N-4B HWP-family ingest 계약 결정(D81) → Cycle 2N-4C 실행 런타임 전략 계획(D82).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -995,6 +995,31 @@
 - **Related Files**: `docs/planning/cycle2n_4b_hwp_family_ingest_contract_decision.md`, `src/intake/dei_producer.py`,
   `tests/test_intake_dei_producer.py`, `src/intake/README.md`, `src/intake/runners/README.md`,
   `docs/planning/cycle2n_4_hwp_first_assisted_retest_report.md`.
+
+## D82. 2N-4C 실행 런타임 전략 계획 — Codex 환경 Python 실행 불가 대응(계획만, 구현은 Codex 리뷰 후)
+- **Date**: 2026-07-06
+- **Context**: Codex 리뷰 세션 2회 연속 실측 — python/py가 WindowsApps stub으로 실행 불가(C2N3B-OBS-02·C2N4B-OBS-01),
+  같은 세션에서 Node v24는 가용. 영향: ① Codex 독립 검증이 Python 테스트를 실행 못함(검증 공백), ② 실행 계층 전부
+  (validator/renderer/delivery/ingest/runner)가 Python이라 유사 환경에서 사용자 E2E 실행 불가 위험. 사용자 지시:
+  2N-0B-A B안(portable Node) 도입 고려 + 5항목(Python 의존 축소·시스템 Node 우선·부재 시 승인 portable Node·
+  Kordoc tool-cache 승인 설치·no-egress 실행) 반영 계획 수립, **계획만 작성(구현은 Codex 리뷰 이후)**, 더 나은 대안 제시 허용.
+- **Decision(계획 — 전략 확정 아님)**: `docs/planning/cycle2n_4c_runtime_strategy_python_reduction_plan.md` 작성 —
+  ① **Python 의존 표면 인벤토리**(core 3종=사용자 필수·이식 난이도 상(renderer OOXML zip)·ingest=승격 표면 재리뷰 동반·
+  runner=이식 이득 최대/비용 최소(Kordoc·nethook 기Node)). ② **전략 4안 비교**: S0 절대 경로 호출 규약(신규 — stub은 PATH 해석
+  문제이므로 기존 Python 절대 경로 우회 가능성)·S1 Node 단일화(사용자 방향 — Codex가 테스트 직접 실행 가능해지는 근본 해소,
+  단 이식 비용 최대)·S2 portable Python embeddable 동봉(신규 — B안과 동일 규율로 이식 0·리뷰 표면 보존, 무결성 공표는 SHASUMS보다
+  약해 최초 관측 hash pin으로 보완)·**S3 단계 하이브리드(권고)**. ③ **P0 실측 spike 선행**: Codex 세션에서 절대 경로 실행
+  가능 여부(U-1)·세션 네트워크(U-2)·2N-5 실행 환경 정의(U-3, 사용자 결정)·Codex 설정 우회(U-4) → 결과로 분기.
+  ④ 사용자 5항목 매핑: U2-A 탐지 순서 유지(시스템 Node 우선), B안은 §7.1 설계 그대로(SHASUMS256 검증·LTS pin(후보 v24 계열,
+  상이 시 AVR-07 재검증)·win-x64·C안 배제 불변·폴더 삭제 제거·PowerShell source-only bootstrap), U1/U3 Kordoc 불변,
+  nethook·no_egress_verified 정책 불변. ⑤ Phase: P0 spike → P1 runner Node 이식(node:test 내장 러너 — repo package.json 불필요,
+  Codex 직접 실행 가능) → P2 ingest(golden parity+재리뷰) → P3 core(renderer 최후) → P4 문서 — 각 Phase 후 Codex 리뷰.
+  ⑥ 결정 요청 5건(2N-5 환경 정의·P0 승인·전략 선택·portable Python 수용·Python 원본 처리) 명시.
+- **Status**: 계획 문서 + 2N-0B §7.1 포인터 주석 + status/decision만. 코드/테스트/schema/package 무변경,
+  설치·다운로드·실행·tool-cache 생성 없음. OCR/rasterizer gated 불변, B안 채택 확정 아님.
+- **Related Files**: `docs/planning/cycle2n_4c_runtime_strategy_python_reduction_plan.md`,
+  `docs/planning/cycle2n_0b_runner_provider_ux_design.md`(§7.1), `docs/reviews/codex_cycle2n_4b_hwp_family_ingest_contract_review.md`,
+  `docs/reviews/codex_cycle2n_3b_nethook_coverage_patch_review.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).

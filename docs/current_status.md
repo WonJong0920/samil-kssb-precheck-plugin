@@ -6,7 +6,22 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2N-4B — HWP-family Ingest Contract Decision + Narrow Implementation**(2N-4 blocker 해소 — Codex review 대기).
+- **Cycle 2N-4C — 실행 런타임 전략 계획**(계획 문서만 — 코드·설치·다운로드·실행 없음. 구현은 Codex 계획 리뷰 이후).
+  계기: Codex 리뷰 세션 2회 연속 **Python 실행 불가 실측**(WindowsApps stub — C2N3B-OBS-02·C2N4B-OBS-01) vs **Node v24 가용** →
+  ① 검증 공백(Codex가 Python 테스트를 직접 실행 못함), ② 실행 계층 전부(core/ingest/runner)가 Python이라 사용자 E2E 실행 불가 위험.
+  사용자 지시 5항목(Python 의존 축소 · 시스템 Node 우선 · 부재 시 승인 후 repo 밖 **portable Node B안**(§7.1 설계 계승, C안 배제 불변) ·
+  Kordoc tool-cache 승인 설치 유지 · no-egress 실행 유지)을 계획에 반영하고, 추가 대안 제시: **S0 절대 경로 호출 규약**(stub은 PATH
+  해석 문제 — 기존 Python 절대 경로 우회 가능성)·**S2 portable Python embeddable 동봉**(B안과 동일 규율 — 이식 0, 리뷰 표면 보존).
+  **권고 = S3 단계 하이브리드**: 구현 전 **P0 Codex 실행환경 실측 spike**(절대 경로 실행 가능 여부 U-1·세션 네트워크 U-2·2N-5 환경 정의
+  U-3·Codex 설정 우회 U-4) → 결과로 분기, S1(Node 이식)은 이득 최대·비용 최소인 runner부터 단계 진행(P1), ingest/core 이식은
+  golden parity+재리뷰 전제(P2/P3 — renderer의 OOXML zip 수제 구현이 최대 리스크라 최후). 테스트는 node:test(내장 러너,
+  repo package.json 불필요) → Codex가 리뷰에서 직접 실행 가능해짐(검증 공백 근본 해소). 불변 경계 유지(무승인 금지·tool-cache·
+  OS installer/PATH/관리자 금지·hash fail-fast·prep egress↔no-egress·OCR gated·no-overclaim). 결정 요청 5건(2N-5 환경·P0 승인·
+  전략 선택·portable Python 수용·Python 원본 처리) 명시. 문서: `docs/planning/cycle2n_4c_runtime_strategy_python_reduction_plan.md`
+  (+2N-0B §7.1 포인터 주석). **다음 = Codex 계획 리뷰 → P0 spike → 분기 결정.**
+- **Cycle 2N-4B — HWP-family Ingest Contract Decision + Narrow Implementation**(2N-4 blocker 해소 — *historical: 이후 **Codex 2N-4B review
+  PASS**(Minor 1·Observation 2·required fixes 없음, `docs/reviews/codex_cycle2n_4b_hwp_family_ingest_contract_review.md`)로 종결.
+  C2N4B-MIN-01(§6 anchor 표기 정렬)은 2N-5 중/후 처리, AVR-01~05는 2N-5 검증 항목으로 이관*).
   판단: 3개 포맷 실물 artifact 재관찰(2N-4 산출물 + PDF 대조군)로 근거가 충분해 **A안(좁은 구현) 채택** —
   runner 측 정규화는 기각(pageQuality 합성 = 허위 생성 + provider 출력 바이트 결정성 증거 훼손), 위치는 2L-4A 설계상 정규화 담당인
   **ingest boundary(`dei_producer.py`)**. 구현: **document-level 변형 계약** — 분기 조건은 관측 기반
@@ -20,7 +35,8 @@
   dei_producer **rc=0**(한글 4,878자 보존·결정성·gap hint 발화 — Kordoc 재실행 없음). images/ 부산물 정책 = 문서화
   (원본과 동일 민감도·repo 밖 out-dir 1차 방어·gitignore 패턴/자동 삭제는 기각 사유 기록 — runners/README).
   테스트: intake 56→**83/83**, 나머지 6종 green(26/49/29/30/22/34). 문서: `docs/planning/cycle2n_4b_hwp_family_ingest_contract_decision.md`.
-  **다음 = Codex 2N-4B review — 계약 확장은 미리뷰 상태이므로 review 후 2N-5 진입 권고**(L2 전체 완료·OCR 지원·finalization 아님).
+  **다음 = Codex 2N-4B review — 계약 확장은 미리뷰 상태이므로 review 후 2N-5 진입 권고**(L2 전체 완료·OCR 지원·finalization 아님)
+  *(historical — 위 주석대로 이후 PASS로 종결, 2N-5 진입 가능 판정. `src/intake/README.md`의 "review 대기" 문구 최신화는 별도 좁은 사이클 항목)*.
 - **Cycle 2N-4 — HWP-first Assisted Retest**(승인 기반 **실 실행 evidence** — Codex 2N-3B PASS 후). 결과 요지:
   ① **승인 게이트 라이브 증거**: check(plan)→무플래그 rc=5(설치 승인 문구)→`--approve-install`(실 npm 설치)→**설치 후에도 rc=6**(실행 승인 분리)→`--approve-run --evidence-mode`.
   ② **Kordoc 준비 성공**: `<홈>/.samil-kssb-precheck/tools/kordoc@3.13.0`에 pin 일치 설치(cli.js 확인 — AVR-02), **native 0**(--omit=optional 실효), prep_egress_log/approvals 기록.
