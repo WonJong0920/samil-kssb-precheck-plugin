@@ -72,10 +72,29 @@ test("무승인 호출 → 승인 안내 + exit 5 + 파일 생성 0", { skip: !I
 
 test("실 URL + pin 미기록 → 네트워크·파일 생성 전 fail-closed exit 7", { skip: !IS_WIN }, () => {
   const tc = path.join(tmpdir("kssb-pnode-"), "tc");
-  // SourceRoot 미지정(기본 https) + PinnedZipSha256 미지정(상수도 미기록) → 다운로드 시도 전 거부
+  // SourceRoot 미지정(기본 https 공식) + PinnedZipSha256 미지정(상수도 미기록) → 다운로드 시도 전 거부
   const r = runPs1(["-ToolCache", tc, "-PinVersion", VER, "-ApproveRuntime"]);
   assert.equal(r.status, 7);
   assert.ok(!fs.existsSync(tc), "fail-closed must precede any file creation");
+});
+
+test("비공식 원격 SourceRoot → 네트워크·파일 생성 전 fail-fast exit 7 (C2N4F-MAJ-02)", { skip: !IS_WIN }, () => {
+  const tc = path.join(tmpdir("kssb-pnode-"), "tc");
+  const r = runPs1(["-ToolCache", tc, "-PinVersion", VER,
+    "-SourceRoot", `https://mirror.example.com/dist/v${VER}/`,
+    "-PinnedZipSha256", FIX.hash, "-ApproveRuntime"]);
+  assert.equal(r.status, 7);
+  assert.ok(r.out.includes("nodejs.org/dist"), "official-only message expected");
+  assert.ok(!fs.existsSync(tc), "guard must precede any file creation");
+});
+
+test("공식 원격 + -PinnedZipSha256 override → 거부 exit 7 (repo-pinned provenance 보호)", { skip: !IS_WIN }, () => {
+  const tc = path.join(tmpdir("kssb-pnode-"), "tc");
+  const r = runPs1(["-ToolCache", tc, "-PinVersion", VER,
+    "-SourceRoot", `https://nodejs.org/dist/v${VER}/`,
+    "-PinnedZipSha256", FIX.hash, "-ApproveRuntime"]);
+  assert.equal(r.status, 7);
+  assert.ok(!fs.existsSync(tc), "guard must precede any file creation");
 });
 
 test("성공 경로: 이중 hash 통과 → 배치·버전 자가 확인·마커·로그 (exit 0)", { skip: !IS_WIN }, () => {

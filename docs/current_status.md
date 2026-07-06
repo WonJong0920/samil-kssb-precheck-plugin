@@ -6,7 +6,18 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2N-4F — Portable Node B안 Mock Implementation**(실 다운로드 0 — Codex review 대기. 2N-4E 계획 리뷰 **PASS** +
+- **Cycle 2N-4F-A — Portable Node Safety Patch**(narrow patch — Codex 2N-4F **CONDITIONAL PASS**의 Major 2건 해소, 실 네트워크 0).
+  ① **C2N4F-MAJ-01 해소**: portable Node 탐지가 파일 존재만으로 인정하던 것 → `portableNodeVersionProbe()`(spawnSync
+  `node.exe --version`, timeout 10s)로 **실측 버전 = pin 정확 일치 시에만 유효**. 명령 실패/timeout/비정상 출력/불일치/
+  파일 누락은 전부 missing/corrupt → 승인 안내/A안 수렴(probe 주입식 — 테스트는 mock, 실체 probe는 실제 node.exe로 검증).
+  ② **C2N4F-MAJ-02 해소**: bootstrap ps1의 원격 SourceRoot를 **공식 `nodejs.org/dist/v<pin>/` 정확 일치만 허용**(미러/임의
+  URL은 네트워크 호출·파일 생성 전 fail-fast), **원격 경로에서 `-PinnedZipSha256` override 거부**(repo-pinned 상수만 유효 —
+  상수 미기록 상태라 실 다운로드는 계속 fail-closed). 로컬 fixture SourceRoot는 테스트 전용 유지.
+  ③ 테스트: runner 35→**39/39**(버전 일치 수용·불일치/명령 실패/예외→missing·실행 흐름 exit 4 수렴·실체 probe 검증) +
+  bootstrap 9→**11/11**(비공식 원격 fail-fast·공식 원격+override 거부 — tool-cache 미생성으로 선행성 증명). Python spot
+  (runner 49·nethook 29) green. **다음 = Codex 2N-4F-A narrow re-review — 2N-4G는 re-review PASS 후 판단.**
+- **Cycle 2N-4F — Portable Node B안 Mock Implementation**(실 다운로드 0 — *historical: 이후 **Codex 2N-4F review
+  CONDITIONAL PASS**(C2N4F-MAJ-01 portable 버전 미검증·C2N4F-MAJ-02 원격 출처 미고정 — 2N-4F-A에서 보정)*. 2N-4E 계획 리뷰 **PASS** +
   **사용자 결정 5건 승인 기록**: ①B안 구현 경로 채택 ②pin=v24 LTS 계열 ③`-ExecutionPolicy Bypass` 1회 사용을 승인 UX에
   포함 ④submission.zip에 portable Node 바이너리 미포함 ⑤Python runner 미확장).
   ① **`src/intake/runners/prepare_portable_node.ps1` 신규**(Windows 내장 PowerShell만 — 닭-달걀 해소): 무승인=승인 안내만

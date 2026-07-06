@@ -100,23 +100,47 @@ function portableNodeDir(toolCache) {
   return path.join(String(toolCache), `node@v${PORTABLE_NODE_VERSION}-win-x64`);
 }
 
-function portableNodePaths(toolCache) {
-  // 승인 하에 기설치된 portable Node(절대 경로) — node.exe와 동봉 npm.cmd가 모두 있어야 유효.
+function portableNodeVersionProbe(nodeExe) {
+  // 기설치 portable node.exe의 실제 버전 관측(자가 확인 — C2N4F-MAJ-01).
+  // 실행 실패/timeout/비정상 출력은 null(= 사용 불가 상태)로 취급한다.
+  try {
+    const proc = spawnSync(String(nodeExe), ["--version"],
+      { encoding: "utf8", timeout: 10000, windowsHide: true });
+    if (proc.error || proc.status !== 0) return null;
+    const v = (proc.stdout || "").trim();
+    return v || null;
+  } catch {
+    return null;
+  }
+}
+
+function portableNodePaths(toolCache, probeFn = portableNodeVersionProbe) {
+  // 승인 하에 기설치된 portable Node(절대 경로) — 파일 존재만으로 인정하지 않는다(C2N4F-MAJ-01):
+  // node.exe + 동봉 npm.cmd가 모두 있고, `node.exe --version` 실측이 pin과 정확히 일치해야 유효.
+  // 버전 명령 실패·불일치·손상은 전부 미설치(missing/corrupt)로 취급 → 승인 안내/A안 흐름으로 수렴.
   const dir = portableNodeDir(toolCache);
   const node = path.join(dir, "node.exe");
   const npm = path.join(dir, "npm.cmd");
-  if (fs.existsSync(node) && fs.existsSync(npm)) return { node, npm };
-  return null;
+  if (!fs.existsSync(node) || !fs.existsSync(npm)) return null;
+  let observed = null;
+  try {
+    observed = probeFn(node);
+  } catch {
+    observed = null;
+  }
+  if (observed !== `v${PORTABLE_NODE_VERSION}`) return null;
+  return { node, npm };
 }
 
-function detectNode(whichFn = which, toolCache = defaultToolCache()) {
+function detectNode(whichFn = which, toolCache = defaultToolCache(),
+                    probeFn = portableNodeVersionProbe) {
   // 탐지 우선순위(2N-4E §2): ① 시스템 Node/npm(둘 다 — 설치 제안 안 함) →
-  // ② tool-cache portable(승인 기설치분, 절대 경로) → ③ 부재(승인 안내 대상).
+  // ② tool-cache portable(승인 기설치분, 절대 경로 + 버전 실측 일치) → ③ 부재(승인 안내 대상).
   // node는 최후에도 자기 자신(process.execPath)으로 보장(문서화된 Python과의 차이) — npm만 실질 게이트.
   const sysNode = whichFn("node");
   const sysNpm = whichFn("npm");
   if (sysNode && sysNpm) return { node: sysNode, npm: sysNpm, source: "system" };
-  const portable = portableNodePaths(toolCache);
+  const portable = portableNodePaths(toolCache, probeFn);
   if (portable) return { node: portable.node, npm: portable.npm, source: "portable" };
   return { node: sysNode || process.execPath, npm: sysNpm, source: "missing" };
 }
@@ -382,8 +406,8 @@ function main(argv, opts = {}) {
     console.log("주의: --out-dir이 git 저장소 내부로 보입니다. 산출물은 저장소 밖 폴더를 권장합니다.");
   }
 
-  // 3) Node/npm 확인 — 시스템 우선 → tool-cache portable 차선(2N-4E §2), 부재 시 B안 승인 안내 포함
-  const node = detectNode(whichFn, toolCache);
+  // 3) Node/npm 확인 — 시스템 우선 → tool-cache portable 차선(버전 실측 일치 필수), 부재 시 B안 승인 안내
+  const node = detectNode(whichFn, toolCache, opts.probeFn || portableNodeVersionProbe);
   if (!node.node || !node.npm) {
     console.log(nodeMissingMessage());
     return EXIT_NODE_MISSING;
@@ -487,6 +511,7 @@ module.exports = {
   nethookPath,
   which,
   portableNodeDir,
+  portableNodeVersionProbe,
   portableNodePaths,
   detectNode,
   checkKordoc,

@@ -87,12 +87,30 @@ if (-not $ApproveRuntime) {
     exit 5
 }
 
-# ---- 2) 출처·pin 확정(네트워크·파일 생성 전 fail-closed 게이트) -------------------
+# ---- 2) 출처·pin 확정(네트워크·파일 생성 전 fail-closed 게이트, C2N4F-MAJ-02) -----
+# 원격 출처는 공식 nodejs.org/dist/v<pin>/ 로 고정한다 — 미러·리다이렉트·임의 URL은 거부.
+# 원격 경로에서는 -PinnedZipSha256 override도 거부한다(repo-pinned 상수만 유효 — provenance 약화 방지).
+# 로컬 디렉터리 -SourceRoot 는 테스트 fixture 전용으로 유지된다(override 허용 — 출처가 로그에 남음).
+$officialRoot = "https://nodejs.org/dist/v$PinVersion"
 $src = $SourceRoot
-if ([string]::IsNullOrWhiteSpace($src)) { $src = "https://nodejs.org/dist/v$PinVersion/" }
+if ([string]::IsNullOrWhiteSpace($src)) { $src = $officialRoot + "/" }
 $isRemote = $src -match '^https?://'
-$pinned = $PinnedZipSha256
-if ([string]::IsNullOrWhiteSpace($pinned)) { $pinned = $PINNED_ZIP_SHA256_CONST }
+if ($isRemote) {
+    if ($src.TrimEnd('/') -ne $officialRoot) {
+        Write-Output "준비를 중단합니다: 원격 출처는 공식 nodejs.org/dist/v$PinVersion/ 만 허용됩니다(미러/임의 URL 거부)."
+        Write-Output "기본 텍스트 기반 검토로 계속하십시오."
+        exit 7
+    }
+    if (-not [string]::IsNullOrWhiteSpace($PinnedZipSha256)) {
+        Write-Output "준비를 중단합니다: 원격 출처에서는 기록된 기대 SHA-256(repo-pinned)만 사용합니다(-PinnedZipSha256 지정 거부)."
+        Write-Output "기본 텍스트 기반 검토로 계속하십시오."
+        exit 7
+    }
+    $pinned = $PINNED_ZIP_SHA256_CONST
+} else {
+    $pinned = $PinnedZipSha256
+    if ([string]::IsNullOrWhiteSpace($pinned)) { $pinned = $PINNED_ZIP_SHA256_CONST }
+}
 if ([string]::IsNullOrWhiteSpace($pinned)) {
     Write-Output "준비를 중단합니다: 기대 SHA-256(repo-pinned)이 아직 기록되지 않았습니다."
     Write-Output "실제 다운로드는 evidence 사이클에서 기대값 기록 후에만 가능합니다. 기본 텍스트 기반 검토로 계속하십시오."

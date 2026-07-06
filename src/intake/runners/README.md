@@ -35,9 +35,14 @@
   Gate D·2N-4·P0 실측 major). OS installer/PATH 영구 수정/관리자 권한 없음(제거=폴더 삭제), `-ExecutionPolicy Bypass`는
   프로세스 1회 한정(승인 문구 고지). **주의: 이 파일은 UTF-8 BOM 인코딩이어야 한다**(PowerShell 5.1이 BOM 없는 UTF-8을
   CP949로 읽어 한국어 문구가 깨짐 — 2M-3 인코딩 전례).
-- **runner 탐지 계층(2N-4F)**: `detectNode()`가 **시스템 Node/npm(둘 다) → tool-cache portable(node.exe+npm.cmd 절대
-  경로, 혼용 금지) → 부재** 순서로 동작하고, 부재 안내(exit 4)에 B안 승인 절차(bootstrap 명령)를 표시한다 —
-  **무단 설치는 없다**(exec 0 테스트). exit code·플래그·승인 게이트·nethook·provenance 계약은 2N-4D-A PASS 상태 그대로.
+- **runner 탐지 계층(2N-4F, 2N-4F-A 보정)**: `detectNode()`가 **시스템 Node/npm(둘 다) → tool-cache portable → 부재**
+  순서로 동작하고, 부재 안내(exit 4)에 B안 승인 절차(bootstrap 명령)를 표시한다 — **무단 설치는 없다**(exec 0 테스트).
+  **(C2N4F-MAJ-01)** portable은 파일 존재만으로 인정하지 않는다: `node.exe --version` **실측이 pin과 정확히 일치**해야
+  유효하며, 버전 명령 실패·timeout·비정상 출력·불일치·파일 누락은 전부 missing/corrupt로 취급되어 승인 안내/A안으로
+  수렴한다. exit code·플래그·승인 게이트·nethook·provenance 계약은 2N-4D-A PASS 상태 그대로.
+  **(C2N4F-MAJ-02 — ps1)** 원격 SourceRoot는 **공식 `nodejs.org/dist/v<pin>/`만 허용**(미러/임의 URL은 네트워크 호출 전
+  fail-fast 거부)하고, **원격 경로에서는 `-PinnedZipSha256` override를 거부**한다(repo-pinned 상수만 유효 — provenance
+  약화 방지). 로컬 디렉터리 SourceRoot는 테스트 fixture 전용으로 유지(출처가 prep 로그에 남음).
 - `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**(block 모드),
   `worker_threads` 전파, 종료 시 `[NETHOOK-SUMMARY]` 출력. runner는 **요약이 실제 관측되고 egress 시도 0인 실행에만
   `no_egress_verified=true`**를 기록한다(evidence 모드에서는 미관측=실패).

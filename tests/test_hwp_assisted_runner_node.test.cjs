@@ -437,10 +437,12 @@ test("detectNode: 시스템 Node/npm 우선(portable 존재해도 시스템 선�
   assert.equal(d.npm, "C:\\fake\\node\\npm.CMD");
 });
 
-test("detectNode: 시스템 부재 → tool-cache portable 차선(절대 경로)", () => {
+const PROBE_OK = () => `v${R.PORTABLE_NODE_VERSION}`; // 버전 실측 일치 mock(2N-4F-A)
+
+test("detectNode: 시스템 부재 + 버전 실측 일치 → tool-cache portable 차선(절대 경로)", () => {
   const tc = tmpdir("kssb-node-tc-");
   const dir = makePortable(tc);
-  const d = R.detectNode(() => null, tc);
+  const d = R.detectNode(() => null, tc, PROBE_OK);
   assert.equal(d.source, "portable");
   assert.equal(d.node, path.join(dir, "node.exe"));
   assert.equal(d.npm, path.join(dir, "npm.cmd"));
@@ -451,11 +453,36 @@ test("detectNode: portable 불완전(npm.cmd 없음) → missing(혼용 금지)"
   const dir = R.portableNodeDir(tc);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "node.exe"), "fake"); // npm.cmd 없음
-  const d = R.detectNode(() => null, tc);
+  const d = R.detectNode(() => null, tc, PROBE_OK);
   assert.equal(d.source, "missing");
 });
 
-test("실행 흐름: portable 탐지 시 run 명령의 node가 portable 절대 경로", () => {
+// ---- 4c. portable 버전 실측 검증(C2N4F-MAJ-01 — 파일 존재만으로 인정 금지) --------
+
+test("detectNode: 버전 불일치 → missing(손상/드리프트 상태로 취급)", () => {
+  const tc = tmpdir("kssb-node-tc-");
+  makePortable(tc);
+  const d = R.detectNode(() => null, tc, () => "v99.0.0");
+  assert.equal(d.source, "missing");
+});
+
+test("detectNode: 버전 명령 실패(null/예외) → missing", () => {
+  const tc = tmpdir("kssb-node-tc-");
+  makePortable(tc);
+  assert.equal(R.detectNode(() => null, tc, () => null).source, "missing");
+  assert.equal(R.detectNode(() => null, tc, () => { throw new Error("probe fail"); }).source,
+    "missing");
+});
+
+test("portableNodeVersionProbe: 실제 node.exe → 실측 버전 / 가짜 exe → null", () => {
+  assert.equal(R.portableNodeVersionProbe(process.execPath), process.version);
+  const tc = tmpdir("kssb-node-tc-");
+  const fake = path.join(tc, "node.exe");
+  fs.writeFileSync(fake, "not a real executable");
+  assert.equal(R.portableNodeVersionProbe(fake), null);
+});
+
+test("실행 흐름: portable 탐지(버전 일치) 시 run 명령의 node가 portable 절대 경로", () => {
   const dir = tmpdir("kssb-node-");
   const doc = makeDoc(dir, "doc.hwp");
   const tc = path.join(dir, "tc");
@@ -463,9 +490,22 @@ test("실행 흐름: portable 탐지 시 run 명령의 node가 portable 절대 �
   const pdir = makePortable(tc);
   const { calls, fn } = mockExec(0, OK_SUMMARY);
   const r = runMain([doc, "--out-dir", path.join(dir, "out"), "--tool-cache", tc, "--approve-run"],
-    { which: () => null, execFn: fn });
+    { which: () => null, execFn: fn, probeFn: PROBE_OK });
   assert.equal(r.rc, R.EXIT_OK);
   assert.equal(calls[0].cmd[0], path.join(pdir, "node.exe"));
+});
+
+test("실행 흐름: portable 버전 불일치 → missing으로 수렴(exit 4, exec 0)", () => {
+  const dir = tmpdir("kssb-node-");
+  const doc = makeDoc(dir, "doc.hwp");
+  const tc = path.join(dir, "tc");
+  preinstallKordoc(tc);
+  makePortable(tc);
+  const { calls, fn } = mockExec(0, OK_SUMMARY);
+  const r = runMain([doc, "--out-dir", path.join(dir, "out"), "--tool-cache", tc, "--approve-run"],
+    { which: () => null, execFn: fn, probeFn: () => "v99.0.0" });
+  assert.equal(r.rc, R.EXIT_NODE_MISSING);
+  assert.equal(calls.length, 0);
 });
 
 test("Node/npm 부재 안내에 B안 승인 절차 표시(무단 설치 없음)", () => {
