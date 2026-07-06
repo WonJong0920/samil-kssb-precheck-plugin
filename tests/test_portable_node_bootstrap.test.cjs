@@ -78,15 +78,9 @@ test("무승인 호출 → 승인 안내 + exit 5 + 파일 생성 0", { skip: !I
   assert.ok(!fs.existsSync(tc), "unapproved call must not create files");
 });
 
-test("공식 원격 + -PinnedZipSha256 override → 네트워크·파일 생성 전 fail-fast exit 7", { skip: !IS_WIN }, () => {
-  const tc = path.join(tmpdir("kssb-pnode-"), "tc");
-  // 원격 경로는 repo-pinned 상수만 허용하므로 override는 다운로드 시도 전 거부된다.
-  const r = runPs1(["-ToolCache", tc, "-PinVersion", VER,
-    "-SourceRoot", `https://nodejs.org/dist/v${VER}/`,
-    "-PinnedZipSha256", FIX.hash, "-ApproveRuntime"]);
-  assert.equal(r.status, 7);
-  assert.ok(!fs.existsSync(tc), "fail-closed must precede any file creation");
-});
+// (CLD2N4G-MIN-01 dedupe) "공식 원격 + override 거부" 시나리오는 아래 단일 테스트로 유지한다.
+// **주의(CLD2N4G-OBS-02)**: pin 상수가 기록된 현재, "공식 원격 + override 없음 + -ApproveRuntime" 조합은
+// 실제 다운로드를 수행한다 — 이 suite에 그 케이스를 추가하지 말 것(실 네트워크 금지, evidence 사이클 전용).
 
 test("비공식 원격 SourceRoot → 네트워크·파일 생성 전 fail-fast exit 7 (C2N4F-MAJ-02)", { skip: !IS_WIN }, () => {
   const tc = path.join(tmpdir("kssb-pnode-"), "tc");

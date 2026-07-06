@@ -6,6 +6,21 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4H-UX — Portable Node B안 채택 + Pre-2N-5 Quickstart Patch**(문서 중심 patch — Codex narrow review 대기).
+  ① **B안 공식 채택 결정 기록(D90)**: 근거 = 2N-4G official real-download evidence(D89) + Claude 2N-4G evidence review
+  **PASS**(hash 5중 일치·로컬 실물 corroboration). 채택 범위 = "시스템 Node/npm 없는 Windows 환경의 승인 기반 fallback
+  runtime strategy"(공식 source `nodejs.org/dist/v24.16.0` 고정·repo-pinned+SHASUMS 이중 검증·repo 밖 tool-cache·
+  거부/실패=A안 수렴·실행 no-egress 유지). **채택 ≠ 2N-5 unblock ≠ 플러그인 완성 ≠ L2 complete ≠ OCR support ≠
+  provider finalization**(D90 명시). portable npm.cmd의 Kordoc 설치 성립 확인은 선택적 잔여 evidence(채택 차단 조건 아님).
+  ② **P2N5-UX-MAJ-01 해소 patch**: 신규 `docs/user_quickstart_pre_2n_5.md` — 제품 목적 1문장·사람 검수 경계·
+  **파일 유형 7종 handling matrix**(텍스트/혼합/스캔 PDF·DOCX·HWPX·HWP·미지원 — 기대 동작/승인 필요/fallback/2N-5 확인
+  포인트)·현재 상태 5구분(core/baseline/assisted/pending/미지원 — OCR·L2/L3·HWP 과장 방지)·승인 흐름 평문 요약
+  (왜/어디에/거부 시/준비 egress↔실행 no-egress)·산출물 기대치(DOCX 우선·consultant-review draft)·**2N-5 시나리오
+  체크리스트 12건**(UX 리뷰 권장 시나리오 기반). README에 Quickstart 섹션+링크 추가, "현재 구현 상태"의 낡은 문구
+  (intake/runner 미반영) 최신화(P2N5-UX-MIN-01 동시 대응). runner README의 candidate/mock 표현을 채택 상태로 정리.
+  ③ 선택 정리: bootstrap 테스트의 동일 시나리오 중복 1건 dedupe(CLD2N4G-MIN-01). **다음 = Codex narrow review
+  (P2N5-UX-MAJ-01 해소 여부) → PASS 시 2N-5 진행 판단.** 현재 위치: B안 채택 완료 / quickstart patch 완료 /
+  **2N-5는 P2N5-UX-MAJ-01 해소 확인 전까지 대기.**
 - **Cycle 2N-4G — Portable Node real-download evidence**(Codex 실행 evidence — 공식 `nodejs.org/dist/v24.16.0/` 접근 및 zip 1회 다운로드 수행, 2N-5 실행 아님).
   공식 `SHASUMS256.txt`의 `node-v24.16.0-win-x64.zip` row와 실제 zip SHA-256이
   `edaca9bd58ec8e92037dac4e877d52f6b8f430b81c18b57e264b4e2fb111cd56`로 일치했고, 이 값을

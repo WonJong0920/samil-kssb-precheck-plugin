@@ -56,6 +56,20 @@ KSSB 공시요구와 일일이 대조해 "근거가 확인되는 항목 / 부족
 상세 절차: [src/skills/samil-kssb-precheck/SKILL.md](src/skills/samil-kssb-precheck/SKILL.md) ·
 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md)
 
+## 사용자 Quickstart · 지원 문서 유형 · 2N-5 시나리오
+
+처음 사용하는 사용자/심사자는 **[docs/user_quickstart_pre_2n_5.md](docs/user_quickstart_pre_2n_5.md)** 한 장으로
+다음을 파악할 수 있다: 파일 유형별(텍스트 PDF·혼합 PDF·스캔 PDF·DOCX·HWPX·HWP·미지원) 기대 동작과 fallback,
+어떤 단계에서 사용자 승인이 필요한지(로컬 판독 도구·**portable Node fallback — 채택됨**), 거부/실패 시 무엇이
+남는지, 산출물 기대치(DOCX 우선·컨설턴트 검수 초안), 2N-5 블랙박스 시나리오 체크리스트(12건).
+
+요약 3줄:
+- **텍스트로 읽히는 자료는 기본 경로**로 바로 보고서 초안을 만든다(승인 불필요).
+- **HWP/HWPX/DOCX 구조 판독은 승인 기반 선택 경로**다 — 도구는 저장소 밖에 설치되고, 문서 분석 실행은
+  네트워크 차단(no-egress) 아래에서 수행되며, 거부해도 기본 검토는 계속된다.
+- **플러그인 내 OCR 실행은 미구현**이고 이미지·차트 의미 해석(L3)은 지원하지 않는다 — 스캔 전용 문서는
+  확인 불가/질문으로 정직하게 처리된다.
+
 ## 산출물 정책
 
 - 기본 목표: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`
@@ -101,9 +115,13 @@ Skill-first 구조를 유지하며, findings 데이터 계약과 내부 워크�
 - **findings 데이터 계약**: `src/schemas/kssb_findings.schema.json`(JSON Schema draft-07, 외부 의존 0) + 계약 문서 `docs/findings_schema_contract.md`.
 - **검증기(내부, detect-only)**: `src/validators/kssb_findings_validator.py` — findings를 재판정 없이 preflight 점검(표준 라이브러리).
 - **렌더러(내부, 형식 변환기)**: `src/renderers/kssb_report_renderer.py` — findings를 재판정 없이 DOCX/HTML로 결정적 변환(표준 라이브러리).
-- **재사용 점검**: `tests/`(표준 라이브러리, 출력은 repo 밖 임시 폴더). 새 외부 의존성 없음.
-- 실제 샘플 PDF 분석·OCR·문서 파싱·Hook/MCP·submission.zip은 포함하지 않는다.
-- 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md) · 상세: [docs/current_status.md](docs/current_status.md)
+- **재사용 점검**: `tests/`(표준 라이브러리 + Node 내장 러너). 새 외부 의존성 없음(repo에 package.json/node_modules 없음).
+- **선택적 인테이크/보조 판독 경로**(`src/intake/`): 이미 추출된 문서 산출물을 근거 재료로 정규화하는 ingest 경계
+  (L2 부분 구현 — repo-side ingest boundary는 구현+리뷰 완료, 문서 수준 변형 계약 포함) + **승인 기반** HWP/HWPX/DOCX
+  보조 판독 runner(Python/Node, no-egress 훅) + **portable Node fallback(채택됨 — Node 부재 Windows 환경용, D90)**.
+  판독 도구 최종 확정·Skill 자동 통합은 pending.
+- **미포함(현재)**: 플러그인 내 OCR 실행(미구현), 이미지·차트 의미 해석(L3), Hook/MCP, submission.zip.
+- 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md) · 사용자 요약: [docs/user_quickstart_pre_2n_5.md](docs/user_quickstart_pre_2n_5.md) · 상세: [docs/current_status.md](docs/current_status.md)
 
 ## 검증 / 확인 대기
 

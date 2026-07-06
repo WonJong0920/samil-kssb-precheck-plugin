@@ -11,7 +11,7 @@
   repo 밖 tool-cache(`npm --prefix`, **`--omit=optional` 필수**, pin `kordoc@3.13.0 + pdfjs-dist@4.10.38`),
   준비 egress 기록(`prep_egress_log.jsonl`)·승인 marker(`approvals.json`)·실행 로그(tool-cache 내부 전용),
   `--out-dir` 필수, artifact 규약 `<stem>.intake.json`/`<stem>.aux_signals.json`.
-- `hwp_assisted_runner.cjs` **(2N-4D 신규 — Node port, Codex review 대기)**: 위 Python runner와 **CLI 계약 동일**
+- `hwp_assisted_runner.cjs` **(2N-4D 신규 — Node port, 2N-4D-A 보정 후 Codex re-review PASS)**: 위 Python runner와 **CLI 계약 동일**
   (플래그·exit code·한국어 승인 문구·tool-cache 레이아웃·pin·로그 형식·provenance 규칙)한 Node 구현(내장 모듈만,
   외부 의존성 0 — repo package.json 미생성). **동기**: Codex 실행환경에서 Python이 WindowsApps stub으로 실행 불가,
   Node는 가용(P0 probe 실측 — 2N-4C 계획 S1 1단계). 테스트는 `node:test` 내장 러너
@@ -25,7 +25,9 @@
   정직한 provenance(no_egress_verified=false)를 run_log에 남긴 뒤 한국어 문구 + **exit 7**로 종료(stack trace·로컬 경로
   미노출, CLI subprocess 테스트로 강제). check 모드의 설치 명령 표시도 실제 실행과 동일한 **resolved npm 경로**(Windows:
   npm.cmd)를 쓴다(bare npm 표시 금지). Python runner의 동일 보정은 이번 patch 범위 밖(변경 금지) — 후속 결정 항목.
-- `prepare_portable_node.ps1` **(2N-4F 신규 — portable Node B안 bootstrap, mock 검증만·실 다운로드 미수행)**:
+- `prepare_portable_node.ps1` **(2N-4F 신규 → 2N-4G real-download evidence → B안 채택됨(D90))**:
+  **채택 범위**: Windows에 시스템 Node/npm이 없는 환경의 **승인 기반 fallback runtime strategy**다 —
+  core plugin의 필수 dependency가 **아니며**, 2N-5 통과·모든 HWP 처리 완성·OCR support complete를 뜻하지 않는다.
   시스템 Node가 없는 사용자를 위한 **승인 기반** portable Node 준비 스크립트(Windows 내장 PowerShell만 — Node/Python 불요,
   닭-달걀 해소). `-ApproveRuntime` 없이는 어떤 파일도 만들지 않고 승인 안내만 출력(exit 5). **이중 SHA-256 검증**
   (repo-pinned 기대값 + 공식 SHASUMS256.txt 교차 — 어느 한쪽 불일치/파싱 실패도 부분 파일 정리 후 중단, 해제 금지),

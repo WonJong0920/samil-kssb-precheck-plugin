@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80) → Cycle 2N-4B HWP-family ingest 계약 결정(D81) → Cycle 2N-4C 실행 런타임 전략 계획(D82) → Codex P0 Runtime Probe(D83) → Cycle 2N-4D runner Node port(D84) → Cycle 2N-4D-A Node runner 실패 처리 보정(D85) → Cycle 2N-4E portable Node B안 계획(D86) → Cycle 2N-4F portable Node mock 구현(D87) → Cycle 2N-4F-A portable Node safety patch(D88) → Cycle 2N-4G portable Node real-download evidence(D89).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80) → Cycle 2N-4B HWP-family ingest 계약 결정(D81) → Cycle 2N-4C 실행 런타임 전략 계획(D82) → Codex P0 Runtime Probe(D83) → Cycle 2N-4D runner Node port(D84) → Cycle 2N-4D-A Node runner 실패 처리 보정(D85) → Cycle 2N-4E portable Node B안 계획(D86) → Cycle 2N-4F portable Node mock 구현(D87) → Cycle 2N-4F-A portable Node safety patch(D88) → Cycle 2N-4G portable Node real-download evidence(D89) → Portable Node B안 채택(D90).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -1216,6 +1216,29 @@
 - **Related Files**: `docs/samples/codex_cycle2n_4g_portable_node_real_download_evidence.md`,
   `src/intake/runners/prepare_portable_node.ps1`, `src/intake/runners/README.md`,
   `tests/test_portable_node_bootstrap.test.cjs`, `tests/test_hwp_assisted_runner_node.test.cjs`.
+
+## D90. Portable Node B안 채택 결정 — Windows Node 부재 환경의 승인 기반 fallback runtime strategy
+- **Date**: 2026-07-06
+- **Context**: 2N-4E 계획(PASS)·2N-4F mock(CONDITIONAL→2N-4F-A 보정 PASS)·**2N-4G official real-download evidence(D89)** +
+  **Claude 2N-4G evidence review PASS**(hash 5중 일치·로컬 실물 corroboration·Critical/Major 0)를 근거로,
+  사용자 결정에 따라 B안을 **채택**한다(2N-4H-UX에서 반영).
+- **Decision(채택 — 범위 한정)**:
+  B안 = **"시스템 Node/npm이 없는 Windows 사용자 환경에서, 명시적 승인 후 공식 nodejs.org portable Node를
+  repo 밖 tool-cache에 준비하는 fallback runtime strategy"**.
+  ① 공식 source 고정: `https://nodejs.org/dist/v24.16.0` (미러/임의 URL은 네트워크 호출 전 거부 — 2N-4F-A).
+  ② 무결성: **repo-pinned SHA-256(`edaca9bd…cd56`) + SHASUMS256.txt 교차검증** — 어느 한쪽 불일치도 fail-fast·정리.
+  ③ 배치: repo 밖 tool-cache(`node@v24.16.0-win-x64/`) — OS installer/PATH 영구 수정/관리자 권한 없음(C안 배제 불변),
+  제거=폴더 삭제. ④ 탐지 우선순위: 시스템 Node/npm 우선 → portable(버전 실측 일치 필수 — 2N-4F-A) → 승인 안내.
+  ⑤ **거부·준비 실패는 전부 A안(기본 텍스트 기반 검토 계속) 수렴** — 무단 설치 없음.
+  ⑥ 실행 단계 **no-egress 경계 유지**(nethook — portable node에서 관측 evidence 확보, 2N-4G).
+- **채택이 의미하지 않는 것(명시)**: **B안 채택 완료 ≠ 2N-5 unblock ≠ 플러그인 완성 ≠ L2 complete ≠
+  OCR support complete ≠ provider finalization.** B안은 core plugin의 필수 dependency가 아니라 선택적 assisted
+  경로의 런타임 fallback이다. portable `npm.cmd`로 실제 Kordoc 설치 성립 확인은 **선택적 잔여 evidence**
+  (C2N4E-OBS-03 후반)일 수 있으나 **채택의 차단 조건이 아니다**(Claude 리뷰 판단 — 시스템 npm.cmd와 동일 배포물).
+- **Status**: 결정 기록 + 사용자-facing 문서 반영(2N-4H-UX — quickstart/README/runner README). 코드 무변경.
+- **Related Files**: `docs/samples/codex_cycle2n_4g_portable_node_real_download_evidence.md`,
+  `docs/reviews/claude_cycle2n_4g_portable_node_evidence_review.md`, `docs/planning/cycle2n_4e_portable_node_b_plan.md`,
+  `src/intake/runners/prepare_portable_node.ps1`, `docs/user_quickstart_pre_2n_5.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
