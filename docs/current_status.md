@@ -6,6 +6,14 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-1A — HWP-first Scope Decision**(scope decision 문서만 — 구현·설치·실행 없음). Codex 2N-1 **CONDITIONAL PASS**(C2N1-MAJ-01:
+  full HWP+OCR+portable Node 2N-2는 blocking / 문서화된 HWP-only slice는 non-blocking)에 대응해 **2N-2 = HWP-first narrow implementation으로 확정**.
+  U1~U8 처리: U1(외부 tool-cache·kordoc pin만)·U3(설치 1회+실행 세션/실행 단위 승인, marker는 tool-cache)·U4(runner source-only 커밋, zip 포함은 후보)·
+  U5(3층 provider명 정책)·U6(결정성 2회=evidence 한정)·U7(HWP/OCR 승인 분리) **확정**, U2=**A안 확정**(portable Node B는 gated),
+  U8=**scope-out**(rasterizer spike·native 수용·Gate B 재검토는 OCR 경로 착수 전 별도 게이트). 2N-2 포함/제외 범위 명문화(OCR·tesseract.js·traineddata·
+  rasterizer·portable Node·OS installer 전부 제외). HWP-first에도 남는 검증 조건(AVR-04 nethook·AVR-05 Windows/UTF-8·AVR-06 artifact 낙하 방지 + 조건부 AVR-07) 이관.
+  **C2N1-MAJ-01: narrowed scope 조건 대응 완료 / full scope blocking 유지.** 문서: `docs/planning/cycle2n_1a_hwp_first_scope_decision.md`.
+  **다음 = Claude 2N-2 HWP-first implementation**(§10 제약 반영).
 - **Cycle 2N-0B-A — Node/npm 부재 UX 설계 보정**(설계 문서 보정만 — 코드/설치/실행 없음). U2를 3안 구조로 보정:
   **A** 설치 안내+baseline 계속(기본 안전 fallback) / **B** 사용자 승인 후 repo 밖 tool-cache에 **portable Node**(nodejs.org 공식 zip 해제만 —
   **OS installer 미실행·PATH 영구 수정 없음·관리자 권한 불요·폴더 삭제로 제거**, SHASUMS256 검증·LTS pin·win-x64 한정·시스템 Node 우선 탐지) /
