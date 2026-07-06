@@ -23,6 +23,18 @@ Cycle 2L-1에서 동결한 **DEI-candidate 계약**(문서 수준 중간 산출�
         replacementCharRatio,needsOcr}`, qualitySummary: `{needsOcr,ocrCandidatePages}`.
   **"유효하지만 근거 빈약"(예: 스캔 전용, blocks=[]) vs "malformed"(구조 결여)**는 위 필수 신호로 구분한다.
 
+document-level 변형 계약(2N-4B — 비페이지 포맷. 관측된 Kordoc HWP/HWPX/DOCX `--format json` 형태 기준):
+  Kordoc의 HWP-계열 출력에는 `pageQuality`/`qualitySummary`가 없고(PDF 전용 필드),
+  DOCX는 `metadata.pageCount`도 없다(2N-4 실측 + 2L-3C 교차 관측). 이를 **명시적 별도 변형**으로만 수용한다:
+  분기 조건: `fileType`이 {"hwp","hwpx","docx"} **이고** `pageQuality`/`qualitySummary`가 모두 부재.
+  (조건 밖 — 예: fileType="pdf"이거나 fileType 부재 — 은 기존 paginated 계약으로 그대로 fail-fast.
+   HWP-계열이라도 `pageQuality`가 존재하면 paginated 계약을 적용한다 — 신호가 있으면 더 엄격한 쪽.)
+  변형 필수: `success == true`, `metadata`(dict), `blocks`(비어 있지 않은 list — 페이지 품질 신호가 없으므로
+  빈 blocks는 malformed와 구분 불가 → 거부), 최소 1개 블록에 text(비공백 str) 또는 table(dict).
+  **없는 신호를 합성하지 않는다**: pageQuality를 만들어내지 않고, DEI에 additive 필드로 부재를 명시한다
+  (`doc_quality.pagination="document_level"`, `page_count_basis`, `quality_signal="not_reported"`).
+  이 변형에서는 `ocr_text` 병합을 지원하지 않는다(needsOcr 페이지 정합의 기준 신호가 없음 — 명시 거부).
+
 L2 additive 입력(2L-4B 구현 — repo-side ingest boundary는 2L-5 closure에서 implemented+reviewed로 승격.
 provider 실행·runner 통합·provider 최종 확정은 pending. 선택·하위 호환):
   `ocr_text`: out-of-band runner(예: tesseract.js, Gate D-proven 경로)가 이미 만든 OCR 산출물.
@@ -91,6 +103,92 @@ def _validate_intake_contract(intake: Any) -> dict:
 
 def _int(v: Any, default: int = 0) -> int:
     return v if isinstance(v, bool) is False and isinstance(v, int) else default
+
+
+# ---- document-level 변형 계약(2N-4B — 비페이지 포맷 Kordoc 출력) ----------------
+
+# 관측된 Kordoc HWP-계열 fileType(2N-4 실측). 이 밖의 값은 paginated 계약으로 처리.
+_DOC_LEVEL_FILETYPES = ("hwp", "hwpx", "docx")
+
+
+def is_document_level_intake(intake: Any) -> bool:
+    """document-level 변형 분기 조건(관측 기반 — 자동 완화가 아니라 명시 변형 선택).
+
+    `fileType`이 HWP-계열이고 `pageQuality`/`qualitySummary`가 **모두 부재**할 때만 true.
+    fileType이 없거나 다른 값이면(예: "pdf") 기존 paginated 계약이 그대로 적용되어
+    pageQuality 누락은 종전과 동일하게 거부된다(fail-fast 약화 없음).
+    """
+    return (isinstance(intake, dict)
+            and intake.get("fileType") in _DOC_LEVEL_FILETYPES
+            and "pageQuality" not in intake
+            and "qualitySummary" not in intake)
+
+
+def _validate_document_level_contract(intake: Any) -> dict:
+    """document-level 변형 최소 계약 강제(위반 시 IntakeError — 조용한 빈 DEI 금지).
+
+    페이지 품질 신호가 없는 포맷이므로 **비어 있지 않은 blocks가 유일한 구조 증거**다:
+    blocks가 비어 있으면 "유효하지만 근거 빈약"과 malformed를 구분할 수 없어 거부한다.
+    """
+    if not isinstance(intake, dict):
+        raise IntakeError("intake must be a dict/JSON object")
+    if "success" not in intake:
+        raise IntakeError("intake missing required 'success' flag (malformed / not an intake artifact)")
+    if intake.get("success") is not True:
+        raise IntakeError("intake 'success' must be exactly true (parse failure or unknown state refused)")
+    if not isinstance(intake.get("metadata"), dict):
+        raise IntakeError("document-level intake requires 'metadata' object")
+    blocks = intake.get("blocks")
+    if not isinstance(blocks, list) or not blocks:
+        raise IntakeError(
+            "document-level intake requires non-empty 'blocks' "
+            "(no pageQuality signal exists to distinguish evidence-poor from malformed)")
+    has_content = any(
+        isinstance(b, dict) and (
+            (isinstance(b.get("text"), str) and b["text"].strip())
+            or isinstance(b.get("table"), dict))
+        for b in blocks)
+    if not has_content:
+        raise IntakeError(
+            "document-level intake requires at least one block with text or table content")
+    for opt in ("outline", "warnings"):
+        if opt in intake and not isinstance(intake[opt], list):
+            raise IntakeError(f"intake '{opt}' must be a list when present")
+    return intake
+
+
+def _bad_char_ratios(text: str) -> tuple[float, float]:
+    """블록 텍스트의 (PUA 비율, replacement 문자 비율) — 원문에서 결정적으로 계산(합성 아님)."""
+    if not text:
+        return 0.0, 0.0
+    total = len(text)
+    pua = sum(1 for ch in text if 0xE000 <= ord(ch) <= 0xF8FF)
+    repl = text.count("�")
+    return pua / total, repl / total
+
+
+def _block_extraction_quality(text: str) -> str:
+    """document-level 블록 품질 — 블록 자체 텍스트에서만 계산(페이지 신호 부재).
+
+    페이지 품질 신호가 없으므로 **"high"는 부여하지 않는다**(보수 상한 medium — 판정 아님):
+    깨짐 신호(PUA/replacement 비율 초과) 또는 빈 텍스트면 "low", 그 외 "medium".
+    """
+    if not text.strip():
+        return "low"
+    pua, repl = _bad_char_ratios(text)
+    if pua > _BAD_RATIO or repl > _BAD_RATIO:
+        return "low"
+    return "medium"
+
+
+def doc_level_hint(section_path: str = "") -> str:
+    """document-level 위치 힌트(자유텍스트, bbox·페이지 좌표 없음).
+
+    비페이지 포맷은 provider의 pageNumber가 물리 페이지가 아니므로(전 블록 1 또는 None 관측)
+    `p.<n>` 표기를 쓰지 않는다. 형식: 'doc-level · <section_path>' (section 없으면 'doc-level').
+    """
+    section_path = (section_path or "").strip()
+    return f"{_DOC_LEVEL_HINT} · {section_path}" if section_path else _DOC_LEVEL_HINT
 
 
 # ---- L2 ingest additive 계약(2L-4B 구현, 2L-5 승격) ----------------------------
@@ -266,6 +364,121 @@ def _pq_by_page(page_quality: list) -> dict:
     return out
 
 
+def _merge_aux_signals(dei: dict, hints: list, out_blocks: list, aux_signals: Any) -> None:
+    """aux_signals additive 병합(2L-4B 로직 그대로 — paginated/document-level 공용).
+
+    aux 카운트는 `aux_structure` 섹션으로, gap 비교는 review_priority_hints로만 합류한다
+    (판정/anchor 매핑 금지). aux_signals가 None이면 아무것도 하지 않는다.
+    """
+    if aux_signals is None:
+        return
+    aux = _validate_aux_signals_contract(aux_signals)
+    dei["aux_structure"] = {
+        "aux_signals_version": str(aux.get("aux_signals_version", "")),
+        "doc_format": aux["doc_format"],
+        **{k: aux[k] for k in _AUX_COUNT_KEYS},
+    }
+    # gap 비교는 검수 신호(hint)로만 — 판정/anchor로 매핑하지 않는다.
+    intake_image_blocks = sum(1 for bl in out_blocks if bl["block_type"] == "image")
+    intake_table_blocks = sum(1 for bl in out_blocks if bl["block_type"] == "table")
+    if aux["image_instance_count"] > 0 and intake_image_blocks == 0:
+        hints.append({"location_hint": _DOC_LEVEL_HINT,
+                      "reason": "image_detection_gap", "priority": "medium"})
+    if aux["table_top_level_count"] != intake_table_blocks:
+        hints.append({"location_hint": _DOC_LEVEL_HINT,
+                      "reason": "table_count_mismatch", "priority": "medium"})
+    for r in sorted(set(aux.get("review_required_reason", []))):
+        hints.append({"location_hint": _DOC_LEVEL_HINT, "reason": r, "priority": "medium"})
+
+
+def _build_document_level_dei(intake: Any, source_id: str, source_title: str = "",
+                              ocr_text: Any = None, aux_signals: Any = None) -> dict:
+    """document-level 변형(2N-4B) 인테이크 -> DEI-candidate. 결정적. 판정 미생성. 원문 보존.
+
+    비페이지 포맷(Kordoc HWP/HWPX/DOCX 관측 형태) 전용:
+    - **없는 신호를 합성하지 않는다**: pageQuality를 만들지 않고, doc_quality에 additive 필드
+      (`pagination`/`page_count_basis`/`quality_signal`)로 부재를 명시한다.
+    - `page_count`는 provider가 보고한 값(int>=1)만 통과시키고, 없으면 0 + "not_reported".
+      pagination="document_level"일 때 page_count는 물리 페이지 수로 해석하면 안 된다
+      (HWP/HWPX 관측값 1은 "단일 논리 문서" 표현 — 전 블록 pageNumber=1과 정합).
+    - 위치 힌트는 `p.<n>`을 쓰지 않는다(pageNumber가 물리 페이지가 아님) — heading 블록
+      **문서 순서** 기반 섹션 경로 또는 'doc-level'(`doc_level_hint()`).
+    - 블록 extraction_quality는 블록 자체 텍스트의 깨짐 신호로만 계산(보수 상한 medium).
+    - needs_ocr는 기준 신호가 없어 False로 두되 quality_signal="not_reported"가 부재를 명시하고,
+      doc-level hint(`page_quality_signal_unavailable`)로 검수 라우팅에 노출한다.
+    - `ocr_text` 병합은 지원하지 않는다(needsOcr 페이지 정합 기준이 없음 — 명시 거부).
+    """
+    data = _validate_document_level_contract(intake)
+    if ocr_text is not None:
+        raise IntakeError(
+            "ocr_text is not supported for document-level (non-paginated) intake "
+            "(no needsOcr page signal exists to align OCR pages against)")
+
+    blocks_in = data["blocks"]
+    metadata = data["metadata"]
+
+    page_count_raw = metadata.get("pageCount")
+    if isinstance(page_count_raw, int) and not isinstance(page_count_raw, bool) \
+            and page_count_raw >= 1:
+        page_count, page_count_basis = page_count_raw, "provider_reported"
+    else:
+        page_count, page_count_basis = 0, "not_reported"
+
+    out_blocks: list[dict] = []
+    current_section = ""
+    for idx, b in enumerate(blocks_in):
+        if not isinstance(b, dict):
+            continue
+        page = _int(b.get("pageNumber"), 0)
+        btype = str(b.get("type") or "unknown").strip() or "unknown"
+        if btype not in ("heading", "paragraph", "table", "image"):
+            btype = "unknown"
+        if isinstance(b.get("table"), dict):
+            text_or_md = _table_to_md(b["table"])
+            if btype == "unknown":
+                btype = "table"
+        else:
+            text_or_md = str(b.get("text", ""))
+        if btype == "heading" and text_or_md.strip():
+            current_section = text_or_md.strip()
+        out_blocks.append({
+            "block_id": str(b.get("block_id") or f"b{idx}-doc"),
+            "page": page,  # provider 원시값 통과(1 또는 0) — 위치 힌트에는 쓰지 않는다
+            "block_type": btype,
+            "text_or_table_md": text_or_md,
+            "location_hint": doc_level_hint(current_section),
+            "extraction_quality": _block_extraction_quality(text_or_md),
+            "needs_ocr": False,
+            "warnings": [],
+        })
+
+    # 페이지 품질 신호 부재는 검수 신호로만 남긴다(판정·anchor 아님).
+    hints: list[dict] = [{"location_hint": _DOC_LEVEL_HINT,
+                          "reason": "page_quality_signal_unavailable", "priority": "medium"}]
+
+    dei: dict = {
+        "dei_version": DEI_VERSION,
+        "source_id": str(source_id),
+        "source_title": str(source_title or ""),
+        "doc_quality": {
+            "page_count": page_count,
+            "needs_ocr": False,
+            "ocr_candidate_pages": [],
+            "low_text_pages": [],
+            # additive(2N-4B): 비페이지 포맷 명시 — 부재 필드는 paginated L1을 뜻한다.
+            "pagination": "document_level",
+            "page_count_basis": page_count_basis,
+            "quality_signal": "not_reported",
+        },
+        "blocks": out_blocks,
+        "review_priority_hints": hints,
+    }
+
+    _merge_aux_signals(dei, hints, out_blocks, aux_signals)
+    hints.sort(key=lambda h: (h["location_hint"], h["reason"]))
+    return dei
+
+
 def build_dei_candidate(intake: Any, source_id: str, source_title: str = "",
                         ocr_text: Any = None, aux_signals: Any = None) -> dict:
     """인테이크 산출물 -> DEI-candidate dict. 결정적. 판정 미생성. 원문 보존.
@@ -273,9 +486,16 @@ def build_dei_candidate(intake: Any, source_id: str, source_title: str = "",
     L2 ingest additive(2L-4B): `ocr_text`/`aux_signals`가 주어지면 각각 optional
     `ocr_supplement`/`aux_structure` 섹션과 review_priority_hints 항목으로만 합류한다.
     없으면 산출은 기존 L1과 동일(하위 호환 — 기존 필수 구조·의미 불변).
+
+    document-level 변형(2N-4B): `is_document_level_intake()` 조건(HWP-계열 fileType +
+    pageQuality/qualitySummary 부재)에서만 별도 변형 계약으로 처리한다.
+    그 밖의 입력은 기존 paginated 계약이 그대로 적용된다(경로·산출 모두 무변경).
     """
     if not source_id or not str(source_id).strip():
         raise IntakeError("source_id is required (maps to findings source_documents.source_id)")
+    if is_document_level_intake(intake):
+        return _build_document_level_dei(intake, source_id, source_title,
+                                         ocr_text=ocr_text, aux_signals=aux_signals)
     data = _validate_intake_contract(intake)
 
     blocks_in = data.get("blocks") if isinstance(data.get("blocks"), list) else []
@@ -383,24 +603,7 @@ def build_dei_candidate(intake: Any, source_id: str, source_title: str = "",
             ],
         }
 
-    if aux_signals is not None:
-        aux = _validate_aux_signals_contract(aux_signals)
-        dei["aux_structure"] = {
-            "aux_signals_version": str(aux.get("aux_signals_version", "")),
-            "doc_format": aux["doc_format"],
-            **{k: aux[k] for k in _AUX_COUNT_KEYS},
-        }
-        # gap 비교는 검수 신호(hint)로만 — 판정/anchor로 매핑하지 않는다.
-        intake_image_blocks = sum(1 for bl in out_blocks if bl["block_type"] == "image")
-        intake_table_blocks = sum(1 for bl in out_blocks if bl["block_type"] == "table")
-        if aux["image_instance_count"] > 0 and intake_image_blocks == 0:
-            hints.append({"location_hint": _DOC_LEVEL_HINT,
-                          "reason": "image_detection_gap", "priority": "medium"})
-        if aux["table_top_level_count"] != intake_table_blocks:
-            hints.append({"location_hint": _DOC_LEVEL_HINT,
-                          "reason": "table_count_mismatch", "priority": "medium"})
-        for r in sorted(set(aux.get("review_required_reason", []))):
-            hints.append({"location_hint": _DOC_LEVEL_HINT, "reason": r, "priority": "medium"})
+    _merge_aux_signals(dei, hints, out_blocks, aux_signals)
 
     hints.sort(key=lambda h: (h["location_hint"], h["reason"]))
     return dei

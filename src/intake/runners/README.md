@@ -34,4 +34,16 @@
 1. `--check`: 설치·실행 없이 필요한 작업과 한국어 승인 문구를 표시(plan).
 2. 설치 필요 시 승인 문구 출력 후 종료 → 사용자가 `--approve-install`로 재실행(준비 egress 기록).
 3. 실행 승인 문구 출력 후 종료 → `--approve-run`으로 재실행(no-egress 훅 하 파싱, provenance는 tool-cache 로그에).
-4. 산출물(intake/aux_signals JSON)은 기존 ingest boundary(`dei_producer.py`)가 그대로 소비한다(계약 무변경).
+4. 산출물(intake/aux_signals JSON)은 기존 ingest boundary(`dei_producer.py`)가 그대로 소비한다
+   (HWP-계열은 2N-4B document-level 변형 계약 — runner는 provider 출력을 무변경 보존한다).
+
+## 산출물 취급 주의 (2N-4 관측 — artifact 정책)
+
+- **Kordoc은 문서 내 이미지를 out-dir에 `images/` 폴더로 추출**하고, `intake.json` 안에도
+  이미지 바이트를 **base64로 인라인**한다(top-level `images` + image 블록 `imageData`).
+  따라서 **out-dir 산출물 전체(images/ 포함)는 원본 문서와 동일한 민감도로 취급**한다:
+  repo/커밋 금지(원본 미커밋 원칙과 동일), `--out-dir`는 repo 밖 사용(runner가 repo 내부 경로를 경고),
+  삭제는 out-dir 폴더 제거로 완결. `.gitignore`의 `*.intake.json` 방어는 유지되지만 `images/`의
+  개별 이미지 파일까지 막지는 않으므로 **repo 밖 out-dir가 1차 방어**다.
+- ingest boundary(`dei_producer.py`)는 이미지 base64를 DEI로 **가져오지 않는다**(테스트로 강제 —
+  image 블록은 파일명 텍스트만 전달).

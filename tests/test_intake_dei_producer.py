@@ -351,6 +351,142 @@ def main() -> int:
     a["review_required_reason"] = "not-a-list"
     expect_merge_error("aux review_required_reason 비-list 거부", aux=a)
 
+    # ---- 13. document-level 변형 계약(2N-4B — 비페이지 포맷) ---------------------
+    # 관측된 Kordoc HWP/HWPX/DOCX 형태(2N-4 실측)를 최소 합성 fixture로 재현:
+    # fileType 존재, pageQuality/qualitySummary 부재, HWP는 pageCount=1·전 블록 pageNumber=1,
+    # DOCX는 pageCount·pageNumber 자체 부재, image 블록에 imageData(base64) 인라인.
+
+    def sample_hwp_intake() -> dict:
+        return {
+            "success": True,
+            "fileType": "hwp",
+            "metadata": {"version": "5.x", "pageCount": 1},
+            "outline": [{"level": 1, "text": "지속가능경영 개요", "pageNumber": 1}],
+            "blocks": [
+                {"type": "heading", "text": "지속가능경영 개요", "pageNumber": 1, "level": 1},
+                {"type": "paragraph", "text": "기후 관련 위험 및 기회를 관리한다.", "pageNumber": 1},
+                {"type": "image", "text": "image_001.bmp", "pageNumber": 1,
+                 "imageData": {"filename": "image_001.bmp", "data": "Qk12nwAAFAKEBASE64"}},
+                {"type": "heading", "text": "온실가스 배출", "pageNumber": 1, "level": 1},
+                {"type": "table", "pageNumber": 1, "table": {"rows": 2, "cols": 2, "hasHeader": True,
+                 "cells": [[{"text": "지표"}, {"text": "값"}], [{"text": "배출량"}, {"text": "100"}]]}},
+            ],
+            "images": [{"filename": "image_001.bmp", "data": "Qk12nwAAFAKEBASE64"}],
+            "markdown": "# 지속가능경영 개요\n...",
+        }
+
+    def sample_docx_intake() -> dict:
+        return {
+            "success": True,
+            "fileType": "docx",
+            "metadata": {"author": "user", "createdAt": "2021-04-04T03:28:43.146"},
+            "blocks": [
+                {"type": "paragraph", "text": "기후 관련 위험 및 기회를 관리한다."},
+                {"type": "table", "table": {"rows": 1, "cols": 1, "hasHeader": False,
+                 "cells": [[{"text": "배출량 100"}]]}},
+            ],
+            "images": [],
+            "markdown": "...",
+        }
+
+    # 13a. HWP-계열 수용: document_level 명시 + DEI_VERSION 유지
+    hdei = D.build_dei_candidate(sample_hwp_intake(), "hwp-1", "HWP Sample")
+    hdq = hdei["doc_quality"]
+    check("document-level: HWP 수용 + pagination 명시",
+          hdq.get("pagination") == "document_level" and hdq.get("quality_signal") == "not_reported")
+    check("document-level: DEI_VERSION '1' 유지", hdei["dei_version"] == "1")
+
+    # 13b. 기존 PDF(paginated) 경로 불변: additive 키가 paginated 산출에 없음
+    pdq = D.build_dei_candidate(sample_intake(), "doc-1")["doc_quality"]
+    check("paginated 경로 불변(additive 키 부재)",
+          "pagination" not in pdq and "page_count_basis" not in pdq and "quality_signal" not in pdq)
+
+    # 13c. page_count: provider 보고값 통과 vs 부재 시 0 + not_reported(허위 생성 없음)
+    check("document-level: HWP page_count=provider_reported",
+          hdq["page_count"] == 1 and hdq["page_count_basis"] == "provider_reported")
+    ddei = D.build_dei_candidate(sample_docx_intake(), "docx-1")
+    ddq = ddei["doc_quality"]
+    check("document-level: DOCX pageCount 부재 -> 0 + not_reported",
+          ddq["page_count"] == 0 and ddq["page_count_basis"] == "not_reported")
+
+    # 13d. 위치 힌트: p.<n> 미사용, heading 문서 순서 기반 섹션 / 섹션 없으면 doc-level
+    hblocks = hdei["blocks"]
+    check("document-level: 힌트에 p.<n> 미사용",
+          all(not bl["location_hint"].startswith("p.") for bl in hblocks))
+    para = next(bl for bl in hblocks if bl["block_type"] == "paragraph")
+    tbl = next(bl for bl in hblocks if bl["block_type"] == "table")
+    check("document-level: heading 순서 기반 섹션 추적",
+          "지속가능경영 개요" in para["location_hint"] and "온실가스 배출" in tbl["location_hint"])
+    check("document-level: 섹션 없으면 doc-level",
+          all(bl["location_hint"] == "doc-level" for bl in ddei["blocks"]))
+    check("doc_level_hint 형식", D.doc_level_hint("거버넌스") == "doc-level · 거버넌스"
+          and D.doc_level_hint("") == "doc-level")
+
+    # 13e. 이미지 바이트 미유입: imageData/images의 base64가 DEI에 없음(파일명 텍스트만)
+    check("document-level: 이미지 base64 미유입",
+          "Qk12nwAAFAKEBASE64" not in json.dumps(hdei, ensure_ascii=False))
+    img = next(bl for bl in hblocks if bl["block_type"] == "image")
+    check("document-level: image 블록은 파일명 텍스트만", img["text_or_table_md"] == "image_001.bmp")
+
+    # 13f. extraction_quality: 페이지 신호 부재 -> 보수 상한 medium, 깨짐/빈 텍스트 -> low
+    check("document-level: 정상 텍스트=medium(high 미부여)",
+          para["extraction_quality"] == "medium" and tbl["extraction_quality"] == "medium")
+    corrupted = sample_docx_intake()
+    # PUA 3자 + 정상 1자 -> 비율 0.75 > _BAD_RATIO(0.10)
+    corrupted["blocks"].append({"type": "paragraph", "text": "\ue000\ue001\ue002x"})
+    corrupted["blocks"].append({"type": "image", "text": ""})
+    cblocks = D.build_dei_candidate(corrupted, "docx-2")["blocks"]
+    check("document-level: PUA 오염 텍스트=low", cblocks[2]["extraction_quality"] == "low")
+    check("document-level: 빈 텍스트=low", cblocks[3]["extraction_quality"] == "low")
+
+    # 13g. 품질 신호 부재 -> 검수 힌트(판정 아님)
+    hreasons = {(h["reason"], h["priority"]) for h in hdei["review_priority_hints"]}
+    check("document-level: page_quality_signal_unavailable hint",
+          ("page_quality_signal_unavailable", "medium") in hreasons)
+    check("document-level: judgment 키 부재", not (_all_keys(hdei) & _JUDGMENT_KEYS))
+
+    # 13h. fail-fast 유지(변형이 기존 계약을 느슨하게 하지 않음)
+    expect_intake_error("fileType=pdf + pageQuality 누락은 여전히 거부",
+                        {**without("pageQuality"), "fileType": "pdf"})
+    expect_intake_error("fileType 부재 + pageQuality 누락은 여전히 거부", without("pageQuality"))
+    hw = sample_hwp_intake()
+    hw["blocks"] = []
+    expect_intake_error("document-level: 빈 blocks 거부", hw)
+    hw = sample_hwp_intake()
+    hw["success"] = False
+    expect_intake_error("document-level: success=false 거부", hw)
+    hw = sample_hwp_intake()
+    hw.pop("metadata")
+    expect_intake_error("document-level: metadata 누락 거부", hw)
+    hw = sample_hwp_intake()
+    hw["blocks"] = [{"type": "paragraph", "text": "   "}]
+    expect_intake_error("document-level: 내용 없는 blocks 거부", hw)
+    # HWP-계열이라도 pageQuality가 존재하면 paginated 계약 적용(신호가 있으면 엄격한 쪽)
+    hw = sample_hwp_intake()
+    hw["pageQuality"] = []
+    expect_intake_error("document-level: pageQuality 존재 시 paginated 계약(빈 list 거부)", hw)
+
+    # 13i. document-level에서 ocr_text 명시 거부(needsOcr 정합 기준 없음)
+    try:
+        D.build_dei_candidate(sample_hwp_intake(), "hwp-1", ocr_text=sample_ocr_text())
+        check("document-level: ocr_text 거부", False, "no exception")
+    except D.IntakeError:
+        check("document-level: ocr_text 거부", True)
+
+    # 13j. document-level + aux_signals 병합(2L-4B 로직 공용)
+    aux = sample_aux_signals()
+    aux["table_top_level_count"] = 27  # intake table 1 vs aux 27 -> mismatch hint
+    hmerged = D.build_dei_candidate(sample_hwp_intake(), "hwp-1", aux_signals=aux)
+    mreasons2 = {h["reason"] for h in hmerged["review_priority_hints"]}
+    check("document-level: aux_structure 병합",
+          hmerged.get("aux_structure", {}).get("table_top_level_count") == 27)
+    check("document-level: table_count_mismatch hint", "table_count_mismatch" in mreasons2)
+
+    # 13k. 결정성(document-level 포함)
+    h1 = json.dumps(D.build_dei_candidate(sample_hwp_intake(), "hwp-1"), sort_keys=True, ensure_ascii=False)
+    h2 = json.dumps(D.build_dei_candidate(sample_hwp_intake(), "hwp-1"), sort_keys=True, ensure_ascii=False)
+    check("document-level: 결정성", h1 == h2)
+
     passed = sum(1 for _, ok, _ in _results if ok)
     total = len(_results)
     print(f"\n{passed}/{total} checks passed")

@@ -6,6 +6,21 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4B — HWP-family Ingest Contract Decision + Narrow Implementation**(2N-4 blocker 해소 — Codex review 대기).
+  판단: 3개 포맷 실물 artifact 재관찰(2N-4 산출물 + PDF 대조군)로 근거가 충분해 **A안(좁은 구현) 채택** —
+  runner 측 정규화는 기각(pageQuality 합성 = 허위 생성 + provider 출력 바이트 결정성 증거 훼손), 위치는 2L-4A 설계상 정규화 담당인
+  **ingest boundary(`dei_producer.py`)**. 구현: **document-level 변형 계약** — 분기 조건은 관측 기반
+  (`fileType ∈ {hwp,hwpx,docx}` **이고** pageQuality/qualitySummary **모두 부재**; 조건 밖은 기존 paginated 계약 그대로 —
+  fail-fast 약화 없음, HWP-계열이라도 pageQuality 있으면 엄격한 쪽). 없는 신호 합성 금지: additive 필드로 부재 명시
+  (`doc_quality.pagination="document_level"`·`page_count_basis`(DOCX pageCount 부재→0+"not_reported")·`quality_signal="not_reported"`),
+  위치 힌트는 무의미한 `p.<n>` 대신 heading **문서 순서** 기반 `doc-level · <섹션>`(`doc_level_hint()`), 블록 품질은 블록 자체
+  깨짐 신호만(보수 상한 medium — high 미부여), 빈/내용 없는 blocks 거부, **ocr_text 병합 명시 거부**(needsOcr 정합 기준 없음),
+  이미지 base64(intake 인라인) DEI 미유입 테스트 강제, aux 병합은 공용 helper로 동일 로직 재사용. **PDF 경로 무영향 실측**
+  (대조군 DEI byte-identical + 기존 테스트 무수정 green). 실물 검증: 2N-4 artifact 4종(hwp/hwpx/docx/한국어 파일명) 전부
+  dei_producer **rc=0**(한글 4,878자 보존·결정성·gap hint 발화 — Kordoc 재실행 없음). images/ 부산물 정책 = 문서화
+  (원본과 동일 민감도·repo 밖 out-dir 1차 방어·gitignore 패턴/자동 삭제는 기각 사유 기록 — runners/README).
+  테스트: intake 56→**83/83**, 나머지 6종 green(26/49/29/30/22/34). 문서: `docs/planning/cycle2n_4b_hwp_family_ingest_contract_decision.md`.
+  **다음 = Codex 2N-4B review — 계약 확장은 미리뷰 상태이므로 review 후 2N-5 진입 권고**(L2 전체 완료·OCR 지원·finalization 아님).
 - **Cycle 2N-4 — HWP-first Assisted Retest**(승인 기반 **실 실행 evidence** — Codex 2N-3B PASS 후). 결과 요지:
   ① **승인 게이트 라이브 증거**: check(plan)→무플래그 rc=5(설치 승인 문구)→`--approve-install`(실 npm 설치)→**설치 후에도 rc=6**(실행 승인 분리)→`--approve-run --evidence-mode`.
   ② **Kordoc 준비 성공**: `<홈>/.samil-kssb-precheck/tools/kordoc@3.13.0`에 pin 일치 설치(cli.js 확인 — AVR-02), **native 0**(--omit=optional 실효), prep_egress_log/approvals 기록.

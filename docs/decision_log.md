@@ -1,6 +1,6 @@
 # 의사결정 기록 (Decision Log) — Cycle 1 ~ 2I
 
-> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80).
+> 사이클별 섹션: Cycle 1(D1~D10) → Cycle 2A 방향성(D11~D15) → Cycle 2B(D16~D21) → Cycle 2C(D22~D25) → Cycle 2D(D26~D29) → Cycle 2D Patch(D30) → Cycle 2E(D31) → Cycle 2F(D32) → Cycle 2G(D33) → Cycle 2G Patch(D34) → Cycle 2H(D35) → 운영 원칙(D36) → Cycle 2H Patch(D37) → Cycle 2H Evidence(D38) → Cycle 2I-0(D39) → Cycle 2I-0 Addendum(D40) → Cycle 2I-1(D41) → Cycle 2I-2(D42) → Cycle 2I-3 계획(D43) → Cycle 2I-3 guardrail(D44) → Cycle 2I-3A 계획(D45) → Cycle 2I-3A Runbook(D46) → Cycle 2I-3A Spike 실행(D47) → Cycle 2I-3B Adapter 설계(D48) → Cycle 2I-3B GatePrep 계획(D49) → Cycle 2I-3B Gate A 실행(D50) → Cycle 2I-3B Gate B 실행(D51) → Cycle 2I-3B Version Strategy 확정(D52) → Cycle 2J Mistral OCR4 벤치마크(D53) → Cycle 2K OCR/이미지 Capability Ladder(D54) → Cycle 2K Patch 예선 L3 목표 명확화(D55) → Cycle 2L 예선 L3 Implementation-Prep 로드맵(D56) → Cycle 2L-1 L1 Implementation-Prep·RH-B2 종결(D57) → Cycle 2L-2 L1 구현(D58) → Cycle 2L-2 Patch Intake Validation(D59) → Cycle 2L-2 Closure L1 승격(D60) → Cycle 2L-3A Gate D Preflight(D61) → Cycle 2L-3B0 Type 3 샘플 적합성 검토(D62) → Cycle 2L-3B0 Patch ver2 selected sample 검토(D63) → Cycle 2L-3B Gate D execution evidence(D64) → Cycle 2L-3C provider 비교(D65) → Cycle 2L-3D aux 스캐너 검토(D66) → Cycle 2L-4A L2 adapter boundary 설계(D67) → Cycle 2L-4B L2 ingest provisional 구현(D68) → Cycle 2L-4C OCR hash 무결성 패치(D69) → Cycle 2L-5 L2 closure/promotion 결정(D70) → Cycle 2L-5A historical wording cleanup(D71) → Cycle 2M-2 C2M1-MIN-01 wording refresh(D72) → Cycle 2M-5 output quality remediation(D73) → Cycle 2N-0A runner/provider blindspot pass(D74) → Cycle 2N-0B runner/provider UX 설계(D75) → Cycle 2N-0B-A Node 부재 UX 보정(D76) → Cycle 2N-1A HWP-first scope 결정(D77) → Cycle 2N-2 HWP-first 구현(D78) → Cycle 2N-3A nethook coverage patch(D79) → Cycle 2N-4 HWP-first assisted retest(D80) → Cycle 2N-4B HWP-family ingest 계약 결정(D81).
 
 ## Cycle 1 결정 (D1~D10)
 
@@ -960,6 +960,41 @@
 - **Consequences**: runner·승인 UX·no-egress·npm·한국어 경로는 2N-5 수준 증거 확보. 단 **E2E는 HWP-계열 ingest 계약 공백에서 끊김** → 2N-5 전 (a) 계약 확장 사이클(권고) 또는 (b) 2N-5 범위 한정 중 사용자/ChatGPT 결정 필요. 테스트: nethook 29·runner 49·기존 5종 green.
 - **Status**: 변경 = retest report + runner patch(npm_exe) + 테스트 1건 + status/decision. core/schema/validator/renderer/delivery/manifest 무변경. OCR/rasterizer/portable Node 미접촉, L2 완료·OCR 지원·finalization 선언 없음.
 - **Related Files**: `docs/planning/cycle2n_4_hwp_first_assisted_retest_report.md`, `src/intake/runners/hwp_assisted_runner.py`, `tests/test_hwp_assisted_runner.py`, `docs/reviews/codex_cycle2n_3b_nethook_coverage_patch_review.md`.
+
+## D81. 2N-4B HWP-family ingest 계약 — document-level 변형 계약을 ingest boundary에 좁게 구현(A안), PDF 경로 무영향 실측
+- **Date**: 2026-07-06
+- **Context**: 2N-4 blocker(D80⑤) — Kordoc HWP/HWPX/DOCX intake가 L1 계약(PDF 형태 기준, D58)에서 fail-fast 거부.
+  프롬프트 기준: 안전한 좁은 구현 가능 시 A(구현), 계약 변경 범위가 크면 B(docs-only 중단). 실물 artifact 재관찰
+  (2N-4 4종 + 2L-3C PDF 대조군)로 분기 신호가 관측 확보됨(`fileType` + pageQuality/qualitySummary 부재 조합) → **A 채택**.
+- **Decision(구현)**:
+  ① **위치 = ingest boundary(`dei_producer.py`)**: runner 측 정규화 기각(pageQuality 합성=허위 생성 금지 위반 +
+  provider 출력 바이트 결정성 증거(2L-3C↔2N-4 동일) 훼손), 별도 모듈 기각(진입점 이원화). 2L-4A 설계 정합
+  ("intake artifact 계약만 맞추면 provider 교체").
+  ② **document-level 변형 계약**: 분기 `is_document_level_intake()`(HWP-계열 fileType **이고** 두 품질 필드 모두 부재 —
+  조건 밖은 기존 paginated 계약 그대로, HWP-계열이라도 pageQuality 존재 시 엄격한 쪽). 변형 검증 = success/metadata/
+  **비어 있지 않은 blocks**(품질 신호 부재 시 blocks가 유일한 구조 증거 — 빈 blocks는 malformed 구분 불가로 거부)/최소 1개
+  내용 블록. **합성 금지**: additive 필드(`pagination="document_level"`·`page_count_basis`·`quality_signal="not_reported"`)로
+  부재 명시(paginated 산출에는 미추가 — DEI_VERSION "1"·하위 호환), DOCX pageCount 부재→**0+"not_reported"**(그럴듯한 기본값
+  금지), 위치 힌트 **`p.<n>` 미사용**(HWP 계열 pageNumber는 물리 페이지 아님 — 전 블록 1/None 관측) → heading 문서 순서 기반
+  `doc-level · <섹션>`(`doc_level_hint()`), 블록 품질=블록 자체 PUA/replacement 비율만(보수 상한 **medium** — 품질 신호 부재
+  상태에서 high 미부여), needs_ocr=False(bool 계약 유지)+`page_quality_signal_unavailable` doc-level hint로 부재를 검수 신호화,
+  **ocr_text 병합 명시 거부**(needsOcr 정합 기준 없음 — fail-fast), 이미지 base64(intake 인라인 관측) DEI 미유입 테스트 강제,
+  aux 병합은 `_merge_aux_signals` helper로 2L-4B 로직 공용(실물에서 hwpx table_count_mismatch 25↔27·docx image_detection_gap
+  0↔70 발화 확인).
+  ③ **PDF 경로 무영향 실측**: 변경 전 baseline 대비 PDF 대조군 DEI **byte-identical** + 기존 56건 무수정 green.
+  ④ **images/ 부산물 정책(문서화)**: out-dir 산출물 전체(images/ + intake 내 base64)는 원본 문서와 동일 민감도 —
+  repo 밖 out-dir 1차 방어, gitignore `images/` 패턴(오차단 부작용)·자동 삭제(사용자 데이터 무단 삭제)는 기각 사유 기록.
+  ⑤ **검증**: intake 56→**83/83** + 기존 6종 green(aux 26·runner 49·nethook 29·validator 30·renderer 22·delivery 34,
+  standalone — pytest 미설치). 실물 4종(hwp/hwpx/docx/한국어 파일명) dei_producer **rc=0**·결정성·한글 4,878자 보존
+  (2N-4 artifact 재사용 — Kordoc 재실행 없음).
+- **Consequences**: 2N-4 blocker는 기술적으로 해소. 단 **계약 확장은 미리뷰 상태** — ingest boundary의 2L-5
+  "implemented+reviewed" 승격 표면을 변경했으므로 **Codex 2N-4B review 후 2N-5 진입 권고**(리뷰 쟁점 6건 문서 §10).
+  OCR/rasterizer/portable Node gated 유지, L2 전체 완료·OCR 지원·provider finalization 선언 없음.
+- **Status**: 변경 = dei_producer.py·test_intake_dei_producer.py·intake README·runners README·decision 문서·status/decision.
+  schema/validator/renderer/delivery/Skill/manifest/runner 본체/nethook/package 무변경. 설치·실행·네트워크 없음.
+- **Related Files**: `docs/planning/cycle2n_4b_hwp_family_ingest_contract_decision.md`, `src/intake/dei_producer.py`,
+  `tests/test_intake_dei_producer.py`, `src/intake/README.md`, `src/intake/runners/README.md`,
+  `docs/planning/cycle2n_4_hwp_first_assisted_retest_report.md`.
 
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
