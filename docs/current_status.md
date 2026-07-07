@@ -6,6 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4K — Rasterizer + tesseract.js Runtime Evidence**(사용자 승인 하 evidence cycle — 제품 코드 병합 0·
+  2N-4L 착수 아님. Codex 2N-4J review **PASS** 후 진행). 실측: ① 공급망 — tesseract.js **7.0.0**(+core 7.0.0
+  자체 pin, Gate D 조합 재현)+pdfjs-dist **4.10.38**+**@napi-rs/canvas 0.1.100**(pdf.js optionalDependencies가
+  스스로 해소 — 생태계 표준 Node 렌더 경로) 16 pkg 전부 permissive, native는 prebuilt skia 1개(hash 기록);
+  traineddata(raw.githubusercontent.com 제3 출처) eng/kor **full hash가 Gate D 기록과 완전 일치**(시점 간 재현).
+  ② 파이프라인 — 합성 3p PDF→300/150dpi 래스터→eng/kor OCR이 **nethook block 하 egressAttempts=0·worker 전파 6**으로
+  완주(kor conf 92 완전 인식·결정성 2회 동일·300dpi 래스터 ~0.44s/p·OCR ~1.4s/p), control 차단 실증.
+  **함정 실측**: pdf.js Node 렌더는 standardFontDataUrl 미지정 시 **무오류 백지**(silent-blank) — 로컬 지정+
+  ink-coverage 가드가 4L 필수 방어. ③ **router 경유 실 Kordoc PDF 판독**(기존 tool-cache 재사용, 재설치 0) exit 0·
+  paginated 신호 산출·no_egress_verified=true → 기존 DEI 합류 rc 0 (**C2N4J-OBS-01 종결**). ④ artifact — 전부
+  repo 밖 생성·종료 시 전량 삭제(~130MB)·repo 오염 0·`*.png` 전역 ignore 미추가(근거 기록). evidence:
+  `docs/samples/claude_cycle2n_4k_rasterizer_tesseract_runtime_evidence.md`. **2N-4L readiness = 진행 가능(조건부:
+  @napi-rs/canvas native 수용의 Gate B 재검토 선행)** — Claude 판단, 최종은 Codex. rasterizer/provider 채택 선언·
+  OCR support·L2/L3 complete 아님. **다음 = Codex 2N-4K evidence review + Gate B 재검토 결정.**
 - **Cycle 2N-4J — Kordoc-aware Intake Router Skeleton**(코드 — mock 검증만. OCR/rasterizer/tesseract.js/
   다운로드/설치 0. Codex 2N-4I design review **PASS** + 2N-4I~4M addendum review **PASS** 후 착수).
   신규 `src/intake/runners/document_intake_router.cjs`: 문서 계열(family) 판별·라우팅 소유권 — **PDF →
