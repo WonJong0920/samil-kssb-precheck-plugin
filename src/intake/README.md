@@ -40,9 +40,11 @@
 
 - 이 어댑터는 **L1(스캔/이미지/도표 존재 감지 + 검수 라우팅)**의 재료 생산기다.
 - **L2는 partially implemented다 — repo-side ingest boundary는 `implemented+reviewed`(2L-4B 구현 → 2L-5 closure 승격),
-  provider execution·runner 통합·provider 최종 확정은 pending**: 이 폴더는
-  OCR을 **실행하지 않고**(plugin-side OCR 실행 미구현), out-of-band runner(사용자 로컬 — Gate D-proven 경로)가 이미 만든 OCR 산출물의
-  **ingest(정규화·병합)만** 담당한다. provider 실행·설치는 여전히 repo/core 밖이다.
+  provider 최종 확정·Skill 자동 통합은 pending**: 이 모듈(ingest)은 OCR을 **실행하지 않고**, 산출물의
+  **ingest(정규화·병합)만** 담당한다. OCR 실행은 같은 폴더의 **승인 기반 로컬 assisted runner**
+  (`runners/pdf_ocr_runner.cjs` — 2N-4L 최소 page-set 경로, 자동 실행 없음·tool-cache 별도 항목·no-egress 훅)
+  또는 out-of-band 도구가 담당하며, 도구 설치·실행은 여전히 repo/core 밖(tool-cache)이다.
+  **core plugin은 OCR을 자동 실행하지 않는다**("OCR 지원 완료" 아님).
 - **L3(도표/차트 구조 분류)는 범위 밖**이다.
 
 ## Skill 연결

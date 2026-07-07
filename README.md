@@ -64,11 +64,14 @@ KSSB 공시요구와 일일이 대조해 "근거가 확인되는 항목 / 부족
 남는지, 산출물 기대치(DOCX 우선·컨설턴트 검수 초안), 2N-5 블랙박스 시나리오 체크리스트(12건).
 
 요약 3줄:
-- **텍스트로 읽히는 자료는 기본 경로**로 바로 보고서 초안을 만든다(승인 불필요).
-- **HWP/HWPX/DOCX 구조 판독은 승인 기반 선택 경로**다 — 도구는 저장소 밖에 설치되고, 문서 분석 실행은
-  네트워크 차단(no-egress) 아래에서 수행되며, 거부해도 기본 검토는 계속된다.
-- **플러그인 내 OCR 실행은 미구현**이고 이미지·차트 의미 해석(L3)은 지원하지 않는다 — 스캔 전용 문서는
-  확인 불가/질문으로 정직하게 처리된다.
+- **텍스트로 읽히는 자료는 기본 경로**로 바로 보고서 초안을 만든다(승인 불필요). PDF는 승인 시
+  **구조 보강 판독(선택·권장)**으로 표·섹션·페이지 위치 신호를 더해 근거 표시 품질을 높일 수 있다.
+- **HWP/HWPX/DOCX 구조 판독과 스캔/혼합 PDF의 문자 인식(OCR)은 승인 기반 선택 경로**다 — 도구는 저장소
+  밖에 설치되고, 문서 분석 실행은 네트워크 차단(no-egress) 훅 아래에서 수행되며(실행 기록 기반의
+  프로세스 수준 검증), 거부해도 기본 검토는 계속된다.
+- **core 플러그인은 OCR을 자동 실행하지 않는다** — OCR은 승인 기반 로컬 보조 실행의 **최소 경로**
+  (문서의 '판독 필요' 페이지만·페이지 상한/제한시간 내)이며, 결과는 검수용 보조 재료로만 쓰인다.
+  이미지·차트 의미 해석(L3)은 지원하지 않는다.
 
 ## 산출물 정책
 
@@ -96,7 +99,8 @@ Samil KSSB Precheck Plugin/
 │   ├── validators/                         # 내부: findings detect-only preflight 검증기(표준 라이브러리)
 │   ├── renderers/                          # 내부: findings → DOCX/HTML 형식 변환기(표준 라이브러리)
 │   ├── intake/                             # 선택적(opt-in) 인테이크·ingest 경계 — core·Skill entrypoint 아님
-│   │                                       #   (DEI 정규화 + 승인 기반 HWP/HWPX/DOCX 보조 판독 runner. OCR 실행 미구현)
+│   │                                       #   (DEI 정규화 + 승인 기반 보조 runner: HWP/HWPX/DOCX·PDF 구조 판독,
+│   │                                       #    스캔/혼합 PDF 최소 page-set OCR — core는 OCR을 자동 실행하지 않음)
 │   └── reference/python_engine/README.md   # 기존 Python 엔진 참고(코드 미포함)
 ├── tests/                                   # 재사용 검증기·렌더러 점검(표준 라이브러리)
 ├── docs/                                    # 설계·검증·현황·의사결정·완료보고·workflow_usage
@@ -119,10 +123,13 @@ Skill-first 구조를 유지하며, findings 데이터 계약과 내부 워크�
 - **렌더러(내부, 형식 변환기)**: `src/renderers/kssb_report_renderer.py` — findings를 재판정 없이 DOCX/HTML로 결정적 변환(표준 라이브러리).
 - **재사용 점검**: `tests/`(표준 라이브러리 + Node 내장 러너). 새 외부 의존성 없음(repo에 package.json/node_modules 없음).
 - **선택적 인테이크/보조 판독 경로**(`src/intake/`): 이미 추출된 문서 산출물을 근거 재료로 정규화하는 ingest 경계
-  (L2 부분 구현 — repo-side ingest boundary는 구현+리뷰 완료, 문서 수준 변형 계약 포함) + **승인 기반** HWP/HWPX/DOCX
-  보조 판독 runner(Python/Node, no-egress 훅) + **portable Node fallback(채택됨 — Node 부재 Windows 환경용, D90)**.
-  판독 도구 최종 확정·Skill 자동 통합은 pending.
-- **미포함(현재)**: 플러그인 내 OCR 실행(미구현), 이미지·차트 의미 해석(L3), Hook/MCP, submission.zip.
+  (L2 부분 구현 — repo-side ingest boundary는 구현+리뷰 완료, 문서 수준 변형 계약 포함) + **승인 기반** 보조 runner —
+  HWP/HWPX/DOCX 구조 판독(Python/Node, no-egress 훅), **PDF 구조 보강 판독 router(텍스트 PDF 포함 — Kordoc-first
+  선택 경로, 2N-4J)**, **스캔/혼합 PDF 최소 page-set OCR runner(2N-4L — '판독 필요' 페이지만·페이지 상한/제한시간·
+  결과는 검수용 보조 재료 전용)**, portable Node fallback(채택 — D90). 판독 도구 최종 확정·Skill 자동 통합·
+  OCR 실행 한도의 실 스캔 실측 보정은 pending.
+- **미포함(현재)**: **무승인 자동 OCR**(core는 OCR을 자동 실행하지 않음 — 승인 기반 최소 경로만 존재),
+  이미지·차트 의미 해석(L3), Hook/MCP, submission.zip.
 - 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md) · 사용자 요약: [docs/user_quickstart_pre_2n_5.md](docs/user_quickstart_pre_2n_5.md) · 상세: [docs/current_status.md](docs/current_status.md)
 
 ## 검증 / 확인 대기

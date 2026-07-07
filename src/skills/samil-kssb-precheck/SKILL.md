@@ -30,15 +30,17 @@ KSSB 공시요구사항별 **확인 근거 / 부족한 정보 / 추가 확인 �
 - **실제 컨설팅 모드**: 고객사가 제공한 보고서/증빙(지속가능경영보고서, 사업보고서, 내부 정책·규정, 데이터표 등).
 - **해커톤 공개자료 검증 모드**: 고객 제공자료를 공개자료(공시된 지속가능경영보고서 등)로 대체.
   - 이 경우 산출물의 근거 표기와 판정 라벨은 "공개자료" 기준으로 전환한다(아래 Judgment schema 참조).
-- 입력은 텍스트로 읽을 수 있는 문서를 전제로 한다. 현재 범위에서는 **OCR 실행 코드를 포함하지 않는다.**
+- 입력은 텍스트로 읽을 수 있는 문서를 전제로 한다. **core 워크플로우(이 Skill·validator·renderer·delivery)는
+  OCR을 자동 실행하지 않으며 OCR 실행 코드를 포함하지 않는다.**
 - (선택) 스캔·이미지가 섞인 문서의 경우, core 밖 선택적 인테이크 어댑터(`src/intake/`)가 이미 로컬에서 추출된 인테이크 산출물을
   **판독 필요·위치·품질 신호(DEI-candidate)**로 정규화해 제공할 수 있다. Skill은 이 신호를 근거 재료로만 읽어 판독 불가/저신뢰 구간을
   **기존 "확인 불가 → 질문" 경로**로 라우팅한다(스키마 변경 없음, `evidence_mapping_rules.md` §6).
 - (선택, **L2 = partially implemented — repo-side ingest boundary는 implemented+reviewed(2L-5 closure), provider 실행·runner 통합·provider 최종 확정은 pending**)
-  DEI-candidate에 `ocr_supplement`(사용자 로컬 out-of-band OCR 산출물의
+  DEI-candidate에 `ocr_supplement`(승인 기반 로컬 assisted OCR runner 또는 out-of-band 도구가 만든 산출물의
   저신뢰 텍스트 — 출처·provenance 포함)나 `aux_structure`(HWPX/DOCX 구조 교차확인 신호)가 있으면, Skill은 이를 근거 재료/검수 신호로만
-  사용한다 — **OCR 유래 인용은 출처 표기 + 보수적 매핑 필수**(§6). **plugin-side OCR 실행은 미구현이며**(실행은 사용자 로컬 out-of-band),
-  도표/차트 구조 분류(L3)는 planned/미구현이다.
+  사용한다 — **OCR 유래 인용은 출처 표기 + 보수적 매핑 필수**(§6). **core는 OCR을 자동 실행하지 않는다** —
+  스캔/혼합 PDF의 문자 인식은 core 밖 **승인 기반 로컬 assisted runner의 최소 page-set 경로**(2N-4L — 문서의
+  판독 필요 페이지만, 자동 실행 없음)로만 제공되며 "OCR 지원 완료"가 아니다. 도표/차트 구조 분류(L3)는 planned/미구현이다.
 
 > 산출 흐름(워크플로우): 이 스킬은 최종 보고서를 직접 쓰지 않고, 먼저 **구조화 findings**(데이터 계약)를 만든 뒤
 > ① 검증기가 findings를 **재판정 없이** preflight 점검(detect-only)하고 ② 렌더러가 findings를 **재판정 없이**

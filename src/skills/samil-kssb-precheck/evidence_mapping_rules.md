@@ -60,15 +60,18 @@
 - **금지(재확인)**: 판독 불가 구간에서 **차트 수치 읽기·이미지 의미 해석·KSSB 충족 추정 금지.**
   DEI의 `extraction_quality`/`needs_ocr`/priority는 **검수 트리아지 신호**이지 판정이 아니다. 최종 판단은 컨설턴트 검수.
 - **(L2 ingest, 2L-4B) OCR 유래 텍스트(`ocr_supplement`) 취급**: DEI에 `ocr_supplement` 섹션이 있으면 그 텍스트는
-  **out-of-band OCR 산출물**(extraction_quality=low 고정, provenance 포함)이다. 이를 인용으로 쓸 경우
+  **승인 기반 로컬 assisted OCR runner(2N-4L 최소 page-set 경로) 또는 out-of-band 도구의 산출물**
+  (extraction_quality=low 고정, provenance 포함)이다. 이를 인용으로 쓸 경우
   ① 인용 출처에 **OCR 유래임을 표기**하고(예: `"…" (OCR 추출)`), ② **OCR 인용 단독으로 confirmed로 승격하지 않는다**
   — 보수적으로 partial/not_verifiable 쪽으로 매핑하고 원문 확인을 `customer_questions`로 요청한다(컨설턴트 검수 필수).
 - **(L2 ingest, 2L-4B) 보조 구조 gap 신호(`aux_structure`·hint)**: `image_detection_gap`·`table_count_mismatch`·
   `review_required_reason` 등은 **검수 신호일 뿐**이다 — 판정·anchor로 변환하지 않고, 필요 시 `missing_info`/
   `customer_questions`(누락 가능 구간의 자료 요청)로만 라우팅한다.
-- **범위 경계**: OCR **실행**·도표/차트 구조 분류는 **plugin 기능이 아니다**(plugin-side OCR 실행 미구현 — 실행은 사용자 로컬 out-of-band.
-  L2는 partially implemented — **repo-side ingest boundary는 implemented+reviewed(2L-5 closure)**, provider 실행·runner 통합·최종 확정은 pending.
-  L3는 planned/미구현). L1은 "판독 필요 구간을 감지·위치·질문으로 라우팅"까지다.
+- **범위 경계**: **core는 OCR을 자동 실행하지 않는다** — 문자 인식은 core 밖 **승인 기반 로컬 assisted runner의
+  최소 page-set 경로**(2N-4L: 문서의 판독 필요 페이지만·자동 실행 없음·산출물은 이 §6 규칙으로만 합류)로 제공되며
+  "OCR 지원 완료"가 아니다. 도표/차트 구조 분류(L3)는 planned/미구현.
+  L2는 partially implemented — **repo-side ingest boundary는 implemented+reviewed(2L-5 closure)**, provider 최종 확정·Skill 자동 통합은 pending.
+  L1은 "판독 필요 구간을 감지·위치·질문으로 라우팅"까지다.
 
 ## 7. 사용자-facing 문구·인용 품질 규칙 (2M-5 — 산출물 품질 검수 반영)
 

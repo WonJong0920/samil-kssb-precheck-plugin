@@ -6,6 +6,21 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4M — Integration Documentation Alignment + No-overclaim Review**(문서 정렬만 — 코드 무변경.
+  Codex 2N-4L review **PASS**의 "required fixes before 2N-5" 이행). 정렬 원칙 8문장(core는 OCR 자동 실행
+  안 함 / Kordoc-first·OCR은 승인 기반 assisted 경로 / OCR=ocr_supplement 전용 보조 재료·confirmed 단독
+  승격 없음 / no-egress=프로세스 수준 provenance / native는 tool-cache 격리 / 실패·거부=baseline / 최종
+  판단=사람)으로 사용자-facing 7개 표면 통일: **quickstart**(matrix 3행 재작성 — 텍스트 PDF에 구조 보강
+  선택·혼합/스캔 PDF에 최소 OCR 경로, 상태 구분·승인 흐름 OCR 별도 승인 문단·**시나리오 12→15**),
+  **README**(요약 3줄·트리 주석·구현 상태), **SKILL Inputs·§6**(문구만 — 행동·인용 규칙 무변경),
+  **intake README·workflow_usage**. stale 제거: "플러그인 내 OCR 실행 미구현"류 5개소 → "core는 OCR을
+  자동 실행하지 않음 + 승인 기반 로컬 assisted runner의 최소 page-set 경로". no-overclaim checklist +
+  2N-5 재진입 기대조건 15 시나리오 문서화(실행 안 함). 전 테스트 재실행 green(Node 29/21/39/11 ·
+  Python 11/49/83/29 — 문구 변경의 무해성 증명). decision_log 무변경(신규 결정 없음 — D91/plan §8 집행).
+  보고: `docs/cycle2n_4m_integration_documentation_alignment_report.md`. **OCR support complete·L2/L3
+  complete·provider finalization·2N-5 통과 아님 — Codex 2N-4M review 전까지 최종 승인 아님.**
+  **다음 = Codex 2N-4M integration/documentation review → 2N-5 재진입 판단**(2N-5 프롬프트에 실행 환경·
+  Python 호출 규약 명시 필요 — 2N-4H 이월).
 - **Cycle 2N-4L — Minimum Page-set OCR Implementation**(코드 — 사용자 승인 하 구현. Codex 2N-4K evidence/
   Gate B review **PASS**(Gate B = **ACCEPT WITH CONDITIONS**) 후 착수). 신규 `pdf_ocr_runner.cjs`+
   `pdf_ocr_exec.mjs`: intake needsOcr 신호에서 **page-set 산정**(mixed=needsOcr∪ocrCandidatePages·
