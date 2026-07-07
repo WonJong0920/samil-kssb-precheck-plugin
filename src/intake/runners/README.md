@@ -1,4 +1,4 @@
-# src/intake/runners — HWP-first Assisted Runner (Cycle 2N-2, source-only / Node port 2N-4D)
+# src/intake/runners — Assisted Runners (HWP-first 2N-2 / Node port 2N-4D / intake router 2N-4J)
 
 > **경계**: 이 폴더는 **plugin core가 아니며 Skill entrypoint도 아니다.** core(schema/validator/renderer/delivery)는
 > 이 폴더를 참조하지 않는다(테스트로 강제). Skill이 사용자 승인 절차를 **중개**할 때만 안내되는 opt-in 보조 도구다.
@@ -25,6 +25,18 @@
   정직한 provenance(no_egress_verified=false)를 run_log에 남긴 뒤 한국어 문구 + **exit 7**로 종료(stack trace·로컬 경로
   미노출, CLI subprocess 테스트로 강제). check 모드의 설치 명령 표시도 실제 실행과 동일한 **resolved npm 경로**(Windows:
   npm.cmd)를 쓴다(bare npm 표시 금지). Python runner의 동일 보정은 이번 patch 범위 밖(변경 금지) — 후속 결정 항목.
+- `document_intake_router.cjs` **(2N-4J 신규 — Kordoc-aware intake router skeleton)**: 문서 계열(family) 판별과
+  **라우팅 소유권**을 갖는 진입 모듈(C2N4I-OBS-02/C2N4I4M-OBS-01 — HWP-계열과 PDF 의미를 한 runner에서 뭉개지 않음).
+  **PDF → Kordoc-first enhanced intake 경로**(권장·**승인 기반 선택** — 텍스트 PDF도 대상, 목적은 표·섹션·페이지 위치·
+  도표 주변 맥락 보강. D91: "Kordoc-first when available and approved / baseline fallback when unavailable, declined,
+  or failed") / **HWP/HWPX/DOCX → 기존 `hwp_assisted_runner.cjs`로 무변경 위임**(원 argv 그대로 — 기존 계약·문구·
+  exit code 불변) / 그 외 → 정중한 범위 밖 안내. 게이트·pin·prep egress·no-egress·provenance는 기존 runner의
+  exported primitives **재사용**(재구현·자체 pin 없음 — 테스트로 강제), CLI 플래그·exit code 동일.
+  unavailable(런타임 부재)/declined(승인 거부)/failed(준비·실행 실패)는 전부 **기본 텍스트 검토(baseline) 수렴**으로
+  정직하게 안내(실패 은폐 없음). **OCR은 실행하지 않는다** — 스캔/이미지 페이지는 intake의 판독 필요 신호로만 드러나며,
+  page-set OCR·rasterizer·tesseract.js는 2N-4K spike/2N-4L 별도 사이클(gated). PDF intake 산출물은 기존 ingest
+  boundary(`dei_producer.py`)의 paginated 계약으로 합류(ingest 무변경). Kordoc-first **구현 완료 선언 아님**(skeleton).
+  테스트: `node --test tests/test_document_intake_router.test.cjs`.
 - `prepare_portable_node.ps1` **(2N-4F 신규 → 2N-4G real-download evidence → B안 채택됨(D90))**:
   **채택 범위**: Windows에 시스템 Node/npm이 없는 환경의 **승인 기반 fallback runtime strategy**다 —
   core plugin의 필수 dependency가 **아니며**, 2N-5 통과·모든 HWP 처리 완성·OCR support complete를 뜻하지 않는다.

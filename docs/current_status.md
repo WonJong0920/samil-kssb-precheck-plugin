@@ -6,6 +6,19 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4J — Kordoc-aware Intake Router Skeleton**(코드 — mock 검증만. OCR/rasterizer/tesseract.js/
+  다운로드/설치 0. Codex 2N-4I design review **PASS** + 2N-4I~4M addendum review **PASS** 후 착수).
+  신규 `src/intake/runners/document_intake_router.cjs`: 문서 계열(family) 판별·라우팅 소유권 — **PDF →
+  Kordoc-first enhanced intake 경로**(권장·승인 기반 선택, 텍스트 PDF도 대상 — 표·섹션·페이지 위치·도표 주변 맥락
+  보강 목적, D91 정책 문장 그대로) / **HWP/HWPX/DOCX → 기존 hwp_assisted_runner.cjs 무변경 위임**(원 argv —
+  기존 계약·문구·exit 불변, C2N4I4M-OBS-01 대응) / 그 외 → 정중한 범위 밖. unavailable(exit 4·B안 절차 안내)/
+  declined(exit 5·6, side-effect 0)/failed(exit 7·정직 provenance) 전부 **baseline 수렴 문구**. 게이트·pin·
+  prep egress·nethook·provenance는 기존 runner primitives 재사용(자체 pin·상수 금지 — 테스트 강제), CLI 계약 동일.
+  테스트: 신규 router **21/21**(무승인 exec 0·승인 분리·CLI subprocess stack 미노출·require 경계 포함) + 회귀
+  Node runner **39/39**·bootstrap **11/11**·Python 스팟(runner 49/49·intake 83/83) — 전부 mock, 실행·설치·네트워크 0.
+  보고: `docs/cycle2n_4j_kordoc_aware_intake_router_skeleton_report.md`. **OCR/rasterizer/tesseract.js는 여전히
+  미구현**(2N-4K spike·2N-4L 별도 — gated). Kordoc-first 구현 완료·OCR support·L2/L3 complete·2N-5 unblock 아님.
+  **다음 = Codex 2N-4J implementation review**(2N-4K 준비·착수 아님 — 리뷰와 사용자 승인 이후).
 - **Cycle 2N-4I — Kordoc-first Enhanced Intake + Full-scan OCR Fallback Plan**(설계/계획 문서만 — 구현·설치·실행·
   다운로드 0. 전략 채택 = **D91**). 2N-4H readiness(Codex review **PASS** + Claude readiness READY)로 2N-5 진입 가능
   상태였으나, **제품 전략 재정으로 2N-5는 잠시 보류**(2N-4H readiness PASS 자체는 유지): Kordoc-first enhanced intake
