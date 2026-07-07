@@ -1279,6 +1279,28 @@
   `docs/samples/provider_document_analysis_comparison_2026-07-04.md`, `docs/samples/gate_d_ocr_evidence_2026-07-04.md`,
   `src/intake/dei_producer.py`, `docs/reviews/codex_cycle2n_4h_architecture_submission_readiness_review.md`.
 
+## D92. 런타임 완결 전략 = C안 단독(core Node 이식) — portable Python 다리(B안) 배제
+- **Date**: 2026-07-07
+- **Context**: 2N-5 black-box 실행 evidence(**INCONCLUSIVE** — PASS 8/BLOCKED 6/FAIL 0, Major 3:
+  tool-cache 쓰기 실패 누출·결정적 sample→findings→report harness 부재·Windows Python UTF-8) +
+  Claude 기능 검토(파이썬 없는 사용자 환경에서 validator/renderer/delivery/ingest 실행 불가 —
+  출력 절반 부재) + GPT Python-free 품질 보완 판단을 통합 검토한 뒤 **사용자가 결정**.
+- **Decision**: ① **C안 단독** — core(validator/renderer/delivery/dei_producer)의 **Node 이식**이
+  유일한 런타임 완결 경로다(N1 validator → N2 delivery+HTML/MD → N3 dei → N4 DOCX zip writer →
+  N5 aux는 이식 vs 한계 확정 별도 결정). ② portable Python bootstrap(B안/S2)·OS Python 설치는
+  만들지 않는다 — 최종 사용자 환경에 Python을 요구하지 않는다. ③ Python core는 이식 완료까지
+  **개발기/golden parity 기준(reference)**으로만 유지하고 기능 확장하지 않는다. ④ 과도기 실행·검증은
+  개발 머신 실존 Python(절대 경로) + **UTF-8 env 규약** 하에서 수행한다. ⑤ 보완 순서는
+  `docs/planning/post_2n5_final_remediation_plan_node_only.md`의 Phase 0(2N-5 결함 patch·프로토콜) →
+  Phase 1(Python-free 품질 docs) → 2N-5R 재실행 → Phase 2(N1~N5) → Phase 3(강화)를 따른다.
+- **의미하지 않는 것**: 이식 완료 선언 아님·2N-5 통과 아님·OCR support complete/L2/L3/provider
+  finalization 아님. 이식 각 단계는 golden parity + Codex review를 통과해야 하며, 2N-4S Q등급
+  (품질 저하 단순화 금지)은 이식 과정에도 적용된다.
+- **Status**: 계획 문서 + decision/status 기록만(코드 무변경).
+- **Related Files**: `docs/planning/post_2n5_final_remediation_plan_node_only.md`,
+  `docs/samples/codex_cycle2n_5_black_box_execution_evidence.md`,
+  `docs/planning/cycle2n_4c_runtime_strategy_python_reduction_plan.md`(S1/S2 원 논의), `docs/decision_log.md` D90.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

@@ -6,6 +6,17 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6(계획) — Post-2N-5 최종 보완 계획 수립, C안 단독**(계획 문서만 — 코드 무변경. **D92**).
+  입력 3종 통합: Claude 기능 검토(파이썬 없는 사용자 환경에서 core 출력 절반 부재) + GPT Python-free
+  품질 판단(카탈로그·생성 절차·quote 검증 채택, hard stop은 Node delivery 이식에 내장, quote checker는
+  Node validator에 흡수) + **Codex 2N-5 black-box evidence(INCONCLUSIVE — PASS 8/BLOCKED 6/FAIL 0,
+  Major 3: tool-cache 쓰기 실패 누출·harness 부재·Python UTF-8)**. **사용자 결정 = C안 단독**: portable
+  Python 배제, core Node 이식(N1 validator→N2 delivery+HTML/MD→N3 dei→N4 DOCX→N5 aux 결정)이 유일한
+  런타임 완결 경로, Python core는 과도기 parity reference. 순서: **Phase 0**(R1 tool-cache 실패 통제
+  patch + black-box 프로토콜·UTF-8 규약 문서) → **Phase 1**(Q1~Q5 Python-free 품질 docs) → **2N-5R
+  재실행** → **Phase 2**(N1~N5 이식, golden parity+Codex review) → Phase 3(검수 표 강화 등).
+  사용자 결정 요청 3건(OCR/HWP 실 실행 필수 여부·N5 aux 처리·Python 원본 최종 처리). 계획:
+  `docs/planning/post_2n5_final_remediation_plan_node_only.md`. **다음 = 계획 Codex 리뷰 → Phase 0 착수.**
 - **Cycle 2N-4S / 2N-4S-A — Quality-preserving Simplification Audit + A-only Documentation Hygiene**
   (읽기 전용 audit + 문서 hygiene만 — 코드/테스트/안전 경계/§6/Skill 무변경). 2N-4S audit verdict =
   **DO_A_ONLY_BEFORE_2N_5**(`docs/reviews/claude_cycle2n_4s_whole_project_quality_preserving_simplification_audit.md`
