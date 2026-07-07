@@ -1240,6 +1240,45 @@
   `docs/reviews/claude_cycle2n_4g_portable_node_evidence_review.md`, `docs/planning/cycle2n_4e_portable_node_b_plan.md`,
   `src/intake/runners/prepare_portable_node.ps1`, `docs/user_quickstart_pre_2n_5.md`.
 
+## D91. Kordoc-first enhanced intake + page-set OCR fallback strategy — 전략 채택(구현 아님), 2N-5는 2N-4J~4M 이후 재진입
+- **Date**: 2026-07-07
+- **Context**: Codex 2N-4H architecture/submission readiness review **PASS** + Claude readiness **READY**로 2N-5
+  진입 가능 상태였으나, 사용자/ChatGPT가 제품 전략을 재정: 텍스트 PDF도 평문 텍스트만 읽으면 표·섹션·page anchor·
+  도표 주변 맥락을 놓친다(2L-3C 실측 — 텍스트 PDF에서 Kordoc heading 3계층·표 25(셀 628)·outline). 스캔 PDF OCR은
+  이중 구현을 피하기 위해 처음부터 full-scan까지 감당하는 구조로 설계한다(Gate D — 스캔 9p 전량 tesseract.js OCR
+  no-egress 실증). 2N-4I는 설계/계획 문서화만 수행(구현·설치·실행·다운로드 0).
+- **Decision(전략 채택 — strategy adoption, 구현 완료 아님)**:
+  ① **Kordoc-first enhanced intake strategy 채택** — **텍스트 PDF도 구조 보강 대상**. 정책:
+  **"Kordoc-first when available and approved. Baseline fallback when unavailable, declined, or failed."**
+  Kordoc은 enhanced intake provider이지 KSSB 판단 엔진이 아니며, output은 DEI/evidence candidate boundary를
+  거친다. baseline 제거 아님·무단 실행 아님(무승인 설치/실행 금지·승인 경계 불변).
+  ② **page-set OCR architecture 채택**(full scanned PDF까지 설계 범위 포함) — 단일 엔진 + `selected_pages`
+  (mixed=needsOcr/text-empty pages, scan-only=all pages, large scan=all pages+bounded). 초기 구현은
+  approval/page cap/batch/timeout/resume(내부 scratch만)/원자적 ocr_text.json 1회 방출로 제한.
+  ③ **user-selected range는 needsOcr 부분집합으로 제한** — 기존 ingest의 페이지 정합 fail-fast 계약과 충돌하지
+  않기 위함(계약 개방은 open question·별도 사이클, 2N-4I에서 schema/contract 변경 없음).
+  ④ **기존 OCR ingest 계약 재사용**(재설계 금지) — ocr_text provenance/hash 무결성(canonical_ocr_output_sha256)·
+  ocr_supplement(blocks 미혼입·quality=low)·§6 OCR 인용 규칙·document-level 변형의 ocr_text 거부 전부 유지.
+  ⑤ **tesseract.js = OCR fallback provider**(Gate D-proven·후보 지위 — finalization 아님).
+  ⑥ **output_sha256 = Node 구현 + Python `canonical_ocr_output_sha256()` golden parity 요구**(D75의 Python 주입
+  권고를 Node pivot 이후 상황으로 갱신 — canonical 규칙 단일 소스는 Python 정의 유지).
+  ⑦ **confidence = additive metadata 기록만**(2N-4L) — threshold 판단·자동 confirmed 승격은 2N-5 이후 별도 결정.
+  ⑧ **rasterizer/native dependency는 2N-4K spike + Gate B 재검토 대상**(Gate D의 PyMuPDF 300DPI는 AGPL·검사
+  전용 — 제품 경로 재사용 금지). traineddata는 raw.githubusercontent.com 제3 출처 포함 — source 고정·hash pin·
+  승인 고지·prep egress 기록 필수. D77 U8 scope-out은 이 결정으로 경로가 열리되 **게이트 조건은 승계**.
+  ⑨ **cycle 재분해**: 2N-4J(router skeleton) → 2N-4K(rasterizer+tesseract.js runtime spike — 승인 기반 evidence)
+  → 2N-4L(page-set OCR 최소 구현) → 2N-4M(통합 리뷰·문서 일괄 갱신) → 2N-5 재진입 판단. 그때까지 **2N-5 보류**
+  (2N-4H readiness PASS 자체는 유지).
+- **채택이 의미하지 않는 것(명시)**: **구현 완료 아님 ≠ OCR support complete 아님 ≠ L2 complete 아님 ≠
+  L3 image/chart semantic interpretation 아님 ≠ provider finalization 아님 ≠ 2N-5 통과 아님 ≠ product complete 아님.**
+  금지 표현(차트 의미해석 완료·도표 수치 자동 판독·이미지 의미해석·L3 complete)은 어느 단계에서도 쓰지 않는다.
+  4K spike 실패 시 4L은 착수하지 않고 OCR 경로를 gated로 되돌린다(전략 채택 ≠ 구현 강행).
+- **Status**: 설계 문서 + status/decision 기록만. 코드/테스트/schema/validator/renderer/delivery/Skill/manifest/
+  quickstart 무변경, 설치·다운로드·OCR/rasterizer 실행·2N-5 실행 없음.
+- **Related Files**: `docs/kordoc_first_enhanced_intake_fullscan_ocr_plan.md`,
+  `docs/samples/provider_document_analysis_comparison_2026-07-04.md`, `docs/samples/gate_d_ocr_evidence_2026-07-04.md`,
+  `src/intake/dei_producer.py`, `docs/reviews/codex_cycle2n_4h_architecture_submission_readiness_review.md`.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

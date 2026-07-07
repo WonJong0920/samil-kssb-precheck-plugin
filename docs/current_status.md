@@ -6,7 +6,25 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
-- **Cycle 2N-4H-UX — Portable Node B안 채택 + Pre-2N-5 Quickstart Patch**(문서 중심 patch — Codex narrow review 대기).
+- **Cycle 2N-4I — Kordoc-first Enhanced Intake + Full-scan OCR Fallback Plan**(설계/계획 문서만 — 구현·설치·실행·
+  다운로드 0. 전략 채택 = **D91**). 2N-4H readiness(Codex review **PASS** + Claude readiness READY)로 2N-5 진입 가능
+  상태였으나, **제품 전략 재정으로 2N-5는 잠시 보류**(2N-4H readiness PASS 자체는 유지): Kordoc-first enhanced intake
+  (**텍스트 PDF도** 표·섹션·page anchor·caption·도표 주변 맥락 보강 대상 — 정책 "Kordoc-first when available and
+  approved / baseline fallback when unavailable, declined, or failed", 무단 실행 아님·baseline 제거 아님·Kordoc은
+  판단 엔진 아님) + **page-set OCR architecture**(full scanned PDF까지 설계 범위 — 단일 엔진 `selected_pages`:
+  mixed=needsOcr/text-empty·scan-only=all·user range=**needsOcr 부분집합 제한**(기존 ingest 페이지 정합 fail-fast와
+  무충돌); 초기 구현은 approval/page cap/batch/timeout/resume(내부 scratch만)/**원자적 ocr_text.json 1회 방출**로
+  bounded)를 먼저 설계·구현한 뒤 재진입한다. 기존 OCR ingest 계약 **재사용**(재설계 금지 — ocr_text hash 무결성·
+  ocr_supplement·§6 규칙 유지), tesseract.js=OCR fallback provider(후보 지위), output_sha256=Node 구현+Python
+  golden parity, confidence=additive 기록만(threshold는 2N-5 이후), rasterizer/native=**2N-4K spike+Gate B 재검토**
+  (Gate D의 PyMuPDF는 AGPL·검사 전용 — 제품 재사용 금지). 설계 문서: `docs/kordoc_first_enhanced_intake_fullscan_ocr_plan.md`.
+  quickstart는 구현 전이므로 의도적 미수정(2N-4M에서 일괄 갱신). **다음 = Codex 2N-4I 설계 리뷰 → 2N-4J(router
+  skeleton) → 2N-4K(rasterizer+tesseract.js spike — 승인 기반 evidence) → 2N-4L(page-set OCR 최소 구현) →
+  2N-4M(통합 리뷰·문서 일괄 갱신) → 2N-5 재진입 판단.** 구현 완료·OCR support complete·L2/L3 complete·provider
+  finalization·2N-5 통과 선언 아님.
+- **Cycle 2N-4H-UX — Portable Node B안 채택 + Pre-2N-5 Quickstart Patch**(문서 중심 patch — *historical: 이후
+  Codex P2N5-UX-MAJ-01 closure review **closed** + Codex 2N-4H architecture/submission readiness review **PASS**
+  (2N-5 진입 가능 판정)로 종결. 2N-5 재진입 시점은 2N-4I 전략 재정에 따라 2N-4J~4M 이후 판단*).
   ① **B안 공식 채택 결정 기록(D90)**: 근거 = 2N-4G official real-download evidence(D89) + Claude 2N-4G evidence review
   **PASS**(hash 5중 일치·로컬 실물 corroboration). 채택 범위 = "시스템 Node/npm 없는 Windows 환경의 승인 기반 fallback
   runtime strategy"(공식 source `nodejs.org/dist/v24.16.0` 고정·repo-pinned+SHASUMS 이중 검증·repo 밖 tool-cache·
