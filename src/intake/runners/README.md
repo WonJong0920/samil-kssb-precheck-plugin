@@ -57,6 +57,22 @@
   **(C2N4F-MAJ-02 — ps1)** 원격 SourceRoot는 **공식 `nodejs.org/dist/v<pin>/`만 허용**(미러/임의 URL은 네트워크 호출 전
   fail-fast 거부)하고, **원격 경로에서는 `-PinnedZipSha256` override를 거부**한다(repo-pinned 상수만 유효 — provenance
   약화 방지). 로컬 디렉터리 SourceRoot는 테스트 fixture 전용으로 유지(출처가 prep 로그에 남음).
+- `pdf_ocr_runner.cjs` + `pdf_ocr_exec.mjs` **(2N-4L 신규 — 최소 page-set OCR, Gate B ACCEPT WITH
+  CONDITIONS 이행)**: 기존 intake.json의 needsOcr 신호(pageQuality ∪ ocrCandidatePages)에서 **OCR 대상
+  page-set을 산정**하고, **별도 승인**(U7 — 두 출처 분리 고지: npm registry + raw.githubusercontent.com
+  traineddata) 후 tool-cache **별도 항목**(`ocr-runtime@tesseract.js-7.0.0` — Kordoc과 분리: 이 경로는
+  rasterizer용 @napi-rs/canvas가 필수라 --omit=optional 미사용)에 pin 설치(tesseract.js 7.0.0·pdfjs-dist
+  4.10.38·@napi-rs/canvas 0.1.100)한다. **버전 5종 exact + skia native + traineddata 2종 SHA-256 실검증
+  fail-fast**(불일치=정리 후 baseline 수렴). 실행은 nethook(block) 하 별도 프로세스(`pdf_ocr_exec.mjs`) —
+  로컬 standardFontDataUrl 고정 + **ink-coverage silent-blank guard**, batch 단위 worker 재사용,
+  page cap 50/페이지당 120s/기본 300dpi(150 옵션), **래스터 이미지는 디스크에 쓰지 않음**(Buffer 직행),
+  scratch는 repo 밖 임시 폴더에 생성 후 항상 삭제. 산출물 `<stem>.ocr_text.json`은 모든 대상 페이지 완료 후
+  **원자적 1회 방출**(기존 ingest 계약 그대로 — canonical output hash는 Python 규칙과 golden parity 테스트,
+  confidence/ink_ratio는 **additive metadata만**). user-range(--pages)는 needsOcr **부분집합으로 제한**.
+  OCR 텍스트는 ingest의 `ocr_supplement`(quality=low)로만 합류 — **OCR 단독 confirmed 승격 없음**(§6).
+  npm 실행은 npm.cmd의 JS 엔트리(`npm-cli.js`)를 node로 직접 호출(Windows .cmd spawn EINVAL 회피 — 실측).
+  테스트: `node --test tests/test_pdf_ocr_runner.test.cjs` + `python tests/test_ocr_canonical_hash_parity.py`.
+  **OCR support complete 아님** — 최소 구현이며 Codex 2N-4L review 전까지 최종 승인 아님.
 - `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**(block 모드),
   `worker_threads` 전파, 종료 시 `[NETHOOK-SUMMARY]` 출력. runner는 **요약이 실제 관측되고 egress 시도 0인 실행에만
   `no_egress_verified=true`**를 기록한다(evidence 모드에서는 미관측=실패).
@@ -67,10 +83,12 @@
   - **한계(정직 표기)**: `dgram`(UDP 직접 사용)·`child_process`로 별도 spawn된 프로세스(worker_threads는 전파됨)·
     native addon의 raw syscall은 이 훅의 범위 밖이다 — 프로세스(Node 런타임) 레벨 검증이며 OS/커널 방화벽이 아니다(Gate A/D와 동일 한계).
 
-## 하지 않는 것 (HWP-first 범위 밖 — gated)
+## 하지 않는 것 (범위 밖 — 전 runner 공통)
 
-- **OCR 미수행**: tesseract.js·traineddata·rasterizer는 이 runner의 범위 밖이며, **`.ocr_text.json`을 생성하지 않는다**
-  (OCR assisted path는 rasterizer 결정·Gate B 재검토 등 별도 게이트 해소 후 별도 단계).
+- **HWP/PDF 구조 판독 runner는 OCR을 수행하지 않는다**: tesseract.js·traineddata·rasterizer는
+  `pdf_ocr_runner.cjs`(2N-4L — 별도 승인·별도 tool-cache 항목) 전용이며, 구조 판독 runner들은
+  `.ocr_text.json`을 생성하지 않는다. OCR 경로도 **자동 실행이 없고** 승인 없이는 아무것도 설치·실행하지
+  않으며, needsOcr 신호 밖 페이지를 OCR로 확대하지 않는다(OCR support complete 아님 — 최소 구현).
 - portable Node 설치·OS installer 실행·PATH 영구 수정·관리자 권한 요구 없음(Node 부재 시 설치 안내 + 기본 텍스트 검토로 수렴).
 - repo 루트 package.json·package-lock·repo 내부 node_modules·npm global·npx 미사용.
 - provider 최종 확정 아님. **사용자 보고서에는 provider명이 들어가지 않는다**(승인 대화·내부 로그에만 — evidence_mapping_rules §7).

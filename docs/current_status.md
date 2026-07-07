@@ -6,6 +6,25 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-4L — Minimum Page-set OCR Implementation**(코드 — 사용자 승인 하 구현. Codex 2N-4K evidence/
+  Gate B review **PASS**(Gate B = **ACCEPT WITH CONDITIONS**) 후 착수). 신규 `pdf_ocr_runner.cjs`+
+  `pdf_ocr_exec.mjs`: intake needsOcr 신호에서 **page-set 산정**(mixed=needsOcr∪ocrCandidatePages·
+  scan-only=자연히 all pages·user-range=**부분집합 제한**·빈 집합=정중 종료) → **별도 승인**(U7 — npm+
+  raw.githubusercontent.com **두 출처 분리 고지**) → tool-cache 별도 항목(`ocr-runtime@tesseract.js-7.0.0`,
+  Kordoc과 분리) pin 설치 + **5종 exact version·skia native·traineddata 2종 SHA-256 매 실행 전 검증
+  fail-fast**(불일치=정리 후 baseline) → nethook(block) 하 bounded 실행(cap 50/batch 5/120s/300dpi·
+  로컬 standardFontDataUrl·**ink-coverage blank guard**·래스터 이미지 디스크 미기록) → 모든 페이지 완료 후
+  **`<stem>.ocr_text.json` 원자적 1회 방출**(기존 ingest 계약 그대로 — Node canonical hash는 Python 규칙과
+  **golden parity**, confidence/ink_ratio는 additive metadata만·ocr_supplement 전용 합류·confirmed 승격
+  없음). **Gate B 조건 10개 전부 코드+테스트 반영**(보고서 §4 이행표). 실측 보정 1건: Windows `.cmd` spawn
+  EINVAL → npm-cli.js 직접 실행. **실 E2E 검증**(repo 밖 temp tool-cache·전량 삭제): 실 설치+traineddata
+  hash 검증→U3 분리→nethook 하 3p OCR 7.9s **no_egress_verified=true**→실 artifact가 Python ingest
+  (`ocr_supplement`) 합류 rc 0(실전 hash parity). 테스트: 신규 OCR runner **29/29**+parity **11/11** +
+  회귀(router 21·runner 39·bootstrap 11·Python 49/83/29) 전부 green. 보고:
+  `docs/cycle2n_4l_minimum_page_set_ocr_implementation_report.md`. **OCR support complete·L2/L3 complete·
+  provider finalization·2N-5 통과 아님 — Codex 2N-4L implementation review 전까지 최종 승인 아님.**
+  **다음 = Codex 2N-4L implementation review → 2N-4M(사용자 문서 일괄 갱신·no-overclaim 재점검) → 2N-5
+  재진입 판단.**
 - **Cycle 2N-4K — Rasterizer + tesseract.js Runtime Evidence**(사용자 승인 하 evidence cycle — 제품 코드 병합 0·
   2N-4L 착수 아님. Codex 2N-4J review **PASS** 후 진행). 실측: ① 공급망 — tesseract.js **7.0.0**(+core 7.0.0
   자체 pin, Gate D 조합 재현)+pdfjs-dist **4.10.38**+**@napi-rs/canvas 0.1.100**(pdf.js optionalDependencies가
