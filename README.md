@@ -59,6 +59,31 @@ Python(`.py`)은 **golden parity reference**로 유지한다(제거 아님 — D
 상세 절차: [src/skills/samil-kssb-precheck/SKILL.md](src/skills/samil-kssb-precheck/SKILL.md) ·
 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md)
 
+## 데모 흐름 (예시 `kssb_findings_example.json` 기준)
+
+> 사용자 진입점은 **Skill 하나**다. 아래는 공개 예시 findings([src/schemas/kssb_findings_example.json](src/schemas/kssb_findings_example.json)
+> — 가상 공개 보고서)를 입력으로 했을 때의 end-to-end 흐름이다. 내부 검증기·렌더러는 Skill이 부르는
+> 구성요소이며 **사용자가 CLI를 직접 실행하지 않는다**.
+
+1. **Skill 호출 + 자료 입력** — 사용자가 Skill `samil-kssb-precheck`를 호출하고 검토 대상 자료(예: 공개
+   지속가능경영 보고서)를 제공한다. 스캔/혼합 PDF·HWP/HWPX는 **승인 기반 선택 경로**로 구조 판독·OCR 보강이
+   가능하며, 거부해도 기본 검토는 계속된다.
+2. **findings 생성 (Skill = 판단 엔진)** — KSSB **4대 영역**(거버넌스·전략·위험관리·지표 및 목표) 항목별로
+   source-bound 구조화 findings를 만든다. 예시에서는 **출처 자료 2건 · 항목 5건**, 판정 라벨 **5종이 각 1건**
+   (공개자료상 근거 확인 / 일부 근거 확인, 보완 필요 / 공개자료로 확인 불가 / 상충 또는 해석 필요 / 검토 범위 외)으로 나온다.
+3. **preflight 검증 (detect-only 게이트)** — 검증기가 findings를 **재판정 없이** 점검한다(구조·근거 참조·
+   모드↔라벨 정합·금지 표현·내부 경로). 예시는 **error 0건** → 다음 단계로. error가 있으면 **D94 hard stop**
+   으로 보고서를 만들지 않고 "보완 후 재생성" 안내로 종료한다.
+4. **대표 문서 생성 (형식 변환)** — 동일 findings에서 **DOCX → HTML → Markdown**을 결정적으로 파생한다.
+   대표 문서 1개(`<보고서명>_KSSB_공시근거_사전검토보고서.docx`) + HTML/Markdown fallback.
+5. **사용자-facing 요약** — 대표 문서 파일명·형식·preflight 건수·**고객 확인 질문 4건(요청자료·후속조치 포함)**·
+   사람 검수 고지를 담은 안전 요약을 돌려준다(로컬 절대경로·내부 로그·validator raw 출력 미노출).
+6. **사람 검수** — 산출물은 **초안**이다. 컨설턴트가 근거·판정을 검수·수정·확정하며, 확인 불가·상충 항목은
+   사람 판단으로 마무리한다.
+
+**경계**: 이 흐름의 산출물은 컨설턴트 검수용 **초안**이며 **감사·인증·준수 판단을 대체하지 않는다.**
+확인 불가 항목을 미공시로 단정하지 않는다. (문서 유형별 기대 동작·승인 지점은 아래 Quickstart 참조.)
+
 ## 사용자 Quickstart · 지원 문서 유형 · 2N-5 시나리오
 
 처음 사용하는 사용자/심사자는 **[docs/user_quickstart_pre_2n_5.md](docs/user_quickstart_pre_2n_5.md)** 한 장으로
