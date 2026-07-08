@@ -6,6 +6,17 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-5R — black-box 재실행 (실행 주체: Claude Code, evidence만 — 판정은 Codex)**
+  (Codex Phase 1 review **PASS** 후, `docs/blackbox_protocol.md`+D93 기준 실행). 실 샘플 5종으로
+  **승인 기반 전 구간 실행 완료**: 텍스트 PDF baseline 전 구간(sample→Skill 문서 직접 적용 findings→
+  preflight error 0→**DOCX primary** delivery) + Kordoc-first 구조 보강 + **page-set OCR 승인 설치·실행**
+  (대상 페이지 목록 [3,29,39,51,53] 기준 — R4 규율, no_egress_verified=true) + **스캔 전용 전 9페이지 OCR** +
+  **HWP·HWPX·DOCX 승인 실행 3종**(2N-5 BLOCKED 시나리오 4·5·9·10·11 실행 완료). quote 전수 19/19
+  verbatim 재발견 + 무작위 표본 5건 확인(실행자 자기 점검 — Codex 독립 재검 필요). Python은 과도기
+  후반부(dei/delivery)만 UTF-8 규약 하 사용, **Python runner .py 미사용**. 2N-5 Major 3건 재발 0.
+  repo 오염 0·산출물 no-overclaim/누출 0. 시나리오별 **PASS_CANDIDATE**(BLOCKED 0)로만 기록 —
+  **2N-5 통과 선언 아님**. evidence: `docs/samples/codex_cycle2n_5r_black_box_execution_evidence.md`.
+  **다음 = Codex 2N-5R evidence review(표본 재검 포함) → Phase 2(N1~) 진입 판단.**
 - **Cycle 2N-6 Phase 1 — Python-free 품질 보완 (Q1~Q5·R4)**(docs/markdown-only — 런타임 코드·package·
   generated artifact 무변경. Codex Phase 0 review **PASS** 후 착수). **Q1**: KSSB 카탈로그에 **항목별 상세
   기준** 신설(10개 항목 각각 탐색 키워드·근거 확인 최소 요소·partial/not_verifiable 조건·요청자료 기본값 —
