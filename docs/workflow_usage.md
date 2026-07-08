@@ -60,7 +60,8 @@ Human review (사람 검수)
 ```
 python src/renderers/kssb_report_delivery.py <findings.json> -o <out>   # findings→preflight→대표 문서→사용자 요약(stdout)
 python src/renderers/kssb_report_delivery.py <findings.json> -o <out> --debug   # 내부 상세는 stderr로 분리
-python src/validators/kssb_findings_validator.py <findings.json>   # detect-only, error 시 종료코드 1
+python src/validators/kssb_findings_validator.py <findings.json>   # detect-only, error 시 종료코드 1 (reference)
+node   src/validators/kssb_findings_validator.cjs <findings.json>  # Node 이식(N1 — 동일 규칙·exit, parity 테스트로 대조)
 python src/renderers/kssb_report_renderer.py <findings.json> -o <out>   # DOCX + HTML + Markdown fallback
 ```
 

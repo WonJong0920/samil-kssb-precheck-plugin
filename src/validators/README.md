@@ -4,6 +4,14 @@
 `docs/findings_schema_contract.md`가 "JSON Schema로 표현하지 못한 수동 검증 규칙"으로 남겨 둔 항목을
 표준 라이브러리만으로 자동 점검한다.
 
+**구현 2종 (2N-6 Phase 2 N1 — D92 Node 이식)**:
+- `kssb_findings_validator.py` — **Python reference (golden parity 기준)**. 기존 동작 무변경으로 유지.
+- `kssb_findings_validator.cjs` — **Node 이식**(내장 모듈만 — 외부 의존성·package.json 없음).
+  검증 규칙·이슈 코드·severity·location·검출 순서를 Python과 동일하게 유지하며,
+  `tests/test_findings_validator_parity.test.cjs`가 동일 fixture로 두 구현을 대조한다.
+  Python의 선택적 `jsonschema` 검증은 Node에 없다 — 기본 실행 시 Python의 "미설치 fallback"과
+  동일 의미의 info(`schema.optional_skipped`)를 보고한다(표준 라이브러리 검증 범위 동등 — 방식 A).
+
 ## 경계 (detect-only)
 
 - 검증기는 findings를 **고치지 않는다.** 판정·근거·질문·권고를 새로 만들거나 보강하지 않는다.
@@ -34,10 +42,16 @@
 ```
 python src/validators/kssb_findings_validator.py src/schemas/kssb_findings_example.json
 python src/validators/kssb_findings_validator.py findings.json --json
+node   src/validators/kssb_findings_validator.cjs findings.json --json
 ```
 
-- 종료 코드: error가 하나라도 있으면 1, 없으면 0. `--warnings-as-errors`로 warning도 실패 처리.
-- `--no-jsonschema`: 선택적 스키마 검증 비활성화.
+- 종료 코드(두 구현 공통): error가 하나라도 있으면 1, 없으면 0, findings 로드 실패는 2.
+  `--warnings-as-errors`로 warning도 실패 처리. `--no-jsonschema`: 선택적 스키마 검증(Python) /
+  동등 info 보고(Node) 비활성화.
+- **(Node, additive — 기본 꺼짐)** `--source-text <원문.txt>`(반복 가능)가 **명시 제공된 경우에만**
+  quote 실재성 보조 점검을 수행한다: 각 anchor 인용을 공백·줄바꿈 정규화(연속 공백↔공백 1) 기준으로
+  원문 텍스트에서 substring 재탐색하고, 미발견 시 **warning**(`quote.source_not_found`)으로 보고한다.
+  이 점검은 검출·검수 유도용이며 **사람 검수·독립 표본 확인(blackbox §3-(b))을 대체하지 않는다.**
 
 프로그램 사용:
 
@@ -46,8 +60,14 @@ from kssb_findings_validator import validate_findings, load_findings
 issues = validate_findings(load_findings("findings.json"))  # list[Issue], findings 미변경
 ```
 
+```js
+const V = require("./src/validators/kssb_findings_validator.cjs");
+const issues = V.validateFindings(V.loadFindings("findings.json"));  // Issue[], findings 미변경
+```
+
 ## 의존성
 
-Python 표준 라이브러리만 사용한다(`json`, `re`, `sys`, `argparse`, `pathlib`).
-`jsonschema`가 설치되어 있으면 선택적으로 Draft-07 검증을 추가하지만, **없으면 설치하지 않고**
-표준 라이브러리 검증만 수행한다. 검증기는 새 외부 의존성을 요구하지 않는다.
+- Python: 표준 라이브러리만(`json`, `re`, `sys`, `argparse`, `pathlib`). `jsonschema`가 설치되어
+  있으면 선택적으로 Draft-07 검증을 추가하지만, **없으면 설치하지 않고** 표준 라이브러리 검증만 수행한다.
+- Node: 내장 모듈만(`node:fs`, `node:path`). repo package.json/node_modules 없음.
+  두 구현 모두 새 외부 의존성을 요구하지 않는다.

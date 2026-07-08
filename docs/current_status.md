@@ -6,6 +6,18 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 2 N1 — Node validator 이식**(코드+테스트+최소 문서. 2N-5R evidence review
+  **PASS**("Phase 2 entry: Ready") 후 착수 — D92 Phase 2의 첫 단계). 신규
+  `src/validators/kssb_findings_validator.cjs`: Python reference의 검증 규칙·이슈 코드·severity·
+  location·**검출 순서**까지 충실 이식(내장 모듈만 — 외부 의존성·package.json 없음). jsonschema 차이는
+  **방식 A**(표준 라이브러리 검증만 + fallback 동등 info — 숨김 없음). additive로 **기본 꺼짐** quote
+  실재성 보조 점검(`--source-text` 명시 제공 시만, 미발견=warning — 사람 검수 대체 아님, Python 미확장).
+  검증: **parity 35/35**(동일 fixture 30종으로 Python CLI 실측 대조 — exit·개수·순서 포함
+  severity/code/location 전량 + message(예외 2종만 제외) 일치, skip 0) · Node 전용 **43/43** ·
+  Python reference **30/30 불변** · delivery wiring 34 · Node 회귀 21/39/29/8/11 전부 green.
+  **Python reference 보존(diff 0)** · N2~N5 미착수 · D94 hard stop 미구현(N2 대상 유지).
+  보고: `docs/cycle2n_6_phase2_n1_validator_node_completion_report.md`.
+  **다음 = Codex Phase 2 N1 review → N2(delivery+HTML/MD 이식, D94 내장) 착수 판단.**
 - **Cycle 2N-5R — black-box 재실행 (실행 주체: Claude Code, evidence만 — 판정은 Codex)**
   (Codex Phase 1 review **PASS** 후, `docs/blackbox_protocol.md`+D93 기준 실행). 실 샘플 5종으로
   **승인 기반 전 구간 실행 완료**: 텍스트 PDF baseline 전 구간(sample→Skill 문서 직접 적용 findings→
