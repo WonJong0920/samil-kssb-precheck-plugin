@@ -71,6 +71,11 @@
   confidence/ink_ratio는 **additive metadata만**). user-range(--pages)는 needsOcr **부분집합으로 제한**.
   OCR 텍스트는 ingest의 `ocr_supplement`(quality=low)로만 합류 — **OCR 단독 confirmed 승격 없음**(§6).
   npm 실행은 npm.cmd의 JS 엔트리(`npm-cli.js`)를 node로 직접 호출(Windows .cmd spawn EINVAL 회피 — 실측).
+  **OCR 대상 해석 기준(R4 — 2N-5 관측, 2N-6 Phase 1 명시)**: OCR 대상 여부의 기준은 intake의 **대상 페이지
+  목록**(`pageQuality[].needsOcr=true`인 페이지 ∪ `ocrCandidatePages`)이며, `qualitySummary.needsOcr`
+  **요약 boolean 단독으로 판단하지 않는다** — 실측에서 요약이 `False`인데 후보 페이지 5건이 존재했다
+  (2N-5 evidence). runner의 check/실행 로직은 이미 목록 기준으로 동작한다(코드 무변경 — evidence/문서
+  작성자용 해석 기준만 명시).
   테스트: `node --test tests/test_pdf_ocr_runner.test.cjs` + `python tests/test_ocr_canonical_hash_parity.py`.
   **OCR support complete 아님** — 최소 구현이며 Codex 2N-4L review 전까지 최종 승인 아님.
 - `nethook.cjs`: 실행(파싱) 단계 **no-egress 훅**(source-only) — 비-loopback 시도를 **패킷 발신 전에 기록 후 차단**(block 모드),

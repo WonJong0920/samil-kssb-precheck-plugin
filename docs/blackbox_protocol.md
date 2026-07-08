@@ -29,7 +29,9 @@
 3. 구조 보강 판독: `node src/intake/runners/document_intake_router.cjs <PDF> --out-dir <RUN_ROOT>\intake --approve-run --evidence-mode`
    → `<stem>.intake.json`. 거부/부재 시나리오는 해당 fallback 문구를 evidence로 캡처.
 4. (해당 시) OCR: `node src/intake/runners/pdf_ocr_runner.cjs <PDF> --intake <intake.json> --out-dir … [--approve-install] --approve-run --evidence-mode`
-   → `<stem>.ocr_text.json`. 설치 승인은 별도 기록.
+   → `<stem>.ocr_text.json`. 설치 승인은 별도 기록. **OCR 대상 여부는 intake의 대상 페이지 목록**
+   (`pageQuality[].needsOcr` ∪ `ocrCandidatePages`) **기준으로 기록한다** — `qualitySummary.needsOcr`
+   요약 boolean 단독 판단 금지(R4 — 2N-5 관측).
 5. (해당 시) DEI 정규화: `<PY> src/intake/dei_producer.py <intake.json> --source-id <id> [--ocr-text <ocr_text.json>]`
    → DEI-candidate JSON(§1 UTF-8 규약 하).
 
@@ -52,6 +54,7 @@
 - (a) findings JSON이 스키마·검증기 preflight를 통과(error 0; warning은 기록하고 진행).
 - (b) findings의 evidence anchor가 **source-bound**: 무작위 표본 ≥5건의 quote가 입력 문서 원문에서
   재발견됨(사람 확인 — 텍스트 추출 가능 문서 한정), OCR 유래 인용은 §6 표기 준수.
+  (Skill 세션의 자기 점검인 quote 재검수 — `evidence_mapping_rules.md` §9 — 는 이 표본 확인을 대체하지 않는다.)
 - (c) delivery가 대표 문서를 생성(DOCX 우선, 실패 시 HTML/MD fallback도 PASS — fallback 동작 기록).
 - (d) 확인 불가 항목이 단정 없이 질문/요청자료로 라우팅됨(표본 확인).
 - (e) 생성 보고서에 미부정 과장 표현(OCR 지원 완료/준수 확정류)·provider명·로컬 경로·내부 사이클 용어·

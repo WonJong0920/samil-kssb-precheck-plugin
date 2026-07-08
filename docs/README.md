@@ -9,20 +9,25 @@
 |---|---|
 | 이 제품이 무엇이고 지금 어디까지 되어 있나 | [`README.md`](../README.md) (루트) |
 | 현재 사이클·다음 단계·최신 상태 요약 | [`docs/current_status.md`](current_status.md) |
-| 지금까지의 의사결정(D1~D91)과 그 근거 | [`docs/decision_log.md`](decision_log.md) (append-only) |
+| 지금까지의 의사결정(D1~)과 그 근거 | [`docs/decision_log.md`](decision_log.md) (append-only) |
 
 ## 2. Execution / user quickstart (2N-5 실행자·사용자가 먼저 읽을 것)
 
 - [`docs/user_quickstart_pre_2n_5.md`](user_quickstart_pre_2n_5.md) — 파일 유형별 기대 동작(matrix)·
   승인 흐름·산출물 기대치·**2N-5 시나리오 체크리스트 15건**. 2N-5 실행자는 이 문서와
   `current_status.md`를 우선 본다.
-- [`docs/workflow_usage.md`](workflow_usage.md) — Skill-first 흐름/사용 계약.
+- [`docs/blackbox_protocol.md`](blackbox_protocol.md) — black-box 검증 프로토콜(수동 Skill-run findings
+  캡처 + 스크립트 후반부, 시나리오 1 판정 기준, Python UTF-8 실행 규약). **2N-5R 실행의 기준 문서.**
+- [`docs/workflow_usage.md`](workflow_usage.md) — Skill-first 흐름/사용 계약(preflight hard stop 정책
+  기록 — D94 포함).
 
 ## 3. Skill behavior / evidence rules (행동 규칙 — 산출물 품질·경계의 기준)
 
 - [`src/skills/samil-kssb-precheck/SKILL.md`](../src/skills/samil-kssb-precheck/SKILL.md) — Skill 절차·경계.
 - [`src/skills/samil-kssb-precheck/evidence_mapping_rules.md`](../src/skills/samil-kssb-precheck/evidence_mapping_rules.md)
-  — 판정↔근거 매핑 규칙(§6 OCR 유래 재료·§7 사용자 문구 규칙 포함).
+  — 판정↔근거 매핑 규칙(§6 OCR 유래 재료·§7 사용자 문구·§8 findings 생성 표준 절차·§9 quote 실재성 재검수 포함).
+- [`src/skills/samil-kssb-precheck/kssb_requirement_catalog.md`](../src/skills/samil-kssb-precheck/kssb_requirement_catalog.md)
+  — KSSB 항목 카탈로그 + **항목별 상세 기준**(탐색 키워드·필수 요소·판정 조건·요청자료 기본값 — 2N-6 Phase 1).
 
 ## 4. Assisted intake / runner 상세 (승인 기반 보조 경로의 기준)
 
@@ -43,7 +48,7 @@
 ## 6. Status archive
 
 - [`docs/history/current_status_archive_2n.md`](history/current_status_archive_2n.md) —
-  `current_status.md`에서 무손실 이동된 과거 사이클 이력(2B~2N-4K — verdict·commit·required fixes 기록 보존).
+  `current_status.md`에서 무손실 이동된 과거 사이클 이력(2B~2N-4S-A — verdict·commit·required fixes 기록 보존).
 
 ## 7. 현재 진실로 쓰면 안 되는 것 (주의)
 

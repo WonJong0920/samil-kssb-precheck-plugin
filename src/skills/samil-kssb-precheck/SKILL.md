@@ -63,7 +63,9 @@ KSSB 공시요구사항별 **확인 근거 / 부족한 정보 / 추가 확인 �
 
 Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 / 위험관리 / 지표 및 목표**
 (KSSB 제1호·제2호, ISSB IFRS S1·S2의 4개 축 구조에 정렬). 상세 항목은
-`kssb_requirement_catalog.md` 참조.
+`kssb_requirement_catalog.md` 참조. 항목별 **탐색 키워드·근거 확인 최소 요소·partial/not_verifiable
+조건·요청자료 기본값**은 같은 문서의 "항목별 상세 기준"을 따르고, 항목별 실행 순서는
+`evidence_mapping_rules.md` §8(findings 생성 표준 절차)을 따른다.
 
 각 공시요구 항목에 대해 다음 절차를 반복한다.
 
@@ -82,6 +84,8 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
    `out_of_scope_or_not_applicable`는 적용 제외 사유(`missing_info`). 상세는 `docs/findings_schema_contract.md`.
 8. **커버리지·검토 범위 기록**: 텍스트 미추출/판독 불가/미지원 구간이 있으면 그 사실을 **문서별 실제 수치로** `overall_limitations`에
    명시하고, 카탈로그 대비 실제 검토 항목 수도 1줄로 밝힌다(`evidence_mapping_rules.md` §7 — 커버리지 침묵 금지).
+9. **quote 실재성 재검**: 렌더 전에 모든 인용(quote)을 입력 원문에서 재탐색해 확인한다
+   (`evidence_mapping_rules.md` §9 — 재발견되지 않는 인용은 유지 금지. 자기 점검이며 사람 검수를 대체하지 않음).
 
 ## Judgment schema (판정 스키마)
 

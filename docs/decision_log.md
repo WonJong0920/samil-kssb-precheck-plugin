@@ -1315,6 +1315,24 @@
 - **Related Files**: `docs/planning/post_2n5_final_remediation_plan_node_only.md`(§7),
   `docs/reviews/codex_post_2n5_final_remediation_plan_node_only_review.md`, `docs/blackbox_protocol.md`.
 
+## D94. preflight error hard stop 정책 — 기록만(구현은 N2 Node delivery에 내장)
+- **Date**: 2026-07-08
+- **Context**: GPT Python-free 품질 판단의 채택 항목(Q5). 계획(`docs/planning/post_2n5_final_remediation_plan_node_only.md`
+  §3)은 "정책만 지금 기록하고 구현은 Python delivery 패치가 아니라 N2(Node delivery 이식)에 내장"으로
+  확정했고, 2N-6 Phase 1에서 그 정책 내용을 기록한다.
+- **Decision**:
+  ① **표준 정책**: preflight(detect-only) 결과 **error ≥ 1이면 delivery는 대표 문서를 생성하지 않고
+  통제된 중단**으로 종료한다 — 한국어 안내(error 건수 + "findings 보완 후 재생성"), validator raw 출력·
+  내부 경로 미노출, 문서화된 종료 코드. warning은 기록 후 진행(현행 유지).
+  ② **구현 시점**: N2(Node delivery 이식)에 내장한다. 과도기 Python delivery(`kssb_report_delivery.py`)는
+  수정하지 않는다(이중 구현 방지 — D92 ③ 최소 패치 원칙. 현행 동작: error 존재 시에도 경고 문구와 함께 생성 계속).
+  ③ **과도기 커버**: Skill 절차(SKILL.md Workflow 2단계 — "error가 있으면 findings를 먼저 바로잡은 뒤 렌더")와
+  검증 프로토콜 판정 기준(`docs/blackbox_protocol.md` §3-(a) — preflight error 0이어야 PASS)이
+  정책 미구현 구간을 커버한다.
+- **Status**: 정책 기록만 — 코드 무변경(docs/markdown only).
+- **Related Files**: `docs/workflow_usage.md`(전달 계약), `src/renderers/kssb_report_delivery.py`(무변경 — N2 대상),
+  `docs/planning/post_2n5_final_remediation_plan_node_only.md` §3, `docs/blackbox_protocol.md` §3.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

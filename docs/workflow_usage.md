@@ -48,6 +48,12 @@ Human review (사람 검수)
 - **내부/사용자 분리**: `deliver()`는 `user_summary`(안전)와 `outputs`/`preflight.issues`/`internal_notes`(전체 경로·이슈, 내부)를 **분리 반환**한다.
   CLI는 `user_summary`만 stdout에 출력하고, 내부 상세는 `--debug` 시에만 stderr에 출력한다.
 - **경계 유지**: 배선기는 재판정하지 않는다(validator=detect-only, renderer=형식 변환). 확인 불가를 미공시/부적합으로 단정하지 않는다.
+- **preflight error hard stop 정책(D94 — 정책 기록만, 구현은 N2)**: preflight에서 **error가 1건 이상이면
+  delivery는 대표 문서를 생성하지 않고** "findings 보완 후 재생성" 안내와 함께 통제된 중단으로 종료하는 것을
+  표준 정책으로 기록한다(validator raw 출력·내부 경로 미노출, 문서화된 종료 코드). warning은 기록 후 진행(현행 유지).
+  **구현은 Node delivery 이식(N2)에 내장**하며, 과도기 Python delivery는 수정하지 않는다(이중 구현 방지 — D92 ③).
+  과도기에는 Skill 절차의 "error 보완 후 렌더" 규칙(SKILL.md Workflow 2단계)과 검증 프로토콜의 판정 기준
+  (`docs/blackbox_protocol.md` §3-(a): preflight error 0이어야 PASS)이 이 구간을 커버한다.
 
 ## 내부/검증용 실행 (개발·CI 참고, 사용자 흐름 아님)
 
