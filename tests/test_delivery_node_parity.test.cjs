@@ -81,7 +81,9 @@ test("renderer parity: 동일 findings → HTML/MD 전문 일치(개행 정규�
   const rp = spawnSync(PY, [RENDERER_PY, EXAMPLE, "-o", pyDir, "--html-only"],
     { cwd: REPO, encoding: "utf-8", env: PY_ENV, timeout: 120000 });
   assert.strictEqual(rp.status, 0, rp.stderr);
-  const out = R.renderReport(base(), ndDir);
+  // 이 테스트의 초점은 HTML/MD 전문 일치 → Node도 preferDocx:false로 HTML/MD만 생성해 비교
+  // (DOCX parity는 test_docx_writer_node_parity.test.cjs가 담당).
+  const out = R.renderReport(base(), ndDir, { preferDocx: false });
 
   const pyFiles = fs.readdirSync(pyDir).sort();
   const ndFiles = fs.readdirSync(ndDir).sort();
@@ -110,7 +112,7 @@ test("renderer parity: 변형 findings(중복 질문·미기재 필드)에서도
   const rp = spawnSync(PY, [RENDERER_PY, file, "-o", pyDir, "--html-only"],
     { cwd: REPO, encoding: "utf-8", env: PY_ENV, timeout: 120000 });
   assert.strictEqual(rp.status, 0, rp.stderr);
-  R.renderReport(JSON.parse(fs.readFileSync(file, "utf-8")), ndDir);
+  R.renderReport(JSON.parse(fs.readFileSync(file, "utf-8")), ndDir, { preferDocx: false });
 
   const pyFiles = fs.readdirSync(pyDir).sort();
   const ndFiles = fs.readdirSync(ndDir).sort();
@@ -145,9 +147,10 @@ test("delivery parity: 정상 findings — 양쪽 exit 0·preflight error 0 요�
   assert.strictEqual(rn.status, 0, rn.stderr);
   assert.ok(rp.stdout.includes("error 0건"));
   assert.ok(rn.stdout.includes("error 0건"));
-  // 생성 파일명(HTML/MD) 동일 — Python은 --html-only로 DOCX 생략, Node는 원래 미생성
+  // HTML/MD 파일명 동일(이 테스트의 초점). Python은 --html-only, Node는 DOCX도 생성하므로
+  // 양쪽에서 .docx를 제외하고 비교한다(DOCX parity는 test_docx_writer_node*.test.cjs가 담당).
   const pyFiles = fs.readdirSync(pyDir).filter((n) => !n.endsWith(".docx")).sort();
-  const ndFiles = fs.readdirSync(ndDir).sort();
+  const ndFiles = fs.readdirSync(ndDir).filter((n) => !n.endsWith(".docx")).sort();
   assert.deepStrictEqual(ndFiles, pyFiles);
 });
 

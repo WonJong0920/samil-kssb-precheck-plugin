@@ -1,11 +1,14 @@
 "use strict";
 /**
- * Node delivery + HTML/Markdown renderer 테스트 (2N-6 Phase 2 N2).
+ * Node delivery + HTML/Markdown renderer 테스트 (2N-6 Phase 2 N2, N4에서 DOCX 반영 갱신).
  *
  * 핵심 검증: ① renderer가 findings를 재판정 없이 형식 변환(섹션·판정 라벨·근거·질문·경계 보존,
  * escape·결정성) ② delivery가 N1 Node validator를 preflight로 소비 ③ **D94 hard stop** —
  * error ≥ 1이면 산출물 0 + 통제된 종료(exit 4) + sanitized 안내 ④ 사용자-facing 출력에
- * raw 이슈 위치·로컬 경로·stack trace 미노출 ⑤ DOCX 미생성. 외부 의존성 0.
+ * raw 이슈 위치·로컬 경로·stack trace 미노출 ⑤ 대표 문서 DOCX → HTML → Markdown(N4). 외부 의존성 0.
+ *
+ * (N4 갱신) DOCX 자체의 구조·parity·결정성·ZIP/XML safety는 tests/test_docx_writer_node*.test.cjs가
+ * 담당한다. 이 파일은 delivery 배선에서 DOCX가 대표 문서로 나오고 D94에서 DOCX도 차단됨만 확인한다.
  */
 const test = require("node:test");
 const assert = require("node:assert");
@@ -110,18 +113,33 @@ test("renderer: 파일명 sanitize — 경로 구분자·금지 문자 제거", 
   assert.strictEqual(R.sanitizeFilenameBase("  "), "KSSB_사전검토");
 });
 
-test("renderer: renderReport — HTML/MD 2종만 생성(DOCX 없음), primary=html", () => {
+test("renderer: renderReport — DOCX/HTML/MD 3종 생성, primary=docx (N4)", () => {
   const dir = tmpdir();
   try {
     const out = R.renderReport(base(), dir);
-    assert.strictEqual(out.primary_format, "html");
+    assert.strictEqual(out.primary_format, "docx");
+    assert.ok(fs.existsSync(out.docx) && out.docx.endsWith(".docx"));
     assert.ok(fs.existsSync(out.html) && out.html.endsWith(".html"));
     assert.ok(fs.existsSync(out.markdown) && out.markdown.endsWith(".md"));
-    assert.ok(out.html.includes(R.FILENAME_SUFFIX));
+    assert.ok(out.docx.includes(R.FILENAME_SUFFIX));
+    assert.strictEqual(out.docx_error, null);
+    const files = fs.readdirSync(dir);
+    assert.strictEqual(files.length, 3, `생성 파일: ${files}`);
+    assert.strictEqual(files.filter((n) => n.endsWith(".docx")).length, 1);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("renderer: renderReport({preferDocx:false}) — HTML/MD만, primary=html (내부/검증용)", () => {
+  const dir = tmpdir();
+  try {
+    const out = R.renderReport(base(), dir, { preferDocx: false });
+    assert.strictEqual(out.primary_format, "html");
+    assert.strictEqual(out.docx, null);
     const files = fs.readdirSync(dir);
     assert.strictEqual(files.length, 2, `생성 파일: ${files}`);
-    assert.ok(!files.some((n) => n.endsWith(".docx")), "DOCX가 생성되면 안 됨(N4 대상)");
-    assert.ok(!("docx" in out), "결과에 docx 키를 만들지 않음(placeholder 금지)");
+    assert.ok(!files.some((n) => n.endsWith(".docx")));
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
@@ -140,14 +158,17 @@ test("delivery API: 성공 — preflight error 0·산출물 생성·요약 sanit
     const result = D.deliver(base(), dir);
     assert.strictEqual(result.hard_stop, false);
     assert.strictEqual(result.preflight.counts.error, 0);
+    assert.ok(fs.existsSync(result.outputs.docx));
     assert.ok(fs.existsSync(result.outputs.html));
     assert.ok(fs.existsSync(result.outputs.markdown));
     assert.ok(result.user_summary.includes("● 대표 문서"));
     assert.ok(result.user_summary.includes("error 0건"));
-    assert.ok(result.user_summary.includes("DOCX 형식은 이 실행 경로에서 생성되지 않습니다"));
+    // N4: 대표 문서는 DOCX(우선순위 DOCX → HTML → Markdown)
+    assert.ok(result.user_summary.includes("형식: docx"));
+    assert.ok(result.user_summary.includes("우선순위 DOCX → HTML → Markdown"));
     assertNoLeak(result.user_summary);
     // repo 밖 out-dir → 표시 경로는 파일명만
-    assert.ok(result.user_summary.includes(path.basename(result.outputs.html)));
+    assert.ok(result.user_summary.includes(path.basename(result.outputs.primary)));
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
@@ -234,8 +255,9 @@ test("CLI: 성공 → exit 0, stdout=사용자 요약만(누출 0), 파일 생�
     assertNoLeak(r.stdout);
     assert.strictEqual(r.stderr.trim(), "", "성공 시 stderr 출력 없음(비-debug)");
     const files = fs.readdirSync(dir);
-    assert.strictEqual(files.length, 2);
-    assert.ok(files.every((n) => n.endsWith(".html") || n.endsWith(".md")));
+    assert.strictEqual(files.length, 3);
+    assert.ok(files.every((n) => n.endsWith(".html") || n.endsWith(".md") || n.endsWith(".docx")));
+    assert.ok(files.some((n) => n.endsWith(".docx")));
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

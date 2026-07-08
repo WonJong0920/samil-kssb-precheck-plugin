@@ -2,7 +2,7 @@
  * Samil KSSB Precheck - Delivery Orchestrator (Node port, Cycle 2N-6 Phase 2 N2).
  *
  * findings → **Node validator preflight(detect-only)** → **D94 hard stop**(error ≥ 1이면 보고서 미생성)
- * → Node renderer(HTML → Markdown, 재판정 없음) → **사용자-facing 전달 요약**을 잇는 얇은 배선기다.
+ * → Node renderer(DOCX → HTML → Markdown, 재판정 없음) → **사용자-facing 전달 요약**을 잇는 얇은 배선기다.
  * `kssb_report_delivery.py`(Python — transitional reference)의 경계를 계승하되, D94에 따라
  * **preflight error 시 통제된 중단**을 구현한다(Python reference는 정책대로 무변경 — 경고 후 생성 계속).
  *
@@ -10,7 +10,8 @@
  * - **재판정 없음**: 판정·근거·질문·권고를 만들지 않는다. validator는 detect-only, renderer는 형식 변환만.
  * - **로그 분리(사용자/내부)**: 사용자 요약에는 로컬 절대경로·계정명·raw validator 이슈(location 포함)·
  *   stack trace·내부 진단을 노출하지 않는다(건수만). 상세는 프로그램 반환값과 `--debug` stderr에만.
- * - **DOCX 없음**: 이 Node 경로의 산출 형식은 HTML → Markdown이다(DOCX는 N4 대상 — placeholder 없음).
+ * - **대표 문서**: 우선순위 DOCX → HTML → Markdown(N4 — Node DOCX writer 이식 완료).
+ *   DOCX 조립이 제한되면 HTML/Markdown fallback을 대표 문서로 사용한다(정직 표기).
  * - 외부 의존성 0 (Node 내장 모듈만).
  *
  * CLI 종료 코드: 0=성공 / 2=findings 로드 실패 / 3=렌더 불가(RenderError) /
@@ -72,17 +73,19 @@ function buildUserSummary(findings, outputs, preflightCounts) {
   if (outputs.primary) {
     lines.push(`  - 파일명: ${path.basename(outputs.primary)}`);
     lines.push(`  - 위치(표시 경로): ${_displayPath(outputs.primary)}`);
-    lines.push(`  - 형식: ${outputs.primary_format} (이 실행 경로의 산출 형식: HTML → Markdown)`);
+    lines.push(`  - 형식: ${outputs.primary_format} (우선순위 DOCX → HTML → Markdown)`);
   } else {
     lines.push("  - (대표 문서 생성 실패)");
   }
   const fbs = [];
-  for (const fmt of ["html", "markdown"]) {
+  for (const fmt of ["docx", "html", "markdown"]) {
     const p = outputs[fmt];
     if (p && p !== outputs.primary) fbs.push(`${fmt}: ${path.basename(p)}`);
   }
   if (fbs.length) lines.push(`  - fallback: ${fbs.join(", ")}`);
-  lines.push("  - 참고: DOCX 형식은 이 실행 경로에서 생성되지 않습니다.");
+  if (outputs.docx_error) {
+    lines.push("  - 참고: DOCX 생성이 제한되어 fallback(HTML/Markdown)을 대표 문서로 사용했습니다.");
+  }
 
   lines.push("");
   lines.push("● 검토 전 자체 점검(preflight)");
@@ -141,7 +144,7 @@ function buildHardStopSummary(preflightCounts) {
  * - hard stop 시 어떤 보고서 파일도 생성하지 않는다(out_dir 미생성 포함).
  */
 function deliver(findings, outDir, options = {}) {
-  const { baseName = null } = options;
+  const { baseName = null, preferDocx = true } = options;
   if (!(findings !== null && typeof findings === "object" && !Array.isArray(findings))) {
     throw new R.RenderError("findings 최상위가 JSON 객체가 아닙니다.");
   }
@@ -162,18 +165,22 @@ function deliver(findings, outDir, options = {}) {
     };
   }
 
-  // 3) 대표 문서 렌더(재판정 없음). HTML → Markdown.
-  const outputs = R.renderReport(findings, outDir, { baseName });
+  // 3) 대표 문서 렌더(재판정 없음). DOCX → HTML → Markdown.
+  const outputs = R.renderReport(findings, outDir, { baseName, preferDocx });
 
   // 4) 사용자-facing 요약(안전) 생성.
   const userSummary = buildUserSummary(findings, outputs, counts);
+
+  const internalNotes = [];
+  if (outputs.docx_error) internalNotes.push(`docx_error: ${outputs.docx_error}`);
+  internalNotes.push(`preflight: ${JSON.stringify(counts)}`);
 
   return {
     hard_stop: false,
     user_summary: userSummary,
     outputs,
     preflight,
-    internal_notes: [`preflight: ${JSON.stringify(counts)}`],
+    internal_notes: internalNotes,
   };
 }
 
@@ -182,10 +189,10 @@ function deliver(findings, outDir, options = {}) {
 // ---------------------------------------------------------------------------
 
 const USAGE = "사용법: node kssb_report_delivery.cjs <findings.json> [-o|--out <출력 폴더>] "
-  + "[--base-name <이름>] [--debug]";
+  + "[--base-name <이름>] [--html-only] [--debug]";
 
 function main(argv) {
-  const args = { findings: null, outDir: ".", baseName: null, debug: false };
+  const args = { findings: null, outDir: ".", baseName: null, htmlOnly: false, debug: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "-o" || a === "--out" || a === "--out-dir") {
@@ -196,7 +203,8 @@ function main(argv) {
       const v = argv[++i];
       if (!v) { console.error(USAGE); return 2; }
       args.baseName = v;
-    } else if (a === "--debug") args.debug = true;
+    } else if (a === "--html-only") args.htmlOnly = true;
+    else if (a === "--debug") args.debug = true;
     else if (!a.startsWith("-") && args.findings === null) args.findings = a;
     else { console.error(USAGE); return 2; }
   }
@@ -212,7 +220,7 @@ function main(argv) {
 
   let result;
   try {
-    result = deliver(findings, args.outDir, { baseName: args.baseName });
+    result = deliver(findings, args.outDir, { baseName: args.baseName, preferDocx: !args.htmlOnly });
   } catch (e) {
     if (e instanceof R.RenderError) {
       console.error(`[error] 전달 불가: ${e.message}`);

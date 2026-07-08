@@ -6,6 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 2 N4 — Node DOCX writer 이식**(코드+테스트+최소 문서. Codex N3 review
+  **PASS**("N4 entry: Ready") 후 착수 — Phase 2 마지막 core 이식 단계). `kssb_report_renderer.cjs`에
+  `buildDocumentXml`·`docxBytes`·결정적 최소 ZIP writer(`buildDeterministicZip` — `zlib`만, 외부
+  의존성 0) 추가로 Python DOCX 경로 충실 이식(8개 OOXML 파트·문구·스타일 동일, 재판정 없음).
+  `renderReport`가 **DOCX → HTML → Markdown** 대표 문서 생성(primary=DOCX), Node delivery는
+  **preflight → D94 hard stop → DOCX/HTML/MD** 배선(user summary DOCX 반영, `--html-only` 옵션 추가,
+  D94 hard stop 동작 무변경 — error 시 DOCX 포함 산출물 0). **parity 기준 = 구조 + 파트 콘텐츠
+  byte-identical + 결정성**(컨테이너 전체 byte parity는 큰 파트의 zlib 압축 스트림 차로 목표 아님 —
+  허용 차이 명시 기록). 검증: 신규 DOCX **17/17** + DOCX parity **7/7**(Python 3.14.5 실측 — 8 파트
+  압축 해제 콘텐츠 byte-identical, skip 0) + N2 갱신 delivery 19/6 + Node 유효성(Python `testzip` None·
+  8파트 XML well-formed) + N1 43/35 + N3 61/46 + Python reference 30/34/22/83/11/26/29/49 불변 + Node
+  회귀 21/39/29/8/11 전부 green. **Python renderer/delivery는 transitional reference로 무변경**(D92 ③).
+  외부 의존성·package 상태 변경 0. N5 미착수. 보고: `docs/cycle2n_6_phase2_n4_docx_writer_node_completion_report.md`.
+  **다음 = Codex Phase 2 N4 review → Phase 2 core(N1~N4) 완료 판단 → N5 처리 결정·Phase 3.**
 - **Cycle 2N-6 Phase 2 N3 — Node DEI producer 이식**(코드+테스트+최소 문서. Codex N2 review
   **PASS**("N3 entry: Ready") 후 착수). 신규 `src/intake/dei_producer.cjs`: Python reference의
   책임 5축(최소 인테이크 계약·document-level 변형·결정적 정규화·ocr_text/aux_signals additive
