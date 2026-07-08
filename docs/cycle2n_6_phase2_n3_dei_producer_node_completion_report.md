@@ -21,9 +21,12 @@
 
 decision_log 무변경(신규 결정 없음 — D92 ③의 N3 집행. canonical hash 규칙·DEI 계약·경계 전부 기존 결정 그대로).
 
-참고: 작업 중 repo에 **untracked 문서 1건**(`docs/reviews/claude_gpt_post_n4_hook_structure_proposal_review.md`)이
-외부(다른 세션)에서 생성되어 있음을 확인했다 — 본 사이클 산출물이 아니므로 **커밋에 포함하지 않았다**
-(시작 시점 `git status`는 clean이었음).
+참고(이력 투명성): 시작 시점 `git status`는 clean·HEAD는 기준(fd5e804)과 일치했으나, **작업 도중
+외부 세션이 같은 로컬 작업본에서 별도 commit `18de5ee`**(`docs: claude review of gpt post-n4 hook
+structure proposal` — `docs/reviews/claude_gpt_post_n4_hook_structure_proposal_review.md` 1개 파일)를
+만들어 push했다. 본 N3 commit은 그 위에 얹혔으며 **N3 변경 파일은 위 6개뿐**(외부 문서 미포함).
+따라서 **N3 단독 리뷰 diff 범위는 `18de5ee..<본 커밋>`**이고, `fd5e804..<본 커밋>` 범위에는 외부
+문서 1건이 추가로 보인다(본 사이클 산출물 아님).
 
 ## 2. Python reference에서 파악한 DEI producer 책임 범위 (전량 이식)
 
@@ -175,5 +178,5 @@ OCR/HWP runner 실 실행은 없음(N3 범위 밖 — 합성 fixture 기반, 2N-
   일괄 정렬은 Node 경로 승격 시점(N4 이후)에 수행**(C2N6-N2-OBS-01과 같은 축, 이번엔 최소 갱신만).
 - 이중 구현된 canonical hash(dei_producer.cjs ↔ pdf_ocr_runner.cjs)는 규칙 변경 시 **골든 상수
   3곳(F1/F2/F3)과 함께 갱신**해야 한다 — 현행 테스트(골든+직접 대조)가 불일치를 즉시 잡는다.
-- untracked 외부 문서(`docs/reviews/claude_gpt_post_n4_hook_structure_proposal_review.md`)는
-  본 사이클에서 다루지 않음 — 처리(커밋/폐기)는 ChatGPT/사용자 판단 대상.
+- 외부 세션 commit `18de5ee`(post-n4 hook 구조 제안 리뷰 문서)는 본 사이클 산출물이 아니며
+  내용 검토·후속 처리는 ChatGPT/사용자 판단 대상(§1 참고 참조).
