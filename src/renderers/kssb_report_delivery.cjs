@@ -12,14 +12,22 @@
  *   stack trace·내부 진단을 노출하지 않는다(건수만). 상세는 프로그램 반환값과 `--debug` stderr에만.
  * - **대표 문서**: 우선순위 DOCX → HTML → Markdown(N4 — Node DOCX writer 이식 완료).
  *   DOCX 조립이 제한되면 HTML/Markdown fallback을 대표 문서로 사용한다(정직 표기).
+ * - **trace manifest(opt-in, 기본 off)**: `--manifest`/`{ manifest: true }`일 때만 성공 delivery의
+ *   provenance(findings canonical hash·preflight 요약·산출물 basename/bytes/sha256)를 `run_manifest.json`
+ *   내부 artifact로 **결정적** 기록한다. 대표 문서가 아니며 판정·품질·감사/인증류 필드가 없다. 로컬 경로·
+ *   계정명·stack·timestamp 미포함. D94 hard stop 시 **미생성**. 생성 실패는 delivery 성공을 깨지 않고
+ *   `manifest_error`(경로·stack 없는 짧은 사유)로만 남긴다.
  * - 외부 의존성 0 (Node 내장 모듈만).
  *
  * CLI 종료 코드: 0=성공 / 2=findings 로드 실패 / 3=렌더 불가(RenderError) /
  *               4=preflight hard stop(D94 — error ≥ 1, 산출물 미생성) / 1=예기치 못한 내부 실패(통제된 안내).
+ *               (manifest 생성 실패는 종료 코드를 바꾸지 않는다 — 옵션 부가 기능.)
  */
 "use strict";
 
 const path = require("node:path");
+const fs = require("node:fs");
+const crypto = require("node:crypto");
 
 const R = require(path.join(__dirname, "kssb_report_renderer.cjs"));
 const V = require(path.join(__dirname, "..", "validators", "kssb_findings_validator.cjs"));
@@ -129,6 +137,109 @@ function buildHardStopSummary(preflightCounts) {
   return lines.join("\n");
 }
 
+// ---------------------------------------------------------------------------
+// Trace manifest (opt-in, 기본 off) — delivery 종단의 결정적 provenance 집계 stage.
+// hook/dispatcher 아님. 성공한 delivery의 findings·preflight·산출물 provenance를 run_manifest.json
+// 내부 artifact로 기록한다. **판정·품질·감사/인증류 필드 없음**, 로컬 경로·계정명·stack·validator raw
+// message/location·timestamp 미포함(완전 결정성). self-hash(manifest_sha256)는 자기 필드를 제외한
+// canonical core에 대해 계산한다(runtime block 미도입 — 이번 기본값은 timestamp 없음).
+// ---------------------------------------------------------------------------
+
+const MANIFEST_FILENAME = "run_manifest.json";
+
+function _sha256Hex(buf) {
+  return crypto.createHash("sha256").update(buf).digest("hex");
+}
+
+// 결정적 canonical JSON(재귀 key 정렬·compact separators) — findings/manifest hash 입력용.
+function _canonicalJson(v) {
+  if (v === null) return "null";
+  if (v === true) return "true";
+  if (v === false) return "false";
+  if (typeof v === "number") {
+    if (!Number.isFinite(v)) throw new Error("non-finite number in canonical JSON");
+    return Number.isInteger(v) ? String(v) : JSON.stringify(v);
+  }
+  if (typeof v === "string") return JSON.stringify(v);
+  if (Array.isArray(v)) return `[${v.map(_canonicalJson).join(",")}]`;
+  if (typeof v === "object") {
+    const keys = Object.keys(v).sort();
+    return `{${keys.map((k) => `${JSON.stringify(k)}:${_canonicalJson(v[k])}`).join(",")}}`;
+  }
+  throw new Error("unsupported type in canonical JSON");
+}
+
+/**
+ * 성공한 delivery의 provenance manifest(결정적 core + self-hash)를 만든다.
+ * - findings_sha256: findings의 canonical-JSON SHA-256(파일 포맷·개행 차에 불변).
+ * - outputs: **실제 생성된 파일**에서 basename·bytes·sha256을 계산(생성 순서 고정).
+ * - preflight.issues: code·severity만(전체 message/location 원문 제외).
+ * - 판정/품질/감사·인증류 필드 없음. self-hash는 manifest_sha256을 제외한 canonical core로 계산.
+ */
+function buildTraceManifest(findings, outputs, preflightCounts, preflightIssues) {
+  const meta = _dict(findings.report_meta);
+  const areas = _list(findings.kssb_areas);
+  let itemCount = 0;
+  for (const a of areas) itemCount += _list(_dict(a).items).length;
+
+  const outEntries = [];
+  for (const fmt of ["docx", "html", "markdown"]) {
+    const p = outputs[fmt];
+    if (p) {
+      const bytes = fs.readFileSync(p);
+      outEntries.push({
+        format: fmt,
+        filename: path.basename(p),
+        bytes: bytes.length,
+        sha256: _sha256Hex(bytes),
+        primary: outputs.primary === p,
+      });
+    }
+  }
+
+  const issues = _list(preflightIssues)
+    .map((i) => ({ code: _s(_dict(i).code), severity: _s(_dict(i).severity) }))
+    .sort((a, b) => (a.code < b.code ? -1 : a.code > b.code ? 1
+      : a.severity < b.severity ? -1 : a.severity > b.severity ? 1 : 0));
+
+  const core = {
+    manifest_version: "1",
+    manifest_kind: "trace_manifest",
+    stage: "delivery_terminal",
+    input: {
+      findings_sha256: _sha256Hex(Buffer.from(_canonicalJson(findings), "utf8")),
+      report_title: _s(meta.report_title),
+      generated_for: _s(meta.generated_for),
+      review_mode: _s(meta.review_mode),
+      source_count: _list(findings.source_documents).length,
+      area_count: areas.length,
+      item_count: itemCount,
+    },
+    preflight: {
+      counts: {
+        error: preflightCounts.error || 0,
+        warning: preflightCounts.warning || 0,
+        info: preflightCounts.info || 0,
+      },
+      issues,
+      hard_stop: false,
+    },
+    outputs: outEntries,
+    primary_format: _s(outputs.primary_format),
+    docx_generated: Boolean(outputs.docx),
+  };
+
+  const manifestSha256 = _sha256Hex(Buffer.from(_canonicalJson(core), "utf8"));
+  return { ...core, manifest_sha256: manifestSha256 };
+}
+
+/** manifest를 out-dir의 run_manifest.json으로 쓴다(결정적 직렬화). 생성 경로(basename) 반환. */
+function writeTraceManifest(manifest, outDir) {
+  const p = path.join(outDir, MANIFEST_FILENAME);
+  fs.writeFileSync(p, JSON.stringify(manifest, null, 2) + "\n", "utf8");
+  return p;
+}
+
 /**
  * findings를 전달 산출물로 배선한다(D94 hard stop 포함).
  *
@@ -144,7 +255,7 @@ function buildHardStopSummary(preflightCounts) {
  * - hard stop 시 어떤 보고서 파일도 생성하지 않는다(out_dir 미생성 포함).
  */
 function deliver(findings, outDir, options = {}) {
-  const { baseName = null, preferDocx = true } = options;
+  const { baseName = null, preferDocx = true, manifest = false } = options;
   if (!(findings !== null && typeof findings === "object" && !Array.isArray(findings))) {
     throw new R.RenderError("findings 최상위가 JSON 객체가 아닙니다.");
   }
@@ -154,7 +265,7 @@ function deliver(findings, outDir, options = {}) {
   const counts = _issueCounts(issues);
   const preflight = { counts, issues: issues.map((i) => i.asDict()) };
 
-  // 2) D94 hard stop: error ≥ 1이면 보고서를 생성하지 않는다(산출물 0).
+  // 2) D94 hard stop: error ≥ 1이면 보고서를 생성하지 않는다(산출물 0·manifest 미생성).
   if ((counts.error || 0) >= 1) {
     return {
       hard_stop: true,
@@ -162,18 +273,34 @@ function deliver(findings, outDir, options = {}) {
       outputs: {},
       preflight,
       internal_notes: [`preflight: ${JSON.stringify(counts)}`, "hard_stop: report generation blocked (D94)"],
+      manifest: null,
+      manifest_error: null,
     };
   }
 
   // 3) 대표 문서 렌더(재판정 없음). DOCX → HTML → Markdown.
   const outputs = R.renderReport(findings, outDir, { baseName, preferDocx });
 
-  // 4) 사용자-facing 요약(안전) 생성.
+  // 4) 사용자-facing 요약(안전) 생성. (manifest 생성 여부와 무관하게 동일 — user_summary 불변.)
   const userSummary = buildUserSummary(findings, outputs, counts);
 
   const internalNotes = [];
   if (outputs.docx_error) internalNotes.push(`docx_error: ${outputs.docx_error}`);
   internalNotes.push(`preflight: ${JSON.stringify(counts)}`);
+
+  // 5) opt-in trace manifest(기본 off). 실패해도 대표 문서 delivery 성공을 깨지 않는다.
+  let manifestResult = null;
+  let manifestError = null;
+  if (manifest) {
+    try {
+      const m = buildTraceManifest(findings, outputs, counts, preflight.issues);
+      const mp = writeTraceManifest(m, outDir);
+      manifestResult = { filename: path.basename(mp), manifest_sha256: m.manifest_sha256 };
+    } catch {
+      // 경로·stack 미노출 — 짧은 사유 코드만. manifest 미생성은 provenance 캡처 성공으로 오인되면 안 된다.
+      manifestError = "manifest_generation_failed";
+    }
+  }
 
   return {
     hard_stop: false,
@@ -181,6 +308,8 @@ function deliver(findings, outDir, options = {}) {
     outputs,
     preflight,
     internal_notes: internalNotes,
+    manifest: manifestResult,
+    manifest_error: manifestError,
   };
 }
 
@@ -189,10 +318,10 @@ function deliver(findings, outDir, options = {}) {
 // ---------------------------------------------------------------------------
 
 const USAGE = "사용법: node kssb_report_delivery.cjs <findings.json> [-o|--out <출력 폴더>] "
-  + "[--base-name <이름>] [--html-only] [--debug]";
+  + "[--base-name <이름>] [--html-only] [--manifest] [--debug]";
 
 function main(argv) {
-  const args = { findings: null, outDir: ".", baseName: null, htmlOnly: false, debug: false };
+  const args = { findings: null, outDir: ".", baseName: null, htmlOnly: false, manifest: false, debug: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "-o" || a === "--out" || a === "--out-dir") {
@@ -204,6 +333,7 @@ function main(argv) {
       if (!v) { console.error(USAGE); return 2; }
       args.baseName = v;
     } else if (a === "--html-only") args.htmlOnly = true;
+    else if (a === "--manifest") args.manifest = true;
     else if (a === "--debug") args.debug = true;
     else if (!a.startsWith("-") && args.findings === null) args.findings = a;
     else { console.error(USAGE); return 2; }
@@ -220,7 +350,8 @@ function main(argv) {
 
   let result;
   try {
-    result = deliver(findings, args.outDir, { baseName: args.baseName, preferDocx: !args.htmlOnly });
+    result = deliver(findings, args.outDir,
+      { baseName: args.baseName, preferDocx: !args.htmlOnly, manifest: args.manifest });
   } catch (e) {
     if (e instanceof R.RenderError) {
       console.error(`[error] 전달 불가: ${e.message}`);
@@ -240,13 +371,18 @@ function main(argv) {
     console.error("---- internal (debug) ----");
     console.error(JSON.stringify({
       outputs: result.outputs, preflight: result.preflight, internal_notes: result.internal_notes,
+      manifest: result.manifest, manifest_error: result.manifest_error,
     }, null, 2));
   }
 
   return result.hard_stop ? 4 : 0;
 }
 
-module.exports = { deliver, buildUserSummary, buildHardStopSummary, main };
+module.exports = {
+  deliver, buildUserSummary, buildHardStopSummary, main,
+  buildTraceManifest, writeTraceManifest, MANIFEST_FILENAME,
+  canonicalJson: _canonicalJson, sha256Hex: _sha256Hex,
+};
 
 if (require.main === module) {
   process.exit(main(process.argv.slice(2)));

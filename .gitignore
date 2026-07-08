@@ -35,3 +35,6 @@ out/
 *.intake.json
 *.ocr_text.json
 *.aux_signals.json
+
+# trace manifest(opt-in delivery provenance artifact — 기본 산출물 아님, repo 미커밋)
+run_manifest.json

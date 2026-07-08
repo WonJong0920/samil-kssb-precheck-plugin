@@ -72,7 +72,7 @@ reference다. 핵심은 **사용자-facing 최종 보고와 내부 실행 로그
 
 ```
 # 런타임 (Node)
-node src/renderers/kssb_report_delivery.cjs <findings.json> -o <out>          # findings→preflight→D94 hard stop→대표 문서(DOCX→HTML→MD)→사용자 요약(stdout). --html-only로 DOCX 생략, --debug로 내부 상세 stderr
+node src/renderers/kssb_report_delivery.cjs <findings.json> -o <out>          # findings→preflight→D94 hard stop→대표 문서(DOCX→HTML→MD)→사용자 요약(stdout). --html-only로 DOCX 생략, --manifest로 provenance manifest 생성(opt-in·기본 off), --debug로 내부 상세 stderr
 node src/validators/kssb_findings_validator.cjs <findings.json>               # detect-only, error 시 종료코드 1
 node src/intake/dei_producer.cjs <intake.json> --source-id <id>              # intake(+--ocr-text/--aux-signals)→DEI candidate(stdout). aux_signals '생성'은 Python 전용(D95)
 ```
@@ -99,6 +99,11 @@ python tests/test_delivery_wiring.py      # reference 전달 배선 end-to-end �
 
 - 기본 산출물: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(fallback `.html`, `.md`) 대표 문서 1개(우선순위 DOCX→HTML→Markdown).
 - JSON/CSV/manifest/`_검토근거` 폴더는 기본 산출물이 아니다(내부 개발/검증용 가능성만).
+- **trace manifest(`run_manifest.json`)**: Node delivery의 **opt-in(기본 off)** 부가 산출물이다. `--manifest`/
+  `{ manifest: true }`일 때만 성공 delivery의 provenance(findings canonical hash·preflight 요약·산출물
+  basename/bytes/sha256·self-hash)를 out-dir에 **결정적**으로 기록한다. **대표 문서가 아니며** 판정·품질·
+  감사/인증류 필드가 없고 로컬 경로·계정명·stack·timestamp를 담지 않는다. D94 hard stop 시 미생성. 기본 산출물이
+  아니므로 `.gitignore`로 repo 유입을 방어한다(`docs/blackbox_protocol.md` §4의 수동 provenance 집계를 대체 가능).
 - 생성 문서는 커밋 대상이 아니며 findings에서 결정적으로 재생성 가능하다(`.gitignore` 산출물 제외).
 - plugin/cache/sandbox 내부 경로를 산출물·사용자 안내에 노출하지 않는다.
 - 제출 패키징(포함/제외 분류·원본 로그 방식·샘플 산출물 위치·최종 preflight)은 `docs/submission_packaging_policy.md` 참조.

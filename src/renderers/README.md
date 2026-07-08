@@ -24,9 +24,15 @@
   raw 이슈 위치·로컬 경로·stack 미노출, 상세는 프로그램 반환값·`--debug` stderr에만) → Node renderer
   (DOCX→HTML→MD) → 사용자-facing 요약. **Python delivery/renderer는 transitional reference로 무변경**
   (D92 ③ — error 시에도 경고 후 생성 계속하는 현행 동작 유지, D94 구현은 Node 경로에만).
-  사용: `node src/renderers/kssb_report_delivery.cjs <findings.json> -o <out_dir> [--base-name <이름>] [--html-only] [--debug]`
+  사용: `node src/renderers/kssb_report_delivery.cjs <findings.json> -o <out_dir> [--base-name <이름>] [--html-only] [--manifest] [--debug]`
   (exit: 0=성공 / 2=로드 실패 / 3=전달 불가 / 4=preflight hard stop / 1=예기치 못한 실패의 통제된 안내).
   Node 두 파일 모두 내장 모듈만 사용(외부 의존성·package.json 없음).
+  - **trace manifest(opt-in, 기본 off)**: `--manifest`/`{ manifest: true }`일 때만 성공 delivery의 provenance
+    (findings canonical-JSON hash·preflight 요약(code/severity)·산출물 basename/bytes/sha256·self-hash)를
+    `run_manifest.json` 내부 artifact로 **결정적** 기록한다. **대표 문서 아님**·판정/품질/감사·인증류 필드 없음·
+    로컬 경로/계정명/stack/timestamp 미포함. **D94 hard stop 시 미생성**, 생성 실패는 delivery 성공을 깨지 않고
+    `manifest_error`(경로·stack 없는 짧은 사유)로만 남긴다. Node-only 신규 stage(포트 아님 — Python parity 비대상).
+    기본 산출물이 아니므로 `.gitignore`로 방어한다.
 
 ## 포지셔닝
 
