@@ -12,13 +12,14 @@ Skill (판단 엔진)
      판정·근거 앵커·부족정보·고객 질문·권고를 source-bound 구조화 findings로 생성
         → src/schemas/kssb_findings.schema.json / docs/findings_schema_contract.md 계약 준수
 Validator (detect-only preflight 게이트)
-  └─ src/validators/kssb_findings_validator.py 가 findings를 재판정 없이 점검
-     (구조 필수 필드·source_id cross-reference·모드↔라벨 정합·source-bound 조건부 규칙·
-      빈 quote·질문 필수 6필드·금지 표현·내부 경로 노출). findings를 고치지 않고 감지·보고만.
-     error가 있으면 findings를 바로잡은 뒤 다음 단계로.
-Renderer (형식 변환기)
-  └─ src/renderers/kssb_report_renderer.py 가 동일 findings를 재판정 없이
-     대표 DOCX + HTML fallback으로 결정적 변환(단일 소스 파생).
+  └─ findings를 재판정 없이 점검(구조 필수 필드·source_id cross-reference·모드↔라벨 정합·
+     source-bound 조건부 규칙·빈 quote·질문 필수 6필드·금지 표현·내부 경로 노출).
+     런타임 = Node(src/validators/kssb_findings_validator.cjs), Python(.py)은 golden parity reference.
+     findings를 고치지 않고 감지·보고만. error가 있으면 findings를 바로잡은 뒤 다음 단계로.
+Renderer / Delivery (형식 변환기 + 전달 배선)
+  └─ 동일 findings를 재판정 없이 대표 문서(DOCX → HTML → Markdown)로 결정적 변환(단일 소스 파생).
+     런타임 = Node(src/renderers/kssb_report_delivery.cjs → kssb_report_renderer.cjs, D94 hard stop 내장),
+     Python(.py)은 reference.
 Human review (사람 검수)
   └─ 산출물은 초안. 컨설턴트가 검수·수정·확정. 확인 불가·상충 항목은 사람 검토로.
 ```
@@ -29,17 +30,24 @@ Human review (사람 검수)
 |---|---|---|---|
 | **Skill** | 판단 엔진 | source-bound findings 생성(판정·근거·질문·권고) | 최종 문서 직접 작성, 감사·인증·준수 확정 |
 | **Validator** | detect-only preflight 게이트 | 구조적 위험 감지·보고(Issue 목록) | findings 수정, 판정·근거·질문 생성 |
-| **Renderer** | 형식 변환기 | findings를 DOCX/HTML로 형식 변환 | judgment 재계산, 근거·질문 생성 |
+| **Renderer** | 형식 변환기 | findings를 DOCX/HTML/Markdown으로 형식 변환 | judgment 재계산, 근거·질문 생성 |
 | **사람 검수** | 최종 판단 | 검수·수정·확정 | — |
 
-- **단일 source of truth**: findings 하나에서 검증·렌더가 파생한다. DOCX와 HTML은 서로 다른 판정을 내지 않는다.
+- **단일 source of truth**: findings 하나에서 검증·렌더가 파생한다. DOCX·HTML·Markdown은 서로 다른 판정을 내지 않는다.
 - **재판정 금지**: 검증기·렌더러는 `judgment_code`/`judgment_label`을 소비만 하고 다시 계산하지 않는다.
 - **Skill-first**: 사용자는 스킬만 호출한다. 검증기·렌더러의 CLI는 **내부/검증용**이며 기본 사용자 흐름이 아니다.
+- **런타임 경로 = Node, reference = Python**: core 구성요소(validator·delivery·renderer·DEI producer)는
+  **Node 이식(`.cjs`)이 런타임 경로**다(2N-6 Phase 2 N1~N4 완료 — 각 Codex review PASS, closure는
+  `docs/cycle2n_6_phase2_closure_summary.md`). Python(`.py`)은 **golden parity reference**로 유지한다
+  (제거·deprecation 아님 — D93 ③, 제출 패키징 단계에서 최종 처리 결정). 예외: **aux scanner**(HWPX/DOCX
+  보조 신호 **생성**)는 Node 미이식 한계(D95)로 Python reference 전용이다 — 단 aux_signals **소비**는
+  Node(`dei_producer.cjs`)에서 가능하며, aux는 core 보고서 생성의 필수 조건이 아니다.
 
 ## 전달 계약 (Delivery contract, Cycle 2I-1)
 
-전달 배선기 `src/renderers/kssb_report_delivery.py`(내부 구성요소)가 **findings → preflight(detect-only) → 대표 문서 →
-사용자-facing 요약**을 잇는다. 핵심은 **사용자-facing 최종 보고와 내부 실행 로그의 분리**다.
+전달 배선기(내부 구성요소)가 **findings → preflight(detect-only) → 대표 문서 → 사용자-facing 요약**을 잇는다.
+런타임 구현은 Node `src/renderers/kssb_report_delivery.cjs`, Python `src/renderers/kssb_report_delivery.py`는
+reference다. 핵심은 **사용자-facing 최종 보고와 내부 실행 로그의 분리**다.
 
 - **대표 문서 보장·우선순위**: DOCX → HTML → Markdown. DOCX 생성이 제한돼도 HTML·Markdown fallback은 항상 생성되며,
   `render_report()`가 `primary`/`primary_format`으로 대표 문서를 지정한다. 파일명은 `<보고서명>_KSSB_공시근거_사전검토보고서.{docx|html|md}`.
@@ -59,21 +67,32 @@ Human review (사람 검수)
 
 ## 내부/검증용 실행 (개발·CI 참고, 사용자 흐름 아님)
 
-```
-python src/renderers/kssb_report_delivery.py <findings.json> -o <out>   # findings→preflight→대표 문서→사용자 요약(stdout)
-python src/renderers/kssb_report_delivery.py <findings.json> -o <out> --debug   # 내부 상세는 stderr로 분리
-node   src/renderers/kssb_report_delivery.cjs <findings.json> -o <out>  # Node 이식(N2+N4 — DOCX→HTML→MD·D94 hard stop: preflight error 시 산출물 미생성·exit 4. --html-only로 DOCX 생략)
-python src/validators/kssb_findings_validator.py <findings.json>   # detect-only, error 시 종료코드 1 (reference)
-node   src/validators/kssb_findings_validator.cjs <findings.json>  # Node 이식(N1 — 동일 규칙·exit, parity 테스트로 대조)
-python src/renderers/kssb_report_renderer.py <findings.json> -o <out>   # DOCX + HTML + Markdown fallback
-```
-
-재사용 점검 스크립트(표준 라이브러리, 출력은 repo 밖 임시 폴더):
+런타임 경로는 **Node 이식(`.cjs`)**이다. **Python(`.py`)은 golden parity reference**로 함께 유지한다
+(제거 아님 — D93 ③). 둘 다 Skill 워크플로우 내부/검증용이며 기본 사용자 흐름이 아니다.
 
 ```
-python tests/test_findings_validator.py   # 검증기 점검
-python tests/smoke_test_renderer.py       # 렌더러 스모크
-python tests/test_delivery_wiring.py      # 전달 배선 end-to-end 스모크
+# 런타임 (Node)
+node src/renderers/kssb_report_delivery.cjs <findings.json> -o <out>          # findings→preflight→D94 hard stop→대표 문서(DOCX→HTML→MD)→사용자 요약(stdout). --html-only로 DOCX 생략, --debug로 내부 상세 stderr
+node src/validators/kssb_findings_validator.cjs <findings.json>               # detect-only, error 시 종료코드 1
+node src/intake/dei_producer.cjs <intake.json> --source-id <id>              # intake(+--ocr-text/--aux-signals)→DEI candidate(stdout). aux_signals '생성'은 Python 전용(D95)
+```
+
+```
+# reference (Python — golden parity 대조용, 개발/CI)
+python src/renderers/kssb_report_delivery.py <findings.json> -o <out> [--debug]   # reference (현행: error 시에도 경고 후 생성 계속 — D94 미구현)
+python src/validators/kssb_findings_validator.py <findings.json>                  # reference (동일 규칙·exit)
+python src/renderers/kssb_report_renderer.py <findings.json> -o <out>             # reference (DOCX + HTML + Markdown)
+python src/intake/dei_producer.py <intake.json> --source-id <id>                  # reference
+python src/intake/aux_structure_scanner.py …                                      # reference 전용(Node 미이식 한계 — D95)
+```
+
+재사용 점검 스크립트(출력은 repo 밖 임시 폴더):
+
+```
+node --test tests/*.test.cjs              # Node 런타임 스위트(validator·delivery·renderer·DEI·runner parity 포함)
+python tests/test_findings_validator.py   # reference 검증기 점검
+python tests/smoke_test_renderer.py       # reference 렌더러 스모크
+python tests/test_delivery_wiring.py      # reference 전달 배선 end-to-end 스모크
 ```
 
 ## 산출물 정책

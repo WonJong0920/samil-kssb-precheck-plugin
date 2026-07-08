@@ -4,11 +4,14 @@
 사용자-facing 진입점은 Skill 하나이며, 렌더러는 Skill이 만든 **구조화 findings**를
 **재판정 없이** 대표 DOCX/HTML/Markdown으로 바꾸는 단계일 뿐이다. 사용자는 Python/PATH를 의식하지 않는다.
 
-- `kssb_report_renderer.py` — findings → DOCX/HTML/Markdown 형식 변환기(재판정 없음).
-- `kssb_report_delivery.py` — findings → validator preflight(detect-only) → renderer → **사용자-facing 요약** 배선기.
+**런타임 경로는 Node 이식(`.cjs`, 아래)**이며, 아래 Python(`.py`) 2종은 **golden parity reference**로 유지한다
+(제거 아님 — D93 ③). Python:
+
+- `kssb_report_renderer.py` — **(reference)** findings → DOCX/HTML/Markdown 형식 변환기(재판정 없음).
+- `kssb_report_delivery.py` — **(reference)** findings → validator preflight(detect-only) → renderer → **사용자-facing 요약** 배선기.
   사용자 요약과 내부 상세(전체 경로·validator 이슈)를 분리하고, 로컬 절대경로·계정명을 비노출한다. 전달 계약: `docs/workflow_usage.md`.
 
-**Node 이식 2종 (2N-6 Phase 2 N2 HTML/MD → N4 DOCX — D92 Node 이식)**:
+**Node 이식 2종 (런타임 — 2N-6 Phase 2 N2 HTML/MD → N4 DOCX — D92 Node 이식)**:
 - `kssb_report_renderer.cjs` — Python renderer의 **HTML/Markdown/DOCX 경로 충실 이식**. HTML/MD는
   섹션·문구 동일(`tests/test_delivery_node_parity.test.cjs` 전문 대조), **DOCX는 N4 이식 완료**:
   `buildDocumentXml`/`docxBytes` + `zlib`만으로 결정적 최소 ZIP(OOXML) 수동 조립(엔트리 순서·
@@ -57,24 +60,37 @@ customer_questions/recommendations 생성, 외부 지식 보강, 문서 밖 추�
 
 ## 사용(내부/검증용)
 
+런타임 경로는 **Node 이식(`.cjs`)**이다. Python(`.py`)은 golden parity reference로 유지한다(제거 아님 — D93 ③).
+
 ```
-python src/renderers/kssb_report_renderer.py src/schemas/kssb_findings_example.json -o <출력폴더>
+# 런타임 (Node — 대표 문서 DOCX → HTML → Markdown, D94 hard stop)
+node src/renderers/kssb_report_delivery.cjs findings.json -o <출력폴더> [--base-name <이름>] [--html-only] [--debug]
+node src/renderers/kssb_report_renderer.cjs   # 모듈 API(renderReport/docxBytes/buildDocumentXml) — 별도 CLI 없음
 ```
 
-- `--html-only`: HTML fallback만 생성.
-- `--base-name`: 파일명 base 재정의.
+```
+# reference (Python — golden parity 대조용)
+python src/renderers/kssb_report_renderer.py src/schemas/kssb_findings_example.json -o <출력폴더>   # --html-only / --base-name
+```
 
-프로그램 사용 시:
+프로그램 사용:
+
+```js
+// 런타임 (Node)
+const R = require("./src/renderers/kssb_report_renderer.cjs");
+const out = R.renderReport(R.loadFindings("findings.json"), "build");
+// out == { docx, html, markdown, primary, primary_format, docx_error }
+const D = require("./src/renderers/kssb_report_delivery.cjs");
+const res = D.deliver(R.loadFindings("findings.json"), "build");
+// res.user_summary = 안전한 사용자-facing 요약, res.outputs/res.preflight = 내부 상세
+```
 
 ```python
+# reference (Python)
 from kssb_report_renderer import load_findings, render_report
 out = render_report(load_findings("findings.json"), out_dir="build")
-# out == {"docx":..., "html":..., "markdown":..., "primary":..., "primary_format":..., "docx_error":...}
-
-# 전달 배선기(preflight + 대표 문서 + 사용자-facing 요약)
 from kssb_report_delivery import deliver
 res = deliver(load_findings("findings.json"), out_dir="build")
-# res["user_summary"] = 안전한 사용자-facing 요약, res["outputs"]/res["preflight"] = 내부 상세
 ```
 
 ## 산출물 커밋 정책

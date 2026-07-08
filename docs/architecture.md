@@ -64,12 +64,16 @@ Samil KSSB Precheck Plugin/
 사용자-facing 진입점은 스킬 하나이며, 스킬 절차가 아래 내부 단계를 잇는다. 상세·경계는 `docs/workflow_usage.md`.
 
 1. **Skill(판단 엔진)** — source-bound 구조화 findings 생성(단일 source of truth). 계약: `src/schemas/kssb_findings.schema.json`.
-2. **Validator(detect-only preflight 게이트)** — `src/validators/kssb_findings_validator.py`. findings를 재판정 없이 점검해
-   구조적 위험을 감지·보고만 한다(findings 미변경). 표준 라이브러리, `jsonschema`는 있으면 선택 사용.
-3. **Renderer(형식 변환기)** — `src/renderers/kssb_report_renderer.py`. 동일 findings를 재판정 없이 DOCX/HTML로 결정적 변환.
+2. **Validator(detect-only preflight 게이트)** — findings를 재판정 없이 점검해 구조적 위험을 감지·보고만 한다(findings 미변경).
+   **런타임 = Node `kssb_findings_validator.cjs`, Python `.py`는 golden parity reference**(외부 의존성 0).
+3. **Renderer / Delivery(형식 변환기 + 전달 배선)** — 동일 findings를 재판정 없이 대표 문서(DOCX → HTML → Markdown)로 결정적 변환.
+   **런타임 = Node `kssb_report_delivery.cjs`/`kssb_report_renderer.cjs`(D94 hard stop 내장), Python `.py`는 reference**.
 4. **사람 검수** — 산출물은 초안. 컨설턴트가 검수·수정·확정.
 
 원칙: 단일 소스 파생, 재판정 금지, Skill-first(검증기·렌더러는 내부 구성요소), 사람 검수 경계 유지.
+런타임 완결 경로는 Node 이식(`.cjs`, 2N-6 Phase 2 N1~N4 — closure는 `docs/cycle2n_6_phase2_closure_summary.md`)이며,
+Python(`.py`)은 이식 완료 후에도 golden parity reference로 유지한다(제거 아님 — D93 ③). aux scanner(보조 신호 생성)만
+Node 미이식 한계(D95)로 Python reference 전용이다(§ `docs/workflow_usage.md`).
 
 ## 보고서 템플릿 구조
 - 대표 산출물 1개 원칙: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(fallback `.html`).
