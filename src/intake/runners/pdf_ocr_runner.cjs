@@ -280,7 +280,7 @@ async function defaultFetchBuffer(url) {
 async function downloadTraineddata(toolCache, fetchFn, opts = {}) {
   // 제3 출처(고지된 raw.githubusercontent.com) — pinned hash fail-fast, 불일치 파일은 남기지 않는다.
   const dir = traineddataDir(toolCache);
-  fs.mkdirSync(dir, { recursive: true });
+  R.guardedWrite(() => fs.mkdirSync(dir, { recursive: true })); // R1: 쓰기 실패 통제(경로 미노출)
   for (const lang of OCR_LANGS) {
     const url = `${TRAINEDDATA_SOURCE_BASE}/${lang}.traineddata`;
     R.appendPrepEgress(toolCache, "download", "started", `GET ${lang}.traineddata`, {
@@ -304,7 +304,7 @@ async function downloadTraineddata(toolCache, fetchFn, opts = {}) {
       });
       throw new R.RunnerError(`traineddata hash mismatch: ${lang} (fail-fast — 파일을 저장하지 않습니다)`);
     }
-    fs.writeFileSync(path.join(dir, `${lang}.traineddata`), buf);
+    R.guardedWrite(() => fs.writeFileSync(path.join(dir, `${lang}.traineddata`), buf));
     R.appendPrepEgress(toolCache, "download", "ok", `GET ${lang}.traineddata`, {
       ...opts, provider: OCR_PROVIDER, version: OCR_PINS["tesseract.js"],
       source: TRAINEDDATA_SOURCE_HOST,
@@ -375,9 +375,17 @@ function buildOcrTextArtifact(execResult, provenance) {
 
 function atomicWriteJson(finalPath, obj) {
   // partial artifact를 final처럼 남기지 않는다: 같은 폴더의 임시 파일에 완성본을 쓴 뒤 rename.
+  // R1: 쓰기 실패는 통제된 실패(경로 미노출) — 실패 시 임시 파일도 정리한다.
   const tmp = `${finalPath}.tmp-${process.pid}-${Date.now()}`;
-  fs.writeFileSync(tmp, JSON.stringify(obj, null, 1), "utf8");
-  fs.renameSync(tmp, finalPath);
+  R.guardedWrite(() => {
+    try {
+      fs.writeFileSync(tmp, JSON.stringify(obj, null, 1), "utf8");
+      fs.renameSync(tmp, finalPath);
+    } catch (e) {
+      fs.rmSync(tmp, { force: true });
+      throw e;
+    }
+  }, R.OUTDIR_WRITE_FAIL_MESSAGE);
 }
 
 // ---- CLI --------------------------------------------------------------------------
@@ -415,6 +423,20 @@ function parseArgs(argv) {
 }
 
 async function main(argv, opts = {}) {
+  // R1(2N-6 Phase 0): 기록/폴더 쓰기 실패 등 RunnerError는 프로그램적 호출에서도 reject로 새지
+  // 않고 한국어 안내 + exit 7로 수렴(CLI 경계 catch는 최후 방어로 유지).
+  try {
+    return await mainInner(argv, opts);
+  } catch (e) {
+    if (e instanceof R.RunnerError) {
+      console.log(e.message);
+      return R.EXIT_RUN_FAILED;
+    }
+    throw e;
+  }
+}
+
+async function mainInner(argv, opts = {}) {
   const whichFn = opts.which || R.which;
   const execFn = opts.execFn || defaultExec;
   const fetchFn = opts.fetchFn || defaultFetchBuffer;
@@ -543,7 +565,7 @@ async function main(argv, opts = {}) {
     return R.EXIT_RUN_APPROVAL_REQUIRED;
   }
 
-  fs.mkdirSync(ns.outDir, { recursive: true });
+  R.guardedWrite(() => fs.mkdirSync(ns.outDir, { recursive: true }), R.OUTDIR_WRITE_FAIL_MESSAGE);
   R.recordApproval(ns.toolCache, "run", `ocr:${path.basename(ns.input)}`, opts);
 
   // scratch(체크포인트·결과·OCR cache)는 repo 밖 임시 폴더 — 종료 시 항상 삭제.

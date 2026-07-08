@@ -619,6 +619,12 @@ def _main(argv: list[str] | None = None) -> int:
     이미 만들어진 인테이크 JSON을 DEI-candidate JSON으로 변환해 출력만 한다.
     OCR/네트워크/외부 도구를 실행하지 않는다.
     """
+    # R3(2N-6 Phase 0 — 2N-5 Major): Windows 콘솔(cp949)에서 비-ASCII 힌트(예: bbox≈) 출력이
+    # UnicodeEncodeError로 죽는 것을 방지하는 최소 안전 가드(D92 ③ 예외 범위 — CLI 진입점 한정).
+    # PYTHONUTF8=1 규약(docs/blackbox_protocol.md)과 이중 방어이며 라이브러리 사용 경로에는 영향 없음.
+    for _stream in (sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description="[internal] intake JSON -> DEI-candidate JSON (no execution)")
     ap.add_argument("intake_json", help="already-extracted intake JSON path (produced out-of-band)")
     ap.add_argument("--source-id", required=True)

@@ -167,6 +167,11 @@ def deliver(findings: dict, out_dir: str | Path, base_name: str | None = None,
 
 
 def _main(argv: list[str] | None = None) -> int:
+    # R3(2N-6 Phase 0 — 2N-5 Major): Windows 콘솔(cp949)에서 한국어 사용자 요약/파일명 출력이
+    # 깨지거나 죽는 것을 방지하는 최소 안전 가드(CLI 진입점 한정 — PYTHONUTF8 규약과 이중 방어).
+    for _stream in (sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(
         description="Samil KSSB Precheck 전달 배선기(내부 구성요소). findings → preflight → 대표 문서 → "
                     "사용자-facing 요약. stdout=사용자 요약, --debug 시 stderr=내부 상세.")

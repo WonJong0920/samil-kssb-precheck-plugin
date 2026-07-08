@@ -272,39 +272,65 @@ function utcTimestamp(nowFn) {
   return d.toISOString().slice(0, 19) + "Z";
 }
 
+// R1(2N-6 Phase 0 — 2N-5 Major): tool-cache/로그/폴더 쓰기 실패(권한 거부·읽기 전용·백신 차단 등)는
+// stack trace·로컬 경로를 사용자 출력에 노출하지 않는 통제된 실패로 수렴한다 — RunnerError로 승격해
+// main 래퍼/CLI 경계에서 한국어 안내 + 문서화된 exit 7로 종료. **메시지에는 어떤 경로도 넣지 않는다.**
+const TOOLCACHE_WRITE_FAIL_MESSAGE =
+  "■ 로컬 기록 폴더(tool-cache)에 기록할 수 없어 작업을 중단합니다\n" +
+  "  - 폴더 권한·읽기 전용 설정·보안 프로그램(백신) 차단 여부를 확인한 뒤 다시 시도하십시오.\n" +
+  "  - 쓰기 가능한 다른 위치를 --tool-cache 옵션으로 지정할 수도 있습니다.\n" +
+  "  - 기본 텍스트 기반 검토는 계속 진행할 수 있습니다.";
+const OUTDIR_WRITE_FAIL_MESSAGE =
+  "■ 산출물 폴더(--out-dir)를 만들거나 기록할 수 없어 작업을 중단합니다\n" +
+  "  - 폴더 권한·경로 오타·읽기 전용 설정을 확인한 뒤 다시 시도하십시오.\n" +
+  "  - 기본 텍스트 기반 검토는 계속 진행할 수 있습니다.";
+
+function guardedWrite(fn, failMessage = TOOLCACHE_WRITE_FAIL_MESSAGE) {
+  try {
+    return fn();
+  } catch (e) {
+    if (e instanceof RunnerError) throw e; // 이미 통제된 실패(예: 무결성 불일치)는 메시지 보존
+    throw new RunnerError(failMessage);
+  }
+}
+
 function appendPrepEgress(toolCache, action, status, commandSummary, opts = {}) {
-  const dir = String(toolCache);
-  fs.mkdirSync(dir, { recursive: true });
-  const log = path.join(dir, "prep_egress_log.jsonl");
-  const entry = {
-    timestamp: utcTimestamp(opts.now),
-    action,
-    provider: opts.provider || "kordoc",
-    version: opts.version || KORDOC_VERSION,
-    source: opts.source || NPM_SOURCE,
-    command_summary: commandSummary,
-    status,
-  };
-  fs.appendFileSync(log, sortedFlatJson(entry) + "\n", "utf8");
-  return log;
+  return guardedWrite(() => {
+    const dir = String(toolCache);
+    fs.mkdirSync(dir, { recursive: true });
+    const log = path.join(dir, "prep_egress_log.jsonl");
+    const entry = {
+      timestamp: utcTimestamp(opts.now),
+      action,
+      provider: opts.provider || "kordoc",
+      version: opts.version || KORDOC_VERSION,
+      source: opts.source || NPM_SOURCE,
+      command_summary: commandSummary,
+      status,
+    };
+    fs.appendFileSync(log, sortedFlatJson(entry) + "\n", "utf8");
+    return log;
+  });
 }
 
 function recordApproval(toolCache, kind, target, opts = {}) {
-  const dir = String(toolCache);
-  fs.mkdirSync(dir, { recursive: true });
-  const p = path.join(dir, "approvals.json");
-  let data = {};
-  if (fs.existsSync(p)) {
-    try {
-      data = JSON.parse(fs.readFileSync(p, "utf8"));
-    } catch {
-      data = {};
+  return guardedWrite(() => {
+    const dir = String(toolCache);
+    fs.mkdirSync(dir, { recursive: true });
+    const p = path.join(dir, "approvals.json");
+    let data = {};
+    if (fs.existsSync(p)) {
+      try {
+        data = JSON.parse(fs.readFileSync(p, "utf8"));
+      } catch {
+        data = {};
+      }
     }
-  }
-  if (!data[kind] || typeof data[kind] !== "object") data[kind] = {};
-  data[kind][target] = utcTimestamp(opts.now);
-  fs.writeFileSync(p, JSON.stringify(sortDeep(data), null, 1), "utf8");
-  return p;
+    if (!data[kind] || typeof data[kind] !== "object") data[kind] = {};
+    data[kind][target] = utcTimestamp(opts.now);
+    fs.writeFileSync(p, JSON.stringify(sortDeep(data), null, 1), "utf8");
+    return p;
+  });
 }
 
 // ---- artifact / provenance -----------------------------------------------------
@@ -334,12 +360,14 @@ function buildRunProvenance(childOutput, evidenceMode = false) {
 }
 
 function appendRunLog(toolCache, provenance, inputName, opts = {}) {
-  const dir = String(toolCache);
-  fs.mkdirSync(dir, { recursive: true });
-  const log = path.join(dir, "run_log.jsonl");
-  const entry = { timestamp: utcTimestamp(opts.now), input: inputName, ...provenance };
-  fs.appendFileSync(log, sortedFlatJson(entry) + "\n", "utf8");
-  return log;
+  return guardedWrite(() => {
+    const dir = String(toolCache);
+    fs.mkdirSync(dir, { recursive: true });
+    const log = path.join(dir, "run_log.jsonl");
+    const entry = { timestamp: utcTimestamp(opts.now), input: inputName, ...provenance };
+    fs.appendFileSync(log, sortedFlatJson(entry) + "\n", "utf8");
+    return log;
+  });
 }
 
 // ---- 실행 오케스트레이션 (승인 게이트 뒤에서만 execFn 호출) ---------------------
@@ -381,6 +409,20 @@ function parseArgs(argv) {
 }
 
 function main(argv, opts = {}) {
+  // R1: 기록/폴더 쓰기 실패를 포함한 모든 RunnerError는 프로그램적 호출에서도 throw로 새지 않고
+  // 한국어 안내 + 문서화된 exit 7로 수렴한다(CLI 경계 catch는 최후 방어로 유지).
+  try {
+    return mainInner(argv, opts);
+  } catch (e) {
+    if (e instanceof RunnerError) {
+      console.log(e.message);
+      return EXIT_RUN_FAILED;
+    }
+    throw e;
+  }
+}
+
+function mainInner(argv, opts = {}) {
   const whichFn = opts.which || which;
   const execFn = opts.execFn || defaultExec;
 
@@ -456,7 +498,7 @@ function main(argv, opts = {}) {
     return EXIT_RUN_APPROVAL_REQUIRED;
   }
 
-  fs.mkdirSync(outDir, { recursive: true });
+  guardedWrite(() => fs.mkdirSync(outDir, { recursive: true }), OUTDIR_WRITE_FAIL_MESSAGE);
   recordApproval(toolCache, "run", path.basename(inputPath), opts);
   const paths = artifactPaths(inputPath, outDir);
   const [cmd, envExtra] = buildRunCommand(node.node, inputPath, paths.intake, toolCache);
@@ -521,6 +563,9 @@ module.exports = {
   installApprovalMessage,
   runApprovalMessage,
   nodeMissingMessage,
+  TOOLCACHE_WRITE_FAIL_MESSAGE,
+  OUTDIR_WRITE_FAIL_MESSAGE,
+  guardedWrite,
   outOfScopeMessage,
   sortedFlatJson,
   appendPrepEgress,

@@ -183,7 +183,7 @@ function pdfKordocFirstMain(ns, opts = {}) {
     return R.EXIT_RUN_APPROVAL_REQUIRED;
   }
 
-  fs.mkdirSync(outDir, { recursive: true });
+  R.guardedWrite(() => fs.mkdirSync(outDir, { recursive: true }), R.OUTDIR_WRITE_FAIL_MESSAGE);
   R.recordApproval(toolCache, "run", path.basename(inputPath), opts);
   const paths = R.artifactPaths(inputPath, outDir);
   const [cmd, envExtra] = R.buildRunCommand(node.node, inputPath, paths.intake, toolCache);
@@ -217,6 +217,20 @@ const USAGE =
   "[--tool-cache <경로>] [--check] [--approve-install] [--approve-run] [--evidence-mode]";
 
 function main(argv, opts = {}) {
+  // R1(2N-6 Phase 0): 기록/폴더 쓰기 실패 등 RunnerError는 프로그램적 호출에서도 throw로 새지
+  // 않고 한국어 안내 + exit 7로 수렴(HWP-계열 위임 경로는 R.main이 자체적으로 동일 계약을 보장).
+  try {
+    return mainInner(argv, opts);
+  } catch (e) {
+    if (e instanceof R.RunnerError) {
+      console.log(e.message);
+      return R.EXIT_RUN_FAILED;
+    }
+    throw e;
+  }
+}
+
+function mainInner(argv, opts = {}) {
   const ns = R.parseArgs(argv || []);
   if (ns === null) {
     console.error(USAGE);

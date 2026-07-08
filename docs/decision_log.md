@@ -1301,6 +1301,20 @@
   `docs/samples/codex_cycle2n_5_black_box_execution_evidence.md`,
   `docs/planning/cycle2n_4c_runtime_strategy_python_reduction_plan.md`(S1/S2 원 논의), `docs/decision_log.md` D90.
 
+## D93. 2N-5R·N5·Python 원본에 대한 사용자 결정 3건 (D92 open questions 종결)
+- **Date**: 2026-07-08
+- **Context**: D92(C안 단독) 계획의 사용자 결정 요청 3건 + Codex 계획 리뷰 **PASS** 후 사용자가 확정.
+- **Decision**:
+  ① **2N-5R에서 승인 기반 OCR·HWP 실 실행을 필수 시나리오로 둔다** — 단 OCR/HWP complete 선언이
+  아니라 **실제 승인 경로·fallback·누출 방지 검증으로 한정**한다(검증 프레임: `docs/blackbox_protocol.md`).
+  ② **N5(aux scanner)는 Node 이식하지 않는다** — Node-only 경로의 **명시적 한계**로 확정
+  (HWPX/DOCX 보조 교차 신호는 Python reference 경로 전용 — Phase 2 진입 시 관련 README에 한계 기록).
+  ③ **Python 원본은 지금 제거하지 않는다** — Phase 2 Node 이식 완료 전까지 golden parity
+  reference로 유지하고, 최종 submission.zip 포함 여부는 **제출 패키징 단계에서 결정**한다.
+- **Status**: 결정 기록. 코드 영향은 각 Phase 사이클에서 집행.
+- **Related Files**: `docs/planning/post_2n5_final_remediation_plan_node_only.md`(§7),
+  `docs/reviews/codex_post_2n5_final_remediation_plan_node_only_review.md`, `docs/blackbox_protocol.md`.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

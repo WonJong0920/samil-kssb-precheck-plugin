@@ -6,6 +6,18 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 0 — R1·R2·R3 (2N-5 Major 3건 보정)**(좁은 patch + 문서. Codex 계획 리뷰 **PASS**
+  후 착수, 사용자 결정 3건 = **D93** 기록). **R1**: tool-cache/로그/out-dir **쓰기 실패의 통제된 실패**
+  — 공통 기록 primitives를 guardedWrite로 승격(경로 미포함 한국어 안내 + baseline fallback + exit 7),
+  3 runner에 main 래퍼(프로그램/CLI 양쪽 수렴, 기존 계약 무변경), **승인 기록 실패 시 설치/실행 미시작**
+  (감사 추적 보존). 신규 테스트 **8/8**(권한 실패 mock — 실제 tool-cache 무접촉, CLI subprocess로 2N-5
+  실측 결함 직접 재현: 종전 exit 1+stack → exit 7·누출 0). **R2**: `docs/blackbox_protocol.md` — 수동
+  Skill-run+후반부 스크립트 프로토콜, 시나리오 1 PASS/FAIL/BLOCKED 판정 기준(LLM 비결정성 명시).
+  **R3**: PYTHONUTF8 규약 문서화 + dei/delivery CLI 진입점 UTF-8 최소 가드(강제 cp949 실검증 —
+  2N-5 crash 케이스 exit 0). 회귀: Node 39/21/29/11+신규 8 · Python 83/34/11/22/30/49/29/26 전부 green.
+  보고: `docs/cycle2n_6_phase0_completion_report.md`. Node 이식(N1~) 미착수·portable Python 없음·
+  2N-5 PASS 선언 아님. **다음 = Codex Phase 0 review → Phase 1(Q1~Q5 docs) → 2N-5R**(D93: 승인 기반
+  OCR·HWP 실 실행 필수 — complete 선언 아닌 승인 경로·fallback·누출 방지 검증).
 - **Cycle 2N-6(계획) — Post-2N-5 최종 보완 계획 수립, C안 단독**(계획 문서만 — 코드 무변경. **D92**).
   입력 3종 통합: Claude 기능 검토(파이썬 없는 사용자 환경에서 core 출력 절반 부재) + GPT Python-free
   품질 판단(카탈로그·생성 절차·quote 검증 채택, hard stop은 Node delivery 이식에 내장, quote checker는
