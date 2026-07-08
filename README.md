@@ -49,12 +49,11 @@ KSSB 공시요구와 일일이 대조해 "근거가 확인되는 항목 / 부족
 2. **preflight 검증 (Validator = detect-only 게이트)**: 검증기가 findings를 **재판정 없이** 점검한다
    (구조 필수 필드·근거 참조·모드↔라벨 정합·source-bound 규칙·금지 표현·내부 경로). findings를 고치지 않고 감지·보고만 한다.
 3. **렌더/전달 (Renderer + Delivery = 형식 변환 + 전달)**: 동일 findings를 **재판정 없이** 대표
-   **DOCX → HTML → Markdown**으로 결정적 변환한다(preflight error 시 **D94 hard stop** — 산출물 미생성).
+   **DOCX → HTML → Markdown**으로 결정적 변환한다(preflight 오류가 있으면 **보고서를 만들지 않고 안전하게 중단**).
 4. **사람 검수**: 산출물은 **초안**이며 컨설턴트가 검수·수정·확정한다.
 
 검증기·렌더러는 스킬 워크플로우의 **내부 구성요소**다(사용자-facing CLI가 아니다).
-**런타임 구현은 Node 이식(`.cjs`)**이며(2N-6 Phase 2 N1~N4 완료 — closure: `docs/cycle2n_6_phase2_closure_summary.md`),
-Python(`.py`)은 **golden parity reference**로 유지한다(제거 아님 — D93 ③).
+**실행 런타임은 Node 구현(`.cjs`)**이며, Python 구현(`.py`)은 제거하지 않고 **동작 대조용 참조 기준**으로 함께 유지한다.
 
 상세 절차: [src/skills/samil-kssb-precheck/SKILL.md](src/skills/samil-kssb-precheck/SKILL.md) ·
 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md)
@@ -72,8 +71,8 @@ Python(`.py`)은 **golden parity reference**로 유지한다(제거 아님 — D
    source-bound 구조화 findings를 만든다. 예시에서는 **출처 자료 2건 · 항목 5건**, 판정 라벨 **5종이 각 1건**
    (공개자료상 근거 확인 / 일부 근거 확인, 보완 필요 / 공개자료로 확인 불가 / 상충 또는 해석 필요 / 검토 범위 외)으로 나온다.
 3. **preflight 검증 (detect-only 게이트)** — 검증기가 findings를 **재판정 없이** 점검한다(구조·근거 참조·
-   모드↔라벨 정합·금지 표현·내부 경로). 예시는 **error 0건** → 다음 단계로. error가 있으면 **D94 hard stop**
-   으로 보고서를 만들지 않고 "보완 후 재생성" 안내로 종료한다.
+   모드↔라벨 정합·금지 표현·내부 경로). 예시는 **오류 0건** → 다음 단계로. 오류가 있으면 **보고서를 만들지
+   않고 안전하게 중단**하며 "보완 후 재생성" 안내로 종료한다.
 4. **대표 문서 생성 (형식 변환)** — 동일 findings에서 **DOCX → HTML → Markdown**을 결정적으로 파생한다.
    대표 문서 1개(`<보고서명>_KSSB_공시근거_사전검토보고서.docx`) + HTML/Markdown fallback.
 5. **사용자-facing 요약** — 대표 문서 파일명·형식·preflight 건수·**고객 확인 질문 4건(요청자료·후속조치 포함)**·
@@ -84,12 +83,12 @@ Python(`.py`)은 **golden parity reference**로 유지한다(제거 아님 — D
 **경계**: 이 흐름의 산출물은 컨설턴트 검수용 **초안**이며 **감사·인증·준수 판단을 대체하지 않는다.**
 확인 불가 항목을 미공시로 단정하지 않는다. (문서 유형별 기대 동작·승인 지점은 아래 Quickstart 참조.)
 
-## 사용자 Quickstart · 지원 문서 유형 · 2N-5 시나리오
+## 사용자 Quickstart · 지원 문서 유형 · 검증 시나리오
 
-처음 사용하는 사용자/심사자는 **[docs/user_quickstart_pre_2n_5.md](docs/user_quickstart_pre_2n_5.md)** 한 장으로
+처음 사용하는 사용자/심사자는 **[사용자 Quickstart 문서](docs/user_quickstart_pre_2n_5.md)** 한 장으로
 다음을 파악할 수 있다: 파일 유형별(텍스트 PDF·혼합 PDF·스캔 PDF·DOCX·HWPX·HWP·미지원) 기대 동작과 fallback,
-어떤 단계에서 사용자 승인이 필요한지(로컬 판독 도구·**portable Node fallback — 채택됨**), 거부/실패 시 무엇이
-남는지, 산출물 기대치(DOCX 우선·컨설턴트 검수 초안), 2N-5 블랙박스 시나리오 체크리스트(12건).
+어떤 단계에서 사용자 승인이 필요한지(로컬 판독 도구·**승인 기반 Node 대체 실행 경로**), 거부/실패 시 무엇이
+남는지, 산출물 기대치(DOCX 우선·컨설턴트 검수 초안), 블랙박스 검증 시나리오 체크리스트(12건).
 
 요약 3줄:
 - **텍스트로 읽히는 자료는 기본 경로**로 바로 보고서 초안을 만든다(승인 불필요). PDF는 승인 시
@@ -99,7 +98,7 @@ Python(`.py`)은 **golden parity reference**로 유지한다(제거 아님 — D
   프로세스 수준 검증), 거부해도 기본 검토는 계속된다.
 - **core 플러그인은 OCR을 자동 실행하지 않는다** — OCR은 승인 기반 로컬 보조 실행의 **최소 경로**
   (문서의 '판독 필요' 페이지만·페이지 상한/제한시간 내)이며, 결과는 검수용 보조 재료로만 쓰인다.
-  이미지·차트 의미 해석(L3)은 지원하지 않는다.
+  이미지·차트의 의미 해석은 지원하지 않는다.
 
 ## 산출물 정책
 
@@ -115,6 +114,21 @@ Python(`.py`)은 **golden parity reference**로 유지한다(제거 아님 — D
 - 삼일회계법인의 공식 제품·내부 도구가 아니다.
 - "근거 확인"은 자료에 근거가 존재함을 뜻할 뿐, KSSB 준수 확정·감사의견·인증이 아니다.
 
+## 설계 선택과 근거
+
+- **왜 스킬(Skill) 하나로 설계했나** — 사용자가 Python·PATH·CLI 실행을 의식하지 않고 **스킬 하나만 호출**하면
+  되도록 하기 위해서다. 검증기·렌더러는 스킬이 내부적으로 부르는 구성요소이며, 사용자 진입점은 스킬이다.
+- **왜 Python이 아니라 Node를 실행 런타임으로 택했나** — 파이썬이 설치되지 않은 사용자 환경에서도 대표 문서
+  생성까지 **하나의 런타임(Node)으로 완결**되게 하기 위해서다. 승인 기반 보조 판독 도구도 Node로 동작해
+  런타임을 하나로 모을 수 있었다. Python 구현은 제거하지 않고 **동작 대조용 참조 기준**으로 함께 유지한다.
+- **왜 일부 보조 기능은 구현하지 않았나**(예: 문서 구조 교차 신호의 자동 생성) — 그 기능은 보고서 생성의
+  필수 조건이 아니라 **2차 검수 보조 신호**이고, 표준 라이브러리에 XML 파서가 없는 Node에서 파서를 새로
+  만들면 **잘못된 신호(오탐)·재현성 리스크**가 커진다. 그래서 이 생성 기능은 **의도적 한계**로 두었고(이미
+  만들어진 신호의 소비는 Node에서 가능), 없어도 핵심 보고서는 정상 산출된다.
+- **왜 Hook·MCP 자동 배선을 넣지 않았나** — 이 파이프라인은 **선형·결정적·단일 호출자** 구조라, 실행
+  확장점(hook)이나 외부 연결 계층(MCP)은 재현성·검증·유지 비용만 늘린다. 확장은 데이터 계약·모듈 경계·
+  문서상 사용 계약으로 처리하며, 자동 배선은 **명확한 요건이 확정될 때만 재검토**한다.
+
 ## 저장소 구조
 
 ```
@@ -128,7 +142,7 @@ Samil KSSB Precheck Plugin/
 │   ├── renderers/                          # 내부: findings → DOCX/HTML/Markdown 형식 변환기(런타임 Node .cjs + Python reference)
 │   ├── intake/                             # 선택적(opt-in) 인테이크·ingest 경계 — core·Skill entrypoint 아님
 │   │                                       #   (DEI 정규화 + 승인 기반 보조 runner: HWP/HWPX/DOCX·PDF 구조 판독,
-│   │                                       #    스캔/혼합 PDF 최소 page-set OCR — core는 OCR을 자동 실행하지 않음)
+│   │                                       #    스캔/혼합 PDF의 '판독 필요' 페이지 대상 OCR — core는 OCR을 자동 실행하지 않음)
 │   └── reference/python_engine/README.md   # 기존 Python 엔진 참고(코드 미포함)
 ├── tests/                                   # Node 런타임 스위트(.test.cjs) + Python reference 점검
 ├── docs/                                    # 설계·검증·현황·의사결정·완료보고·workflow_usage
@@ -147,21 +161,21 @@ Samil KSSB Precheck Plugin/
 Skill-first 구조를 유지하며, findings 데이터 계약과 내부 워크플로우 구성요소를 구현했다.
 
 - **findings 데이터 계약**: `src/schemas/kssb_findings.schema.json`(JSON Schema draft-07, 외부 의존 0) + 계약 문서 `docs/findings_schema_contract.md`.
-- **검증기(내부, detect-only)**: **런타임 Node `src/validators/kssb_findings_validator.cjs`**
-  (Python `.py`는 golden parity reference) — findings를 재판정 없이 preflight 점검, D94 hard stop 연동.
-- **렌더러/전달(내부, 형식 변환 + 전달)**: **런타임 Node `src/renderers/kssb_report_delivery.cjs` →
-  `kssb_report_renderer.cjs`**(Python `.py`는 reference) — findings를 재판정 없이 **DOCX → HTML → Markdown**으로
-  결정적 변환. **Phase 2 core Node 이식(N1~N4) 완료**(각 Codex review PASS — closure: `docs/cycle2n_6_phase2_closure_summary.md`).
+- **검증기(내부, detect-only)**: **실행 런타임 Node `src/validators/kssb_findings_validator.cjs`**
+  (Python `.py`는 동작 대조용 참조 기준) — findings를 재판정 없이 preflight 점검하고, 오류가 있으면 보고서를
+  만들지 않고 안전하게 중단한다.
+- **렌더러/전달(내부, 형식 변환 + 전달)**: **실행 런타임 Node `src/renderers/kssb_report_delivery.cjs` →
+  `kssb_report_renderer.cjs`**(Python `.py`는 참조 기준) — findings를 재판정 없이 **DOCX → HTML → Markdown**으로
+  결정적 변환한다. 핵심 파이프라인(검증·전달·DOCX/HTML/Markdown 렌더)의 Node 구현을 완료했다(독립 리뷰 통과).
 - **재사용 점검**: `tests/`(Node 런타임 스위트 + Python reference 점검). 새 외부 의존성 없음(repo에 package.json/node_modules 없음).
 - **선택적 인테이크/보조 판독 경로**(`src/intake/`): 이미 추출된 문서 산출물을 근거 재료로 정규화하는 ingest 경계
-  (L2 부분 구현 — repo-side ingest boundary는 구현+리뷰 완료, 문서 수준 변형 계약 포함) + **승인 기반** 보조 runner —
-  HWP/HWPX/DOCX 구조 판독(Python/Node, no-egress 훅), **PDF 구조 보강 판독 router(텍스트 PDF 포함 — Kordoc-first
-  선택 경로, 2N-4J)**, **스캔/혼합 PDF 최소 page-set OCR runner(2N-4L — '판독 필요' 페이지만·페이지 상한/제한시간·
-  결과는 검수용 보조 재료 전용)**, portable Node fallback(채택 — D90). 판독 도구 최종 확정·Skill 자동 통합·
-  OCR 실행 한도의 실 스캔 실측 보정은 pending.
+  (구현+리뷰 완료, 문서 수준 변형 계약 포함) + **승인 기반** 보조 판독 도구 — HWP/HWPX/DOCX 구조 판독
+  (Python/Node, 네트워크 차단 훅 아래), 텍스트/혼합 PDF 구조 보강 판독, 스캔/혼합 PDF의 문자 인식(OCR —
+  '판독 필요' 페이지만·페이지 상한/제한시간, 결과는 검수용 보조 재료 전용), 승인 기반 Node 대체 실행 경로.
+  판독 도구 최종 확정·스킬 자동 통합·OCR 실행 한도의 실 스캔 실측 보정은 이후 과제로 남겨 둔다.
 - **미포함(현재)**: **무승인 자동 OCR**(core는 OCR을 자동 실행하지 않음 — 승인 기반 최소 경로만 존재),
-  이미지·차트 의미 해석(L3), Hook/MCP, submission.zip.
-- 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md) · 사용자 요약: [docs/user_quickstart_pre_2n_5.md](docs/user_quickstart_pre_2n_5.md) · 상세: [docs/current_status.md](docs/current_status.md)
+  이미지·차트의 의미 해석, Hook·MCP 자동 배선, 제출 패키지(zip).
+- 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md) · 사용자 요약: [Quickstart](docs/user_quickstart_pre_2n_5.md) · 상세: [docs/current_status.md](docs/current_status.md)
 
 ## 검증 / 확인 대기
 
