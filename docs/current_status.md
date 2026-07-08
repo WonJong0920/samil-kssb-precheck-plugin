@@ -6,6 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 2 N3 — Node DEI producer 이식**(코드+테스트+최소 문서. Codex N2 review
+  **PASS**("N3 entry: Ready") 후 착수). 신규 `src/intake/dei_producer.cjs`: Python reference의
+  책임 5축(최소 인테이크 계약·document-level 변형·결정적 정규화·ocr_text/aux_signals additive
+  ingest — **hash 실무결성 검증** 포함·내부 CLI) 전량 충실 이식(내장 모듈만 — core·runner
+  미require, 판정/findings 미생성). canonical hash는 자체 구현을 golden 상수 F1~F3 + runner 함수
+  직접 대조 + parity 교차 수용으로 **3중 결속**. parity 기준은 **CLI stdout/stderr 전문 일치**
+  (개행 정규화만 — json.dumps sort_keys/indent=2 동등 직렬화기 이식, 오류 메시지 동일 문자열).
+  검증: 신규 Node **61/61** + parity **46/46**(Python 3.14.5 실측, 성공 10·거부 34, skip 0) +
+  **DEI/intake 회귀 전량 재실행**(dei 83·OCR hash 11·aux 26·nethook 29·runner 49 — N2 review
+  carry-forward 이행) + N1 43/35 + N2 18/6 + Python core 30/34/22 불변 + Node 회귀 21/39/29/8/11
+  전부 green. **Python `dei_producer.py`는 transitional reference로 무변경**(D92 ③).
+  외부 의존성·package 상태 변경 0. N4/N5 미착수.
+  보고: `docs/cycle2n_6_phase2_n3_dei_producer_node_completion_report.md`.
+  **다음 = Codex Phase 2 N3 review → N4(DOCX zip writer 이식) 착수 판단.**
 - **Cycle 2N-6 Phase 2 N2 — Node delivery + HTML/Markdown renderer 이식**(코드+테스트+최소 문서.
   Codex N1 review **PASS**("N2 entry: Ready") 후 착수). 신규 `src/renderers/kssb_report_renderer.cjs`
   (Python renderer의 HTML/MD 경로 충실 이식 — 섹션·문구·escape 동일, **DOCX는 N4 대상 미구현·

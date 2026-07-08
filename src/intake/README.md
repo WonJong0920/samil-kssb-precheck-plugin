@@ -19,6 +19,16 @@
     블록 품질은 블록 자체 텍스트의 깨짐 신호로만 보수 계산(상한 medium), 빈 blocks·내용 없는 blocks는 거부(fail-fast 유지),
     이 변형에서 `ocr_text` 병합은 **명시 거부**(needsOcr 정합 기준 없음). 조건 밖 입력(예: fileType="pdf")은
     기존 paginated 계약이 **경로·산출 모두 무변경**으로 적용된다(PDF 대조군 byte-identical 확인).
+- `dei_producer.cjs` **(2N-6 Phase 2 N3 — D92 Node 이식)**: `dei_producer.py`의 충실 이식(내장 모듈만 —
+  외부 npm 의존성·package.json 없음, core·runner 모듈 미require). 검증 규칙·IntakeError 메시지·필드 구성·
+  정렬·canonical hash(`canonicalOcrOutputSha256` — runner 구현·Python과 golden 상수로 3중 결속)·
+  CLI 출력(json.dumps sort_keys/indent=2 동등)까지 동일하며, parity는
+  `tests/test_intake_dei_producer_parity.test.cjs`가 동일 fixture로 Python CLI 실측 대조
+  (**stdout/stderr 전문 일치** — 개행 정규화만). **Python `dei_producer.py`는 transitional
+  reference로 무변경 보존**(D92 ③).
+  사용: `node src/intake/dei_producer.cjs <intake.json> --source-id <id> [--source-title <t>]
+  [--ocr-text <path>] [--aux-signals <path>]` (exit: 0=성공(DEI JSON stdout) / 2=IntakeError·인자 오류 /
+  1=입력 로드 등 통제된 실패 — stack·경로 미노출).
 - `runners/` **(2N-2 신규, source-only / 2N-4D Node port 추가)**: HWP-first assisted runner skeleton — **무승인 설치/실행 금지**, repo 밖 tool-cache,
   no-egress 훅(nethook.cjs), OCR/portable Node(다운로드) 범위 밖. Python(`.py`)과 Node(`.cjs`, 2N-4D — CLI 계약 동일,
   Codex-like 무-Python 환경 대응·aux 미생성 등 v1 차이는 README 명시) 두 구현이 있으며 Python은 reference 유지.
@@ -34,7 +44,7 @@
 - **원문 보존**: 블록 텍스트/표를 원문 그대로 전달한다. 요약·수치 추정·이미지 의미 해석 금지.
 - **findings 아님**: DEI는 findings 스키마가 아니다. **renderer/validator에 직접 유입되지 않는다.** Skill이 근거 재료로만 소비해 기존 findings 스키마 필드로 산출한다.
 - **실행 없음**: OCR·모델 다운로드·네트워크·외부 도구를 **실행하지 않는다.** 인테이크 도구 실행은 이 모듈 밖(사용자 로컬)이며, 본 모듈은 이미 만들어진 인테이크 dict/JSON만 변환한다.
-- **새 의존성 없음**: Python 표준 라이브러리만 사용. Kordoc/Mistral을 **core hard dependency로 추가하지 않는다**(Version Strategy V8).
+- **새 의존성 없음**: Python 구현은 표준 라이브러리만, Node 구현(.cjs)은 내장 모듈만 사용. Kordoc/Mistral을 **core hard dependency로 추가하지 않는다**(Version Strategy V8).
 
 ## Capability ladder 위치
 
