@@ -8,6 +8,19 @@
 - `kssb_report_delivery.py` — findings → validator preflight(detect-only) → renderer → **사용자-facing 요약** 배선기.
   사용자 요약과 내부 상세(전체 경로·validator 이슈)를 분리하고, 로컬 절대경로·계정명을 비노출한다. 전달 계약: `docs/workflow_usage.md`.
 
+**Node 이식 2종 (2N-6 Phase 2 N2 — D92 Node 이식)**:
+- `kssb_report_renderer.cjs` — Python renderer의 **HTML/Markdown 경로 충실 이식**(섹션·문구 동일 —
+  `tests/test_delivery_node_parity.test.cjs`가 동일 findings로 전문 대조). **DOCX는 N4 대상 —
+  미구현·placeholder 없음**(Node 경로 산출 형식: HTML → Markdown, primary=HTML).
+- `kssb_report_delivery.cjs` — findings → **Node validator(N1) preflight** → **D94 hard stop**
+  (preflight error ≥ 1이면 **산출물을 만들지 않고** 통제된 중단 — exit 4, sanitized 안내: raw 이슈
+  위치·로컬 경로·stack 미노출, 상세는 프로그램 반환값·`--debug` stderr에만) → Node renderer →
+  사용자-facing 요약. **Python delivery는 transitional reference로 무변경**(D92 ③ — error 시에도
+  경고 후 생성 계속하는 현행 동작 유지, D94 구현은 Node 경로에만).
+  사용: `node src/renderers/kssb_report_delivery.cjs <findings.json> -o <out_dir> [--base-name <이름>] [--debug]`
+  (exit: 0=성공 / 2=로드 실패 / 3=전달 불가 / 4=preflight hard stop / 1=예기치 못한 실패의 통제된 안내).
+  Node 두 파일 모두 내장 모듈만 사용(외부 의존성·package.json 없음).
+
 ## 포지셔닝
 
 - 사용자 흐름의 본체는 Skill(판단 엔진)이다. 렌더러는 findings → 문서 변환기다.

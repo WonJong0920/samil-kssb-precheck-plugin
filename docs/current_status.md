@@ -6,6 +6,18 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 2 N2 — Node delivery + HTML/Markdown renderer 이식**(코드+테스트+최소 문서.
+  Codex N1 review **PASS**("N2 entry: Ready") 후 착수). 신규 `src/renderers/kssb_report_renderer.cjs`
+  (Python renderer의 HTML/MD 경로 충실 이식 — 섹션·문구·escape 동일, **DOCX는 N4 대상 미구현·
+  placeholder 없음**) + `src/renderers/kssb_report_delivery.cjs`(findings → **N1 Node validator
+  preflight** → **D94 hard stop 구현**: error ≥ 1이면 산출물 0·out-dir 미생성·sanitized 안내·exit 4 /
+  error 0이면 HTML→MD 생성 + 사용자 요약 — raw 이슈·경로·stack 미노출, info/warning은 건수만).
+  **Python delivery/renderer는 transitional reference로 무변경**(D92 ③ — Python hard-stop patch 없음,
+  의도된 차이를 parity 테스트가 명시 기록). 검증: 신규 Node **18/18** + parity **6/6**(Python 3.14.5
+  실측 — HTML/MD **전문 일치**(개행 정규화만)·구조 불변식·D94 divergence 기록, skip 0) + N1 43/35 +
+  Python 30/34/22 불변 + Node 회귀 21/39/29/8/11 전부 green. 외부 의존성·package 상태 변경 0.
+  N3/N4/N5 미착수. 보고: `docs/cycle2n_6_phase2_n2_delivery_html_md_completion_report.md`.
+  **다음 = Codex Phase 2 N2 review → N3(dei_producer 이식) 착수 판단.**
 - **Cycle 2N-6 Phase 2 N1 — Node validator 이식**(코드+테스트+최소 문서. 2N-5R evidence review
   **PASS**("Phase 2 entry: Ready") 후 착수 — D92 Phase 2의 첫 단계). 신규
   `src/validators/kssb_findings_validator.cjs`: Python reference의 검증 규칙·이슈 코드·severity·
