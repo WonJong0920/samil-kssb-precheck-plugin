@@ -1360,6 +1360,40 @@
   `docs/reviews/codex_cycle2n_6_phase2_n4_docx_writer_node_review.md`,
   `src/intake/README.md`, `src/intake/runners/README.md`, `docs/decision_log.md` D92·D93.
 
+## D96. 2N-6 Cycle C trace manifest delivery-terminal stage — 구현 closure(Codex implementation review PASS)
+- **Date**: 2026-07-08
+- **Context**: trace manifest stage 설계(`docs/designs/cycle2n_6_trace_manifest_stage_design.md`, Codex design
+  review PASS) → 구현(commit `616ce88`, `feat: add opt-in trace manifest delivery stage`) → **Codex
+  implementation review PASS**(review commit `8d5cb97`,
+  `docs/reviews/codex_cycle2n_6_trace_manifest_implementation_review.md` — Critical/Major/Minor 0·required
+  fixes 없음). review PASS 이후 current_status·decision_log closure를 문서로 확정할 필요. 코드 무변경(docs-only).
+- **Decision(closure)**:
+  ① **Cycle C trace manifest delivery-terminal stage를 구현 완료·review PASS로 closure**한다 — Node delivery
+  종단(성공 경로)의 **opt-in·기본 off** provenance stage. `run_manifest.json`은 `--manifest`/`{manifest:true}`일
+  때만 생성되는 **내부 provenance artifact**(대표 문서 아님·기본 산출물 아님, `.gitignore` 방어)이며, findings
+  canonical-JSON hash·preflight code/severity 요약·산출물 basename/bytes/sha256·self-hash만 담고 판정·품질·
+  감사/인증류 필드·로컬 경로·계정명·stack·timestamp는 담지 않는다.
+  ② **경계 유지**: **D94 hard stop 시 manifest 미생성**(산출물 0 정책 불변), manifest 생성 실패는 delivery
+  성공을 깨지 않고 안전 error 코드만 남긴다. user_summary·exit code·기본 3파일 출력은 on/off 무관 불변이며
+  hook/dispatcher가 아닌 단일 종단 stage다. **Python reference·N5 aux 한계는 그대로 유지**(manifest는
+  Node-only 신규 stage — Python parity 비대상, D93 ②·③ 불변).
+  ③ **required fixes 없음**. review carry-forward observation 2건(비차단):
+   - (OBS-01) CLI exit 0만으로 manifest capture 성공을 의미하지 않는다 — 블랙박스/closure evidence는 파일
+     존재·API 반환·`--debug`로 manifest 상태를 명시 확인해야 한다.
+   - (OBS-02) upstream intake/OCR/runner end-to-end provenance 연계는 v1 범위 밖 — 필요 시 **후속 별도
+     사이클** 후보로 남기며 이 v1 delivery-terminal manifest 패치에 편승시키지 않는다.
+- **의미하지 않는 것**: closure는 opt-in provenance stage의 구현·review 종료일 뿐 — 제품 완성·2N-5 전체 통과·
+  OCR complete·provider finalization·submission readiness가 아니다.
+- **다음 단계**: **Phase 3 validation strengthening**(검수 표 강화 등)은 별도 사이클로 진행한다(Codex review
+  게이트 유지 — 이 closure에 편승시키지 않는다).
+- **Status**: 문서 전용(docs-only) — 코드·테스트·스키마·런타임·package 무변경. 구현·검증 상세는 완료 보고서·
+  Codex review에 기록.
+- **Related Files**: `docs/cycle2n_6_trace_manifest_stage_completion_report.md`,
+  `docs/reviews/codex_cycle2n_6_trace_manifest_implementation_review.md`,
+  `docs/designs/cycle2n_6_trace_manifest_stage_design.md`,
+  `src/renderers/kssb_report_delivery.cjs`(구현 — commit `616ce88`), `tests/test_trace_manifest_node.test.cjs`,
+  `docs/workflow_usage.md`, `src/renderers/README.md`, `.gitignore`, `docs/decision_log.md` D92·D93·D95.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

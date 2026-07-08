@@ -6,6 +6,22 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Cycle C — trace manifest delivery-terminal stage 구현 closure**(문서 전용 — 코드·테스트·
+  스키마·package 무변경. Codex implementation review **PASS**
+  (`docs/reviews/codex_cycle2n_6_trace_manifest_implementation_review.md` — Critical/Major/Minor 0·
+  **required fixes 없음**) 후 집행). Node delivery 종단(성공 경로)에 **opt-in·기본 off** provenance stage를
+  붙인 구현(commit `616ce88`)을 완료·review PASS로 정리한다. `run_manifest.json`은 `--manifest`/
+  `{manifest:true}`일 때만 생성되는 **내부 provenance artifact**(대표 문서 아님·기본 산출물 아님, `.gitignore`
+  방어)로 findings canonical-JSON hash·preflight code/severity 요약·산출물 basename/bytes/sha256·self-hash만
+  담고, 판정/품질/감사·인증류 필드·로컬 경로·계정명·stack·timestamp는 담지 않는다. **D94 hard stop 시
+  미생성**(산출물 0 정책 불변), 생성 실패는 delivery 성공을 깨지 않고 안전 error만 남긴다(user_summary·exit
+  code·기본 3파일 출력은 on/off 무관 불변, hook/dispatcher 아님). **Python reference·N5 aux 한계 유지**
+  (manifest는 Node-only 신규 stage — Python parity 비대상). **closure ≠ 제품 완성·2N-5 통과·OCR complete·
+  provider finalization·submission readiness.** carry-forward observation 2건(비차단): ① CLI exit 0만으로
+  manifest capture 성공을 의미하지 않으므로 evidence는 파일 존재·API 반환·`--debug`로 상태를 명시 확인해야
+  한다, ② upstream intake/OCR/runner end-to-end provenance 연계는 v1 범위 밖·후속 별도 사이클 후보(이 v1
+  패치에 편승 금지). 결정: **D96**. 보고: `docs/cycle2n_6_trace_manifest_stage_completion_report.md`.
+  **다음 = Phase 3 validation strengthening(검수 표 강화 등 — 별도 사이클·Codex review 게이트 유지).**
 - **Cycle 2N-6 Phase 2 — core Node migration closure + N5 limitation**(문서 전용 — 코드 무변경.
   Codex N4 review **PASS**("N1~N4 core Node migration can be treated as closed") 후 집행). Phase 2
   core 이식을 **N1 validator·N2 delivery+HTML/MD·N3 DEI producer·N4 DOCX writer 4건 모두 Codex
