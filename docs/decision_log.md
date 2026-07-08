@@ -1333,6 +1333,33 @@
 - **Related Files**: `docs/workflow_usage.md`(전달 계약), `src/renderers/kssb_report_delivery.py`(무변경 — N2 대상),
   `docs/planning/post_2n5_final_remediation_plan_node_only.md` §3, `docs/blackbox_protocol.md` §3.
 
+## D95. 2N-6 Phase 2 core Node migration closure — N1~N4 완료·N5 한계 확정(D93 ② 집행)
+- **Date**: 2026-07-08
+- **Context**: Phase 2 core 이식 4단계(N1 validator·N2 delivery+HTML/MD·N3 DEI producer·N4 DOCX
+  writer)가 각각 Codex review **PASS**로 종료되고, N4 review가 "N1~N4 core Node migration은 reviewed
+  surface 기준 closed로 봐도 된다"고 명시함(`Phase 2 Core Closure Readiness: PASS`). closure 상태와
+  N5 처리를 문서로 확정할 필요. 코드 무변경(docs-only).
+- **Decision(closure 마일스톤)**:
+  ① **Phase 2 core Node migration을 N1~N4 완료로 closure**한다 — reviewed surface 기준. Node가 findings
+  검증 → DEI → delivery → 대표 문서(DOCX→HTML→Markdown) 전 구간을 완결한다.
+  ② **N5(aux scanner)는 Node 미이식 한계로 유지·확정** — 이는 **D93 ②의 집행**이며 새 결정이 아니다
+  (중복 금지). aux_signals는 core report generation 필수 조건이 아닌 2차 교차 신호이고, 소비 측은 N3에서
+  Node 이식 완료(생성만 Python `aux_structure_scanner.py` reference 전용). Phase 2 내에서 N5를 재개하지
+  않는다.
+  ③ **표현 규칙(no-overclaim)**: closure는 reviewed surface 기준 core 이식 종료일 뿐 — 제품 완성·2N-5
+  전체 통과·OCR support complete·L2/L3 완료·provider finalization·submission readiness가 아니다.
+  Python 원본은 golden parity reference로 유지(D93 ③ — 제거는 제출 패키징 단계 결정).
+- **의미하지 않는 것**: 위 ③. 또한 이후 workflow docs 정렬·trace manifest stage·Phase 3 강화는 각각
+  **별도 사이클**(Codex review 게이트 유지)로 진행하며 이 closure에 편승시키지 않는다.
+- **Status**: 문서 전용(docs-only) — 코드·스키마·런타임·package 무변경. 회귀 표면 없음(각 N1~N4 검증은
+  해당 완료 보고서·Codex review에 기록).
+- **Related Files**: `docs/cycle2n_6_phase2_closure_summary.md`, `docs/current_status.md`,
+  `docs/reviews/codex_cycle2n_6_phase2_n1_validator_node_review.md`,
+  `docs/reviews/codex_cycle2n_6_phase2_n2_delivery_html_md_review.md`,
+  `docs/reviews/codex_cycle2n_6_phase2_n3_dei_producer_node_review.md`,
+  `docs/reviews/codex_cycle2n_6_phase2_n4_docx_writer_node_review.md`,
+  `src/intake/README.md`, `src/intake/runners/README.md`, `docs/decision_log.md` D92·D93.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

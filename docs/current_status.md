@@ -6,6 +6,18 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 2 — core Node migration closure + N5 limitation**(문서 전용 — 코드 무변경.
+  Codex N4 review **PASS**("N1~N4 core Node migration can be treated as closed") 후 집행). Phase 2
+  core 이식을 **N1 validator·N2 delivery+HTML/MD·N3 DEI producer·N4 DOCX writer 4건 모두 Codex
+  review PASS로 완료**로 정리하고, **N5 aux scanner는 Node 미이식 한계로 확정**(D93 ②의 집행 — 새
+  결정 아님·중복 금지)했다. N1~N4 core Node path는 validator·DEI·delivery·DOCX/HTML/MD까지 제공하며,
+  **aux scanner는 보조 교차 신호로 core report generation의 필수 조건이 아니다**(aux_signals 소비 측은
+  N3에서 이미 이식 — 생성만 Python reference 전용). **closure ≠ 제품 완성·2N-5 통과·OCR complete·
+  provider finalization·submission readiness**(no-overclaim 유지). Python 원본은 golden parity
+  reference로 유지(D93 ③). 문서: `docs/cycle2n_6_phase2_closure_summary.md`(+ D95). N5 한계는
+  `src/intake/README.md`·`src/intake/runners/README.md`에 명시.
+  **다음 = 본 closure의 Codex review → workflow docs 정렬 사이클(Node=런타임·Python=reference 유지) →
+  trace manifest stage 설계 사이클(별도) → Phase 3.**
 - **Cycle 2N-6 Phase 2 N4 — Node DOCX writer 이식**(코드+테스트+최소 문서. Codex N3 review
   **PASS**("N4 entry: Ready") 후 착수 — Phase 2 마지막 core 이식 단계). `kssb_report_renderer.cjs`에
   `buildDocumentXml`·`docxBytes`·결정적 최소 ZIP writer(`buildDeterministicZip` — `zlib`만, 외부
@@ -19,7 +31,7 @@
   8파트 XML well-formed) + N1 43/35 + N3 61/46 + Python reference 30/34/22/83/11/26/29/49 불변 + Node
   회귀 21/39/29/8/11 전부 green. **Python renderer/delivery는 transitional reference로 무변경**(D92 ③).
   외부 의존성·package 상태 변경 0. N5 미착수. 보고: `docs/cycle2n_6_phase2_n4_docx_writer_node_completion_report.md`.
-  **다음 = Codex Phase 2 N4 review → Phase 2 core(N1~N4) 완료 판단 → N5 처리 결정·Phase 3.**
+  **(후속) Codex N4 review PASS → Phase 2 core closure + N5 limitation 확정**(위 closure bullet 참조).
 - **Cycle 2N-6 Phase 2 N3 — Node DEI producer 이식**(코드+테스트+최소 문서. Codex N2 review
   **PASS**("N3 entry: Ready") 후 착수). 신규 `src/intake/dei_producer.cjs`: Python reference의
   책임 5축(최소 인테이크 계약·document-level 변형·결정적 정규화·ocr_text/aux_signals additive

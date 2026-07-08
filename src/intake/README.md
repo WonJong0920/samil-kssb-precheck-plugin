@@ -37,6 +37,11 @@
   (이미지 리소스/relationship/인스턴스 3계층, 표 top-level/중첩 분해, caption/heading 후보, chart relationship)를
   결정적으로 추출하는 표준 라이브러리 전용 스캐너. 주 추출기 결과의 **교차확인·gap 신호 재료**일 뿐 판정·의미 해석을 하지 않는다.
   방어 규칙: member allowlist·bounded read·zip-slip 거부·raw XML/이미지/본문 미보존.
+  - **(N5 — Node 미이식 한계, D93 ②·D95)**: 이 스캐너(aux_signals **생성**)는 **Node path에 이식하지 않고
+    한계로 명시**한다(Node 내장에 XML 파서 부재 — 외부 npm 의존성 0 원칙, 순수 JS 파서는 parity 취약·오탐
+    리스크). **aux_signals는 core report generation의 필수 조건이 아닌 2차 교차 신호**이며, N1~N4 Node core
+    path(validator·DEI·delivery·DOCX/HTML/MD)는 이것 없이도 완결된다. **소비 측은 이미 Node 이식됨**
+    (`dei_producer.cjs`가 aux_signals를 병합) — 생성만 Python `aux_structure_scanner.py` reference 전용이다.
 
 ## 경계(하지 않는 것)
 
