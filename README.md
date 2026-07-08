@@ -46,12 +46,15 @@ KSSB 공시요구와 일일이 대조해 "근거가 확인되는 항목 / 부족
    (거버넌스·전략·위험관리·지표 및 목표) 공시요구 항목별 **판정 라벨**(근거 확인 / 일부 근거 확인, 보완 필요 /
    확인 불가 / 상충 또는 해석 필요 / 검토 범위 외)·근거 앵커·부족정보·**고객 확인 질문·요청자료·후속조치**·권고를
    source-bound **구조화 findings**로 만든다.
-2. **preflight 검증 (Validator = detect-only 게이트)**: 표준 라이브러리 검증기가 findings를 **재판정 없이** 점검한다
+2. **preflight 검증 (Validator = detect-only 게이트)**: 검증기가 findings를 **재판정 없이** 점검한다
    (구조 필수 필드·근거 참조·모드↔라벨 정합·source-bound 규칙·금지 표현·내부 경로). findings를 고치지 않고 감지·보고만 한다.
-3. **렌더 (Renderer = 형식 변환기)**: 렌더러가 동일 findings를 **재판정 없이** 대표 DOCX/HTML로 결정적 변환한다.
+3. **렌더/전달 (Renderer + Delivery = 형식 변환 + 전달)**: 동일 findings를 **재판정 없이** 대표
+   **DOCX → HTML → Markdown**으로 결정적 변환한다(preflight error 시 **D94 hard stop** — 산출물 미생성).
 4. **사람 검수**: 산출물은 **초안**이며 컨설턴트가 검수·수정·확정한다.
 
-검증기·렌더러는 스킬 워크플로우의 **내부 구성요소**다(사용자-facing Python CLI가 아니다).
+검증기·렌더러는 스킬 워크플로우의 **내부 구성요소**다(사용자-facing CLI가 아니다).
+**런타임 구현은 Node 이식(`.cjs`)**이며(2N-6 Phase 2 N1~N4 완료 — closure: `docs/cycle2n_6_phase2_closure_summary.md`),
+Python(`.py`)은 **golden parity reference**로 유지한다(제거 아님 — D93 ③).
 
 상세 절차: [src/skills/samil-kssb-precheck/SKILL.md](src/skills/samil-kssb-precheck/SKILL.md) ·
 흐름/사용 계약: [docs/workflow_usage.md](docs/workflow_usage.md)
@@ -96,13 +99,13 @@ Samil KSSB Precheck Plugin/
 │   ├── .codex-plugin/plugin.json          # Codex 플러그인 매니페스트 (plugin root = src/)
 │   ├── skills/samil-kssb-precheck/         # Skill 본체 + 보조 문서 (사용자-facing 진입점)
 │   ├── schemas/                            # findings 데이터 계약(JSON Schema) + 예시
-│   ├── validators/                         # 내부: findings detect-only preflight 검증기(표준 라이브러리)
-│   ├── renderers/                          # 내부: findings → DOCX/HTML 형식 변환기(표준 라이브러리)
+│   ├── validators/                         # 내부: findings detect-only preflight 검증기(런타임 Node .cjs + Python reference)
+│   ├── renderers/                          # 내부: findings → DOCX/HTML/Markdown 형식 변환기(런타임 Node .cjs + Python reference)
 │   ├── intake/                             # 선택적(opt-in) 인테이크·ingest 경계 — core·Skill entrypoint 아님
 │   │                                       #   (DEI 정규화 + 승인 기반 보조 runner: HWP/HWPX/DOCX·PDF 구조 판독,
 │   │                                       #    스캔/혼합 PDF 최소 page-set OCR — core는 OCR을 자동 실행하지 않음)
 │   └── reference/python_engine/README.md   # 기존 Python 엔진 참고(코드 미포함)
-├── tests/                                   # 재사용 검증기·렌더러 점검(표준 라이브러리)
+├── tests/                                   # Node 런타임 스위트(.test.cjs) + Python reference 점검
 ├── docs/                                    # 설계·검증·현황·의사결정·완료보고·workflow_usage
 ├── logs/.gitkeep
 └── README.md
@@ -119,9 +122,12 @@ Samil KSSB Precheck Plugin/
 Skill-first 구조를 유지하며, findings 데이터 계약과 내부 워크플로우 구성요소를 구현했다.
 
 - **findings 데이터 계약**: `src/schemas/kssb_findings.schema.json`(JSON Schema draft-07, 외부 의존 0) + 계약 문서 `docs/findings_schema_contract.md`.
-- **검증기(내부, detect-only)**: `src/validators/kssb_findings_validator.py` — findings를 재판정 없이 preflight 점검(표준 라이브러리).
-- **렌더러(내부, 형식 변환기)**: `src/renderers/kssb_report_renderer.py` — findings를 재판정 없이 DOCX/HTML로 결정적 변환(표준 라이브러리).
-- **재사용 점검**: `tests/`(표준 라이브러리 + Node 내장 러너). 새 외부 의존성 없음(repo에 package.json/node_modules 없음).
+- **검증기(내부, detect-only)**: **런타임 Node `src/validators/kssb_findings_validator.cjs`**
+  (Python `.py`는 golden parity reference) — findings를 재판정 없이 preflight 점검, D94 hard stop 연동.
+- **렌더러/전달(내부, 형식 변환 + 전달)**: **런타임 Node `src/renderers/kssb_report_delivery.cjs` →
+  `kssb_report_renderer.cjs`**(Python `.py`는 reference) — findings를 재판정 없이 **DOCX → HTML → Markdown**으로
+  결정적 변환. **Phase 2 core Node 이식(N1~N4) 완료**(각 Codex review PASS — closure: `docs/cycle2n_6_phase2_closure_summary.md`).
+- **재사용 점검**: `tests/`(Node 런타임 스위트 + Python reference 점검). 새 외부 의존성 없음(repo에 package.json/node_modules 없음).
 - **선택적 인테이크/보조 판독 경로**(`src/intake/`): 이미 추출된 문서 산출물을 근거 재료로 정규화하는 ingest 경계
   (L2 부분 구현 — repo-side ingest boundary는 구현+리뷰 완료, 문서 수준 변형 계약 포함) + **승인 기반** 보조 runner —
   HWP/HWPX/DOCX 구조 판독(Python/Node, no-egress 훅), **PDF 구조 보강 판독 router(텍스트 PDF 포함 — Kordoc-first

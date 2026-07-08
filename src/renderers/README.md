@@ -32,7 +32,7 @@
 
 - 사용자 흐름의 본체는 Skill(판단 엔진)이다. 렌더러는 findings → 문서 변환기다.
 - 렌더러는 **판정·근거·질문·권고를 다시 계산하거나 변경하지 않는다.**
-- DOCX와 HTML은 **동일 findings 단일 소스**에서 파생하며 서로 다른 판정을 내지 않는다.
+- DOCX·HTML·Markdown은 **동일 findings 단일 소스**에서 파생하며 서로 다른 판정을 내지 않는다.
 
 ## 계약
 
@@ -49,13 +49,16 @@ DOCX 실패 시 HTML fallback 생성.
 **하지 않는 일**: judgment_code 재계산, judgment_label 변경, evidence_anchors/quote/missing_info/
 customer_questions/recommendations 생성, 외부 지식 보강, 문서 밖 추정 추가.
 
-## 구현 원칙
+## 구현 원칙 (런타임 = Node / reference = Python, 외부 의존성 0)
 
-- **Python 표준 라이브러리만** 사용한다(`json`, `re`, `html`, `zipfile`, `io`, `argparse`, `pathlib`, `sys`).
-  `python-docx` 등 외부 의존성을 추가하지 않는다.
-- **DOCX**: `zipfile`로 OOXML `.docx`를 수동 조립한다. XML escape + 금지 제어문자 제거로 Word open 실패를
-  예방하고, ZIP 엔트리 순서·타임스탬프·core.xml 날짜를 고정해 **결정적 출력**을 지향한다.
-- **HTML**: self-contained 단일 파일. 동일 findings에서 파생하며 고지문과 human_review_boundary를 포함한다.
+- **런타임(Node, `.cjs`)**: Node **내장 모듈만** 사용(`node:fs`·`node:path`·`node:zlib`). DOCX는 **`zlib`로
+  OOXML `.docx`를 수동 조립**한다(`buildDeterministicZip` — DEFLATE level 9, 고정 타임스탬프). package.json/
+  node_modules 없음.
+- **reference(Python, `.py`)**: **표준 라이브러리만** 사용(`json`, `re`, `html`, `zipfile`, `io`, `argparse`,
+  `pathlib`, `sys`). DOCX는 `zipfile`로 조립. `python-docx` 등 외부 의존성 없음 — golden parity 기준으로 유지한다(D93 ③).
+- **DOCX 공통 원칙**: XML escape + 금지 제어문자 제거로 Word open 실패를 예방하고, ZIP 엔트리 순서·타임스탬프·
+  core.xml 날짜를 고정해 **결정적 출력**을 보장한다(파트 콘텐츠는 Node/Python **byte-identical** — N4 parity).
+- **HTML/Markdown**: self-contained. 동일 findings에서 파생하며 고지문과 human_review_boundary를 포함한다.
 - 내부 절대경로·sandbox/cache/plugin path를 문서에 노출하지 않는다.
 
 ## 사용(내부/검증용)
