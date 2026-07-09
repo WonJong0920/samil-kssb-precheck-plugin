@@ -2,11 +2,11 @@
 
 Samil KSSB Precheck의 사용자-facing 산출물은 **컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안**이며,
 **구조화 findings에서 렌더러가 변환**해 생성한다. 렌더러는 findings를 **재판정하지 않고** 형식 변환만 한다.
-findings 계약은 `docs/findings_schema_contract.md`, 스키마는 `src/schemas/kssb_findings.schema.json`.
+findings 계약은 `schemas/findings_schema_contract.md`, 스키마는 `schemas/kssb_findings.schema.json`(설치 플러그인 루트 기준 경로).
 
 > **참고**: 이 문서는 보고서의 **섹션 구성과 내용 규칙**을 규정한다. 실제 파일 생성 렌더러의 **런타임 경로는
-> `src/renderers/kssb_report_renderer.cjs`**(findings를 재판정 없이 DOCX → HTML → Markdown으로 변환)이고,
-> 렌더 전 경량 검증의 런타임은 `src/validators/kssb_findings_validator.cjs`(detect-only)가 담당한다.
+> `renderers/kssb_report_renderer.cjs`**(findings를 재판정 없이 DOCX → HTML → Markdown으로 변환)이고,
+> 렌더 전 경량 검증의 런타임은 `validators/kssb_findings_validator.cjs`(detect-only)가 담당한다.
 > Python(`.py`)은 golden parity reference로 유지한다(제거·CLI 회귀 아님 — D93③·D95).
 
 ## 파일 명명 규칙 (출력 정책)

@@ -1,7 +1,7 @@
 # Validators (findings 경량 가드레일)
 
 이 폴더는 렌더러가 findings를 소비하기 전에 **구조적 위험을 결정적으로 감지·보고**하는 경량 검증기를 담는다.
-`docs/findings_schema_contract.md`가 "JSON Schema로 표현하지 못한 수동 검증 규칙"으로 남겨 둔 항목을
+`schemas/findings_schema_contract.md`(번들 계약 문서)가 "JSON Schema로 표현하지 못한 수동 검증 규칙"으로 남겨 둔 항목을
 표준 라이브러리만으로 자동 점검한다.
 
 **구현 2종 (2N-6 Phase 2 N1 — D92 Node 이식)**:
@@ -38,6 +38,9 @@
 8. **내부 경로 노출 스캔**(전체 문자열 필드 대상: `C:\`, `/Users/`, `.codex`, `sandbox`, `AppData`, `plugin/cache` 등).
 
 ## 사용
+
+> **경로 규약**: 이 README는 개발자/검증용 문서이며, 아래 CLI 예시의 `src/…` 경로는 **저장소 개발 트리 기준**이다
+> (설치 플러그인 루트에서는 `src/` 접두를 제거해 `validators/…`·`schemas/…`로 읽는다).
 
 ```
 python src/validators/kssb_findings_validator.py src/schemas/kssb_findings_example.json

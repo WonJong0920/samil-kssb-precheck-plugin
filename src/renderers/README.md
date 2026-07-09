@@ -9,7 +9,7 @@
 
 - `kssb_report_renderer.py` — **(reference)** findings → DOCX/HTML/Markdown 형식 변환기(재판정 없음).
 - `kssb_report_delivery.py` — **(reference)** findings → validator preflight(detect-only) → renderer → **사용자-facing 요약** 배선기.
-  사용자 요약과 내부 상세(전체 경로·validator 이슈)를 분리하고, 로컬 절대경로·계정명을 비노출한다. 전달 계약: `docs/workflow_usage.md`.
+  사용자 요약과 내부 상세(전체 경로·validator 이슈)를 분리하고, 로컬 절대경로·계정명을 비노출한다. 전달 계약: `skills/samil-kssb-precheck/workflow_usage.md`(번들).
 
 **Node 이식 2종 (런타임 — 2N-6 Phase 2 N2 HTML/MD → N4 DOCX — D92 Node 이식)**:
 - `kssb_report_renderer.cjs` — Python renderer의 **HTML/Markdown/DOCX 경로 충실 이식**. HTML/MD는
@@ -42,7 +42,7 @@
 
 ## 계약
 
-- 입력: `docs/findings_schema_contract.md` / `src/schemas/kssb_findings.schema.json` 형식의 findings JSON.
+- 입력: `schemas/findings_schema_contract.md` / `schemas/kssb_findings.schema.json`(번들 계약·스키마) 형식의 findings JSON.
 - 출력 파일명: `<보고서명>_KSSB_공시근거_사전검토보고서.{docx|html|md}`(우선순위 DOCX→HTML→Markdown).
   `<보고서명>` base는 `report_meta.generated_for`(없으면 `report_title`)에서 파생해 sanitize한다.
 
@@ -68,6 +68,8 @@ customer_questions/recommendations 생성, 외부 지식 보강, 문서 밖 추�
 - 내부 절대경로·sandbox/cache/plugin path를 문서에 노출하지 않는다.
 
 ## 사용(내부/검증용)
+
+> **경로 규약**: 아래 CLI 예시의 `src/…` 경로는 **저장소 개발 트리 기준**이다(설치 플러그인 루트에서는 `src/` 접두를 제거해 `renderers/…`·`schemas/…`로 읽는다). 이 절은 개발/검증용이며 설치 스킬의 기본 사용자 흐름이 아니다.
 
 런타임 경로는 **Node 이식(`.cjs`)**이다. Python(`.py`)은 golden parity reference로 유지한다(제거 아님 — D93 ③).
 
@@ -105,4 +107,4 @@ res = deliver(load_findings("findings.json"), out_dir="build")
 ## 산출물 커밋 정책
 
 생성된 DOCX/HTML은 **기본적으로 커밋 대상이 아니다.** 스모크 테스트/검증 출력은 repo 밖(임시 폴더)에 쓴다.
-`docs/cycle2c_renderer_completion_report.md`의 산출물 정책을 참고한다.
+`docs/cycle2c_renderer_completion_report.md`(과거 완료 기록, 저장소 전용)의 산출물 정책을 참고한다.

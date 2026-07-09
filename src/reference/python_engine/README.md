@@ -34,4 +34,4 @@ D:\PrimeBell\AI_Projects\kssb-evidence-gap-auditor
 - 향후 사이클에서 결정적 검증 엔진(regression/reference engine)이 필요하다고 판단되면,
   그때 범위·리스크를 문서화한 뒤 반영 여부를 결정한다(여기서 제안하지 않는다).
 
-자세한 검토 내역은 `docs/reference_review.md`, 의사결정은 `docs/decision_log.md` 참조.
+자세한 검토 내역은 `docs/reference_review.md`, 의사결정은 `docs/decision_log.md` 참조(개발 기록·의사결정 로그, 저장소 전용).

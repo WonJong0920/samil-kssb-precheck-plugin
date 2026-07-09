@@ -67,4 +67,4 @@
 - Skill은 DEI-candidate의 `needs_ocr`·`extraction_quality`·`warnings`·`review_priority_hints` 신호를 읽어,
   판독 불가/저신뢰 구간을 **기존** `not_verifiable` + `missing_info` + `customer_questions` 경로로 라우팅한다(스키마 변경 없음).
 - 위치는 `page_or_section_hint()`가 만드는 사람 읽기용 `p.<n> · <section>` 표기로만 findings에 들어간다(**bbox는 DEI에만**).
-- 상세: `src/skills/samil-kssb-precheck/evidence_mapping_rules.md` §6, `docs/planning/cycle2l_1_l1_implementation_prep.md`.
+- 상세: `skills/samil-kssb-precheck/evidence_mapping_rules.md` §6(번들), `docs/planning/cycle2l_1_l1_implementation_prep.md`(과거 계획 기록, 저장소 전용).

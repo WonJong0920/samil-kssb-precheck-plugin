@@ -7,6 +7,13 @@ description: 고객 제공자료(또는 해커톤 검증용 공개자료)만을 
 
 > **고지**: 본 스킬은 AX 해커톤 제출을 위해 삼일회계법인의 공개 ESG·지속가능성 공시 자문 맥락을 바탕으로 설계한 Codex 플러그인의 일부입니다. 삼일회계법인의 공식 제품 또는 내부 도구가 아니며, 감사·인증·준수 판단을 대체하지 않습니다. 컨설턴트 검수용 사전검토 보조 도구입니다.
 
+> **경로 규약(설치 플러그인 기준)**: 이 스킬 문서의 상대 경로는 **설치 플러그인 루트(= 저장소 `src/`) 기준**이다
+> — 예: `schemas/kssb_findings.schema.json`, `validators/kssb_findings_validator.cjs`, `renderers/…`, `intake/…`.
+> 스킬 폴더 내 형제 문서는 파일명만으로 참조한다(예: `report_template.md`, `workflow_usage.md`). Skill이 참조하는
+> **계약·워크플로우 문서는 번들 안에 포함**된다: `schemas/findings_schema_contract.md`(findings 계약)·`workflow_usage.md`(전달 계약).
+> 저장소 개발 트리에는 동일 파일이 `src/` 접두로 존재하며, **개발/검증·제출용 문서(`docs/…`, 예: `docs/blackbox_protocol.md`)는
+> 저장소 전용**이라 설치 스킬 실행에 필수가 아니다.
+
 ## Purpose (무엇을 하는가)
 
 ESG·지속가능성 공시 컨설팅의 **초기 단계**에서, 고객사가 제공한 보고서·증빙자료만을 근거로
@@ -32,7 +39,7 @@ KSSB 공시요구사항별 **확인 근거 / 부족한 정보 / 추가 확인 �
   - 이 경우 산출물의 근거 표기와 판정 라벨은 "공개자료" 기준으로 전환한다(아래 Judgment schema 참조).
 - 입력은 텍스트로 읽을 수 있는 문서를 전제로 한다. **core 워크플로우(이 Skill·validator·renderer·delivery)는
   OCR을 자동 실행하지 않으며 OCR 실행 코드를 포함하지 않는다.**
-- (선택) 스캔·이미지가 섞인 문서의 경우, core 밖 선택적 인테이크 어댑터(`src/intake/`)가 이미 로컬에서 추출된 인테이크 산출물을
+- (선택) 스캔·이미지가 섞인 문서의 경우, core 밖 선택적 인테이크 어댑터(`intake/`)가 이미 로컬에서 추출된 인테이크 산출물을
   **판독 필요·위치·품질 신호(DEI-candidate)**로 정규화해 제공할 수 있다. Skill은 이 신호를 근거 재료로만 읽어 판독 불가/저신뢰 구간을
   **기존 "확인 불가 → 질문" 경로**로 라우팅한다(스키마 변경 없음, `evidence_mapping_rules.md` §6).
 - (선택, **L2 = partially implemented — repo-side ingest boundary는 implemented+reviewed(2L-5 closure), provider 실행·runner 통합·provider 최종 확정은 pending**)
@@ -45,9 +52,9 @@ KSSB 공시요구사항별 **확인 근거 / 부족한 정보 / 추가 확인 �
 > 산출 흐름(워크플로우): 이 스킬은 최종 보고서를 직접 쓰지 않고, 먼저 **구조화 findings**(데이터 계약)를 만든 뒤
 > ① 검증기가 findings를 **재판정 없이** preflight 점검(detect-only)하고 ② 렌더러가 findings를 **재판정 없이**
 > 대표 문서(DOCX → HTML → Markdown)로 변환하며 ③ 전달 배선기가 로그와 분리된 **사용자-facing 요약**을 만든 다음 ④ 컨설턴트가 검수한다. findings 형식은
-> `docs/findings_schema_contract.md` 및 스키마 `src/schemas/kssb_findings.schema.json`을 따른다.
+> `schemas/findings_schema_contract.md` 및 스키마 `schemas/kssb_findings.schema.json`을 따른다.
 > 검증기·렌더러·전달 배선기는 스킬 워크플로우가 사용하는 **내부 구성요소**이며, 아래 절차는 findings 내용을 근거로 구성하기 위한 지침이다.
-> 전체 흐름은 아래 "Workflow" 절과 `docs/workflow_usage.md` 참조.
+> 전체 흐름은 아래 "Workflow" 절과 `workflow_usage.md` 참조.
 
 ## Source-bound analysis rules (근거 기반 분석 원칙)
 
@@ -81,7 +88,7 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
    `evidence_confirmed`/`partial_evidence_needs_supplement`는 `evidence_anchors` ≥ 1,
    `not_verifiable`는 `missing_info` + `customer_questions` 연결,
    `conflict_or_interpretation_needed`는 `human_review_required` + 사유,
-   `out_of_scope_or_not_applicable`는 적용 제외 사유(`missing_info`). 상세는 `docs/findings_schema_contract.md`.
+   `out_of_scope_or_not_applicable`는 적용 제외 사유(`missing_info`). 상세는 `schemas/findings_schema_contract.md`.
 8. **커버리지·검토 범위 기록**: 텍스트 미추출/판독 불가/미지원 구간이 있으면 그 사실을 **문서별 실제 수치로** `overall_limitations`에
    명시하고, 카탈로그 대비 실제 검토 항목 수도 1줄로 밝힌다(`evidence_mapping_rules.md` §7 — 커버리지 침묵 금지).
 9. **quote 실재성 재검**: 렌더 전에 모든 인용(quote)을 입력 원문에서 재탐색해 확인한다
@@ -126,26 +133,26 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 
 1. **findings 생성 (스킬 = 판단 엔진)**: 위 4대 영역 절차로 항목별 판정·근거 앵커·부족정보·고객 질문·권고를
    `judgment_code`별 source-bound 필수 조건에 맞춰 구조화 findings로 만든다(단일 source of truth).
-2. **preflight 검증 (검증기 = detect-only 게이트)**: 런타임 `src/validators/kssb_findings_validator.cjs`가
+2. **preflight 검증 (검증기 = detect-only 게이트)**: 런타임 `validators/kssb_findings_validator.cjs`가
    findings를 **재판정 없이** 점검한다(Python `.py`는 golden parity reference — 제거·CLI 회귀 아님, D93③·D95) —
    구조 필수 필드·source_id cross-reference·모드↔라벨 정합·source-bound 조건부 규칙·빈 quote·질문 필수 6필드·
    금지 표현·내부 경로 노출. 검증기는 findings를 **고치지 않고 문제를 감지·보고만** 한다.
    error가 있으면 findings를 먼저 바로잡은 뒤 렌더한다.
-3. **렌더 (렌더러 = 형식 변환기)**: 런타임 `src/renderers/kssb_report_renderer.cjs`가 동일 findings를 **재판정 없이**
+3. **렌더 (렌더러 = 형식 변환기)**: 런타임 `renderers/kssb_report_renderer.cjs`가 동일 findings를 **재판정 없이**
    대표 문서로 변환한다(Python `.py`는 reference). 대표 문서 우선순위는 **DOCX → HTML → Markdown**이며, DOCX 생성이 제한돼도 HTML·Markdown fallback은 항상 생성된다(단일 소스 파생, 결정적 출력).
-4. **전달 (배선기 = 로그/사용자 분리)**: 런타임 `src/renderers/kssb_report_delivery.cjs`가 위 2·3단계(preflight+렌더)를 잇고
+4. **전달 (배선기 = 로그/사용자 분리)**: 런타임 `renderers/kssb_report_delivery.cjs`가 위 2·3단계(preflight+렌더)를 잇고
    **사용자-facing 요약**(대표 문서 파일명·표시 경로·preflight 건수·사람 검수·경계 고지)을 생성한다(Python `.py`는 reference).
    **preflight error ≥ 1이면 D94 hard stop**(산출물 미생성·findings 보완 안내로 통제된 중단). 로컬 절대경로·계정명·임시경로·validator raw 출력·실행 로그는
    사용자 결과에 노출하지 않고 내부 상세와 **분리**한다. 사용자-facing 산출 흐름은 **이 배선기 경로**를 사용한다.
 5. **사람 검수**: 산출물은 초안이며 컨설턴트가 검수·수정·확정한다. 확인 불가·상충 항목은 사람 검토로 넘긴다.
 
 검증기·렌더러·전달 배선기는 **내부 워크플로우 구성요소**다(사용자-facing Python CLI가 아니다). 배선기는 재판정하지 않는다.
-상세는 각 폴더 README와 `docs/workflow_usage.md`("전달 계약") 참조.
+상세는 각 폴더 README와 `workflow_usage.md`("전달 계약") 참조.
 
 ## Report structure (보고서 구조)
 
 산출은 **컨설턴트 검수용 KSSB 공시근거 사전검토 보고서 초안**이며, **구조화 findings에서 렌더러가 변환**한다
-(렌더러는 재판정하지 않는다). 구성은 `report_template.md`. findings 계약은 `docs/findings_schema_contract.md`.
+(렌더러는 재판정하지 않는다). 구성은 `report_template.md`. findings 계약은 `schemas/findings_schema_contract.md`.
 표준 섹션: 표지·고지 → 검토 개요 → 상태 요약 → 영역별(4대) 항목 결과와 근거 → 고객 확인 질문·요청자료 → 보완 권고 → 한계와 사람 검수 안내.
 
 ## Completion checklist (완료 점검)
@@ -166,7 +173,7 @@ findings는 렌더 전 검증기 preflight(위 Workflow 2단계)에서 error 0�
 - DOCX 생성이 제한될 경우 fallback: `.html` → `.md`(우선순위 DOCX → HTML → Markdown). 배선기가 대표 문서(primary)를 지정한다.
 - 기본 사용자 흐름에서는 JSON/CSV/manifest/debug log/`_검토근거` 폴더를 **산출물로 요구하지 않는다.**
   (이는 향후 개발/검증/debug mode에서 내부 검증용으로만 사용할 수 있다.)
-- 대표 문서 생성·전달은 렌더러(런타임 `src/renderers/kssb_report_renderer.cjs`)와 전달 배선기(런타임 `src/renderers/kssb_report_delivery.cjs`,
+- 대표 문서 생성·전달은 렌더러(런타임 `renderers/kssb_report_renderer.cjs`)와 전달 배선기(런타임 `renderers/kssb_report_delivery.cjs`,
   내장 모듈 기반 내부 구성요소; Python `.py`는 golden parity reference — D93③·D95)가 findings를 재판정 없이 변환해 수행한다. 렌더 전 검증기가 findings를 detect-only로 preflight 점검한다(위 Workflow 절).
   사용자-facing 요약(파일명·표시 경로·사람 검수·경계 고지)은 **배선기 경로**로 생성하며, 실행 로그·내부 상세와 분리한다.
   본 스킬은 구조화 findings와 보고서 템플릿·출력 정책을 규정하는 판단 엔진이며, 사용자-facing 진입점은 스킬 하나다.
