@@ -64,7 +64,28 @@
 - **산출물**: `2024_K-water_지속가능경영보고서_KSSB_공시근거_사전검토보고서.docx`(primary) + html/md, 사용자
   Documents(repo-외부). 판정 10항목: **근거 확인 5 · 일부 근거 확인/보완 필요 4 · 조건부/적용대상 확인 필요 1**.
   핵심 질문: Scope 3·감축목표 진척·경영진 보고 체계·기후 재무영향. validator **error 0 / warning 0**(quote 수정 후).
-  (원본·산출물 미커밋 — 파일 bytes/sha256은 로그에 미포함.)
+
+### B-provenance 보완 (Codex B3-MAJ-01 대응)
+
+Codex B3 evidence review(CONDITIONAL PASS, `9614fb3`)의 required fix — B3b 입력/산출물 bytes·SHA-256 부재 — 대응:
+
+- **생성 산출물(회수 완료)**: 실행 출력 폴더에 **보관된 파일을 read-only 해시**(회수 시점 2026-07-09, 파일 미커밋
+  — 해시만 기록):
+
+  | 파일 | bytes | SHA-256 |
+  |---|---|---|
+  | `2024_K-water_…_사전검토보고서.docx` | 8986 | `54ba1d1aa4e30627b81cd226f19983aa429e38932a53e85bf067ee3751353624` |
+  | `…_사전검토보고서.html` | 23682 | `4df814299f4a0dd7e0b2a80207aed87f1c8c01e57aef028d35ec3c292d64df85` |
+  | `…_사전검토보고서.md` | 18605 | `44e3e07be6c8076131bf04aff4c6afda9f2fe57cbdb529594cf291e719bc9332` |
+
+  (실사용은 `--manifest` 미사용 → `run_manifest.json` 없음 — 정상.)
+- **입력 PDF(회수 불가 — limitation)**: 입력은 **2024 K-water 지속가능경영보고서(공개)·126페이지**로 기록됐으나
+  **원본 경로·bytes·SHA-256이 실사용 로그에 미포함**이라 이 evidence로 **입력 provenance를 회수할 수 없다**(원본은
+  repo-외부·미커밋). → **명시적 limitation**: 이 B3b 기록의 입력 무결성 해시는 부재하며, 향후 B3b 실행은 kit §5대로
+  입력 파일명·bytes·SHA-256을 **실행 시점에** 캡처한다.
+- **재실행 판단**: Skill은 LLM 단계라 재실행 시 findings가 달라져 **동일 run을 재현하지 못한다** → 이번 run
+  provenance 완성 목적의 재실행은 부적합. **산출물 해시 회수 + 입력 limitation 기록으로 MAJ-01 해소**, 입력 해시
+  캡처는 향후 실행 규율로 이관한다.
 
 ### B-관측: 긍정 (설계대로 작동)
 - **스킬 실제 호출·완주**: 실 공개 보고서에 대해 findings→validator→renderer/delivery 전 구간 실행, 대표 DOCX
@@ -94,6 +115,10 @@
 5. **[minor] 항목 수 흔들림(9→10)**: 카탈로그 항목을 9로 세었다가 10으로 자가 정정, 최종 보고서는 10 사용.
    일시적 추론 노이즈(출력은 정상).
 
+**Codex B3 evidence review 매핑**: 1=**B3-MIN-02** · 2=**B3-MAJ-02** · 3=**B3-MIN-01** · 4=**B3-MIN-03** ·
+5=**B3-MIN-04**. MAJ-02·MIN-01~04는 **carry-forward → B5 prep 노트**(`docs/planning/b5_packaging_readiness_prep_notes.md`).
+**B3-MAJ-01**(provenance)은 위 **B-provenance 보완**으로 해소.
+
 ### B-요약 (관찰)
 실 공개 보고서 end-to-end가 **작동**하고 **source-bound 규율이 실제로 환각 인용을 차단**한 점이 핵심 긍정.
 반면 **(2) 번들 밖 문서 참조**·**(3) PDF 입력 UX**는 제출 전 다룰 실질 finding(주로 B5/후속), **(1)**은 §6-1
@@ -109,8 +134,11 @@
 
 ## D. 다음 단계
 
-1. B3b 실행(User) — **완료(2026-07-09), §B 기록.**
-2. **Codex evidence review**(§A·§B 대조, 판정 — B3b finding (2)(3)의 경중 판단 포함).
-3. 이후 **B5**(submission packaging readiness audit — policy Python-era preflight Node 정합 + **B3b finding 2:
-   플러그인 번들 밖 문서 참조** 포함) → **B6**(final review).
-4. **후속/별도 묶음**: §6-1 인코딩 나레이션 SKILL.md 완화(BOM 금지), B3b finding 3(PDF 입력 UX) 안내 검토, finding 4·5(minor).
+1. B3b 실행(User) — 완료(2026-07-09), §B 기록.
+2. **Codex B3 evidence review** — 완료: **CONDITIONAL PASS**(review commit `9614fb3`). Major 2 · Minor 4.
+3. **B3-MAJ-01(B3b provenance) 해소**: 산출물 SHA-256 회수(§B-provenance) + 입력 PDF limitation 명시 →
+   조건 해소. **B3 closure(current_status/decision_log)는 별도 gated 단계**이며, 필요 시 provenance 보완분의
+   짧은 Codex 재확인 후 진행.
+4. **B3-MAJ-02 + B3-MIN-01~04**: carry-forward → **B5 prep 노트**
+   (`docs/planning/b5_packaging_readiness_prep_notes.md`)에 기록됨(번들 참조·PDF UX·인코딩 나레이션·경로 노출·항목수).
+5. 순서: **B3 closure → B5 packaging readiness audit → B6 final review.**

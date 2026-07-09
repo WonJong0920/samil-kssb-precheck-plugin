@@ -7,7 +7,14 @@
 > Codex B4 review(OBS-01·02·03), 매니페스트 확인(version·runtime 선언), `docs/blackbox_protocol.md`,
 > `docs/submission_packaging_policy.md`. 시작 HEAD: `6f34657`(B3b evidence) 이후.
 
-## 1. 플러그인 번들 밖 문서 참조 (B3b finding 2 — 우선순위 높음)
+## 0. Codex B3 evidence review 매핑 (CONDITIONAL PASS · review `9614fb3`)
+
+- **B3-MAJ-01**(B3b provenance): B3 evidence 문서에서 해소(산출물 SHA-256 회수 + 입력 PDF limitation) — **B5 아님**.
+- **B3-MAJ-02**(번들 밖 `docs/` 참조) → **§1**(우선).
+- **B3-MIN-02**(인코딩 나레이션) → **§2** / **B3-MIN-03**(에이전트 나레이션 경로·계정명 노출) → **§2 + §4 finding 4** /
+  **B3-MIN-01**(PDF 입력 UX) → **§4 finding 3** / **B3-MIN-04**(항목수 나레이션) → **§4 finding 5**.
+
+## 1. 플러그인 번들 밖 문서 참조 (B3b finding 2 / B3-MAJ-02 — 우선순위 높음)
 
 **메커니즘**: 마켓플레이스 `source.path: "./src"` → 플러그인 root = `src/`. 따라서 **repo 루트 `docs/`는 번들
 상위라 설치 시 미포함**. `src/` 아래(schemas·validators·renderers·skills·intake)는 번들됨.
