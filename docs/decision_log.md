@@ -1453,6 +1453,37 @@
   `src/skills/samil-kssb-precheck/completion_checklist.md`·`report_template.md`, `docs/blackbox_protocol.md`,
   `docs/planning/phase3a_validation_coverage_audit.md`, `docs/decision_log.md` D93·D95·D96·D97.
 
+## D99. 2N-6 Phase 3-B — validator detect-only warning v1(R1·R2) 구현 closure(Codex implementation review PASS)
+- **Date**: 2026-07-09
+- **Context**: Phase 3-B scope plan(`docs/planning/phase3b_validator_detect_only_scope_plan.md`, Codex review
+  PASS)에서 승인된 v1 warning 2건을 구현(commit `49df115`) → **Codex implementation review PASS**(review commit
+  `edc3a14`, `docs/reviews/codex_phase3b_validator_detect_only_v1_implementation_review.md` — Critical/Major/Minor
+  0·required fixes 없음, 비차단 Observation OBS-01만). closure를 문서로 확정. 이번 기록은 docs-only(코드 무변경).
+- **Decision(closure)**:
+  ① **Phase 3-B v1을 구현 closure**한다 — `src/validators/kssb_findings_validator.cjs`에 별도 helper 2개를
+  additive로 추가(기존 `_checkQuoteReuse`/`_checkItems` 본문 미개조):
+   - **R1** `evidence.duplicate_quote_within_item`(warning): 한 item의 evidence_anchors 안에서 동일 quote 2회↑ →
+     item+quote당 1건·첫 anchor 위치. 빈 quote skip. cross-item `evidence.duplicate_quote_reuse`와 분리·불변.
+   - **R2** `missing_info.blank_item`(warning): missing_info 배열의 공백-only string 원소. `[]`은 대상 아님
+     (기존 sourcebound rule 담당), non-string 제외, customer_question 미검사.
+  ② **경계**: 둘 다 **warning-only**(error count 불변)·**findings 미변경(detect-only)**·judgment_code/label
+  불변·source_text 무관. 기존 issue code/message/location/ordering 불변.
+  ③ **parity 방침 이행**: **Node-only additive**(Python reference 미수정 — golden parity 동결 D93③). 신규
+  warning이 기존 parity fixture·base example에서 **미발화**하여 parity harness 완화·allowlist·message 예외 추가
+  없이 무회귀. 검증: node validator 54/54·parity 35/35(Python 사용·0 skip)·전체 Node 365/365·Python reference
+  30/30 불변.
+- **의미하지 않는 것**: implementation closure는 v1 warning 2건 구현·review 종료일 뿐 — 제품 완성·2N-5 전체
+  통과·OCR complete·provider finalization·submission readiness가 아니다. **Phase 3-C renderer 검수 표 구현
+  승인이 아니다**(별도 scope/design·review 필요). 보류·후속 rule(anchor page_or_section·quote normalization·
+  정량 evidence gap·source-less number)은 각각 별도 진입.
+- **다음 단계**: 남은 작업 검토(`docs/planning/post_phase3b_remaining_work_review.md`)로 분기 선택 → Codex review.
+  OBS-01(동시 cross+within-item 회귀 fixture)은 비차단 carry-forward.
+- **Status**: closure 기록은 문서 전용(docs-only). 구현 상세·검증은 완료 보고서·Codex review에 기록.
+- **Related Files**: `docs/current_status.md`, `docs/phase3b_validator_detect_only_v1_implementation_report.md`,
+  `docs/reviews/codex_phase3b_validator_detect_only_v1_implementation_review.md`,
+  `docs/planning/phase3b_validator_detect_only_scope_plan.md`, `src/validators/kssb_findings_validator.cjs`(구현 —
+  commit `49df115`), `tests/test_findings_validator_node.test.cjs`, `docs/decision_log.md` D93·D95·D96·D97·D98.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

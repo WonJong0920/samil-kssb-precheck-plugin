@@ -6,6 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 3-B — validator detect-only warning v1 구현 closure**(코드 구현 — Node validator·테스트만.
+  Codex implementation review **PASS**
+  (`docs/reviews/codex_phase3b_validator_detect_only_v1_implementation_review.md` — Critical/Major/Minor 0·
+  required fixes 없음, 비차단 Observation OBS-01(향후 cross+within-item 동시 케이스 회귀 fixture)만) 후 집행).
+  구현 commit `49df115`·review commit `edc3a14`. `kssb_findings_validator.cjs`에 **additive detect-only warning
+  2건**을 얹음: **R1** `evidence.duplicate_quote_within_item`(한 item 내 동일 quote 2회↑, item+quote당 1건,
+  첫 anchor 위치), **R2** `missing_info.blank_item`(missing_info 공백-only string 원소). 둘 다 **warning-only·
+  findings 미변경·judgment 불변·source_text 무관**. 기존 cross-item `duplicate_quote_reuse`·issue ordering 불변,
+  **Python reference·schema·renderer·delivery·parity harness 무변경**(Node-only additive — 기존 parity fixture·
+  base example 미발화로 무회귀). 검증: node validator **54/54**·parity **35/35**(Python 사용·0 skip)·전체 Node
+  **365/365**·Python reference **30/30 불변**. **implementation closure ≠ 제품 완성·2N-5 통과·OCR complete·
+  provider finalization·submission readiness. Phase 3-C renderer 검수 표 구현 승인 아님**(별도 scope/design 필요).
+  결정: **D99**. 보고: `docs/phase3b_validator_detect_only_v1_implementation_report.md`.
+  **다음 = 남은 작업 검토**(`docs/planning/post_phase3b_remaining_work_review.md`) → 분기 선택 → Codex review.
 - **Cycle 2N-6 Phase 3-C — docs-first cleanup closure + Phase 3-B scope 확정**(문서 전용 — 코드·테스트·schema·
   package 무변경. Codex integrated review **PASS**
   (`docs/reviews/codex_phase3d_closure_phase3c_docs_first_cleanup_review.md` — Critical/Major 0·required fixes
