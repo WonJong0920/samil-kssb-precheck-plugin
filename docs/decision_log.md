@@ -1484,6 +1484,39 @@
   `docs/planning/phase3b_validator_detect_only_scope_plan.md`, `src/validators/kssb_findings_validator.cjs`(구현 —
   commit `49df115`), `tests/test_findings_validator_node.test.cjs`, `docs/decision_log.md` D93·D95·D96·D97·D98.
 
+## D100. A안 제출 안정화 — B3 실행환경/실사용 evidence closure(Codex evidence + provenance supplement review PASS)
+- **Date**: 2026-07-09
+- **Context**: 남은 작업 검토(`docs/planning/post_phase3b_remaining_work_review.md`) A안 순서(B4→B3→B5→B6)에서
+  B4(SKILL.md runtime 정합, Codex review PASS `26e44ba`) 후 B3 evidence 사이클 수행. B3 = **B3a**(로컬 결정적
+  Node 런타임 스모크 — Claude) + **B3b**(실사용 Codex UX — User, D35). evidence review CONDITIONAL PASS
+  (B3-MAJ-01 provenance) → supplement로 해소 → supplement review **PASS**(`6293d6b`). 코드 무변경(docs-only).
+- **Decision(closure)**:
+  ① **B3를 evidence closure**한다 — B3a: Node 스위트 365/365 · 성공 delivery(DOCX→HTML→MD·`--manifest`
+  provenance, OBS-01 규약) · D94 hard stop(exit 4·out-dir 미생성·sanitized) · 누출 0 · 2회 byte-identical ·
+  repo 오염 0(산출물 repo-외부 temp·미커밋). B3b: 실 공개보고서(**2024 K-water** 126p) end-to-end 완주
+  (findings→검증 error/warning 0→대표 DOCX). **source-bound 규율이 다단 추출 불일치 인용 3건을 실제 차단**
+  (환각 인용 방지 실동작).
+  ② **B3-MAJ-01(provenance) 해소**: B3b 산출물 3파일 bytes·**full SHA-256 회수**(read-only·미커밋) + **입력 PDF
+  경로/bytes/SHA-256은 실사용 로그 미포함으로 회수 불가 → 명시적 limitation**. 재실행은 LLM 비결정성으로 동일
+  run 재현 불가라 부적합. **입력 해시 캡처는 향후 B3b 실행 규율(kit §5)로 이관.**
+  ③ **한계 보존(리뷰 권고)**: 이 B3b 기록은 **입력 PDF 무결성 해시 부재**임을 향후 독자가 오인하지 않도록 명시.
+  observation: 향후 real-UX evidence는 입력·산출 bytes/SHA-256을 **실행 시점에** 캡처.
+- **의미하지 않는 것**: evidence closure는 Node 런타임 스모크 + 1회 실사용 UX 근거 확보일 뿐 — 제품 완성·2N-5
+  전체 통과·OCR complete·provider finalization·submission readiness가 아니다(Skill은 LLM·사람 검수 전제).
+- **carry-forward → B5**: **B3-MAJ-02**(플러그인 번들 밖 `docs/` 참조 — packaging 필수)·**B3-MIN-01~04**(PDF
+  입력 UX·인코딩 나레이션·에이전트 나레이션 로컬 경로/계정명 노출·항목수 나레이션). 매핑:
+  `docs/planning/b5_packaging_readiness_prep_notes.md` §0.
+- **다음 단계**: **B5 packaging readiness audit**(B3-MAJ-02 우선) → **B6 final Codex submission review**.
+- **Status**: 문서 전용(docs-only) — 코드·스킬 콘텐츠·매니페스트·스키마·package 무변경. 산출물/원본 미커밋(해시만).
+- **Related Files**: `docs/samples/b3_node_runtime_and_real_ux_evidence_2026-07-09.md`,
+  `docs/planning/b3_smoke_and_real_ux_evidence_kit.md`,
+  `docs/reviews/codex_b3_smoke_and_real_ux_evidence_kit_review.md`,
+  `docs/reviews/codex_b3_node_runtime_and_real_ux_evidence_review.md`,
+  `docs/reviews/codex_b3_provenance_supplement_review.md`,
+  `docs/reviews/codex_b4_documentation_alignment_review.md`,
+  `docs/planning/b5_packaging_readiness_prep_notes.md`, `docs/planning/post_phase3b_remaining_work_review.md`,
+  `docs/decision_log.md` D99.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

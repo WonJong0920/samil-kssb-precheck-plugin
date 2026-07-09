@@ -6,6 +6,23 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **A안 제출 안정화 — B4 docs alignment + B3 실행환경/실사용 evidence closure**(문서 전용 — 코드·스킬 콘텐츠·
+  매니페스트·schema 무변경. 남은 작업 검토(`docs/planning/post_phase3b_remaining_work_review.md`) A안 순서대로).
+  - **B4**(SKILL.md runtime drift 정합 — `.py`→Node `.cjs` 런타임/Python golden reference, D94 명시): Codex
+    review **PASS**(`docs/reviews/codex_b4_documentation_alignment_review.md`, target `26e44ba`).
+  - **B3**(Node 런타임 스모크 **B3a** + 실사용 Codex UX **B3b**): kit design review PASS →
+    **B3a**(로컬 결정적 스모크: Node 스위트 365/365·성공 delivery DOCX→HTML→MD+manifest·D94 hard stop·누출0·2회
+    byte-identical·오염0, 산출물 repo-외부 temp·미커밋) + **B3b**(실 공개보고서 **2024 K-water** 126p end-to-end
+    완주: findings→검증 error/warning 0→대표 DOCX). **evidence review CONDITIONAL PASS → B3-MAJ-01(provenance)
+    해소**(산출물 3파일 **SHA-256 회수** + **입력 PDF hash 회수 불가 limitation**) → **provenance supplement review
+    PASS**(`docs/reviews/codex_b3_provenance_supplement_review.md`, `6293d6b`). evidence:
+    `docs/samples/b3_node_runtime_and_real_ux_evidence_2026-07-09.md`.
+  - **핵심 신호**: 실사용에서 **source-bound 규율이 다단 추출 불일치 인용 3건을 실제 차단**(환각 인용 방지 실동작).
+  - **한계 보존**: 이 B3b 기록은 **입력 PDF 무결성 해시 부재**(향후 B3b는 kit §5대로 입력·산출 bytes/SHA-256을
+    실행 시점 캡처). **closure ≠ 제품 완성·2N-5 통과·OCR complete·provider finalization·submission readiness.**
+  - **carry-forward → B5**: **B3-MAJ-02**(플러그인 번들 밖 `docs/` 참조·우선)·**B3-MIN-01~04**(PDF 입력 UX·인코딩
+    나레이션·에이전트 나레이션 로컬 경로/계정명 노출·항목수) — `docs/planning/b5_packaging_readiness_prep_notes.md` §0 매핑.
+  결정: **D100**. **다음 = B5 packaging readiness audit(B3-MAJ-02 우선) → B6 final Codex submission review.**
 - **Cycle 2N-6 Phase 3-B — validator detect-only warning v1 구현 closure**(코드 구현 — Node validator·테스트만.
   Codex implementation review **PASS**
   (`docs/reviews/codex_phase3b_validator_detect_only_v1_implementation_review.md` — Critical/Major/Minor 0·
