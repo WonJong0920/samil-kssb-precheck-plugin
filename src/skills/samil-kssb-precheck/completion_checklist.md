@@ -30,8 +30,10 @@
 - [ ] plugin/cache/sandbox 내부 경로를 노출하지 않았다.
 
 ## 산출물
-- [ ] 대표 문서 파일명이 `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(또는 fallback `.html`) 규칙을 따른다.
-- [ ] 기본 흐름에서 JSON/CSV/manifest/`_검토근거` 폴더를 산출물로 요구하지 않았다.
+- [ ] 대표 문서 파일명이 `<보고서명>_KSSB_공시근거_사전검토보고서.docx`(fallback `.html`/`.md`) 규칙을 따른다
+      (대표 문서 우선순위 **DOCX → HTML → Markdown**, primary=DOCX).
+- [ ] 기본 흐름에서 JSON/CSV/manifest/`_검토근거` 폴더를 산출물로 요구하지 않았다(trace manifest
+      `run_manifest.json`은 **opt-in 내부 provenance artifact**일 뿐 대표 문서가 아니다).
 
 ## 모드 정합성
 - [ ] 입력 모드(고객 제공자료 / 공개자료 검증)에 맞는 판정 라벨 세트를 사용했다.

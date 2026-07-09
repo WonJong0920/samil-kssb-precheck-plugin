@@ -12,8 +12,10 @@ findings 계약은 `docs/findings_schema_contract.md`, 스키마는 `src/schemas
 ## 파일 명명 규칙 (출력 정책)
 
 - 기본 목표: `<보고서명>_KSSB_공시근거_사전검토보고서.docx`
-- DOCX 제한 시 fallback: `<보고서명>_KSSB_공시근거_사전검토보고서.html`
-- 기본 사용자 흐름에서는 위 대표 문서 1개를 산출물로 한다. JSON/CSV/manifest/`_검토근거` 폴더는 기본 산출물이 아니다.
+- DOCX 제한 시 fallback: `<보고서명>_KSSB_공시근거_사전검토보고서.html` 또는 `.md`
+  (대표 문서 우선순위 **DOCX → HTML → Markdown**, primary=DOCX).
+- 기본 사용자 흐름에서는 위 대표 문서 1개를 산출물로 한다. JSON/CSV/manifest/`_검토근거` 폴더는 기본 산출물이
+  아니다(trace manifest `run_manifest.json`은 **opt-in 내부 provenance artifact**일 뿐 대표 문서가 아니다).
 
 ## 보고서 섹션 구성
 
