@@ -55,16 +55,49 @@
   오염 0). **판정(PASS/FAIL)은 Codex evidence review 몫.** B3a는 Node 런타임의 **하한선** 근거이며 아래 B3b(실제
   Codex 플러그인 표면)를 대체하지 않는다.
 
-## B. B3b — 실사용 Codex 플러그인 UX (User 실행) — **PENDING (미실행)**
+## B. B3b — 실사용 Codex 플러그인 UX (User 실행) — 관측 완료 (2026-07-09)
 
-- 정식 B3b(공개자료 1건 업로드 + "이 보고서 검토해줘" + kit §5 캡처)는 **아직 미실행**. 실행 후 이 절을 채운다.
-- **단, 사전 관측 finding 1건**(사용자 실사용 관측 — kit §6-1):
-  - **인코딩 모지바케 나레이션**: 안내 파일이 깨져 보여 "UTF-8로 다시 읽겠다"류 문구를 매 호출 반복 노출.
-  - 검증: 플러그인 스킬/매니페스트 10종 **전부 valid UTF-8·BOM 없음·LF**(파일 결함 아님).
-  - 근본 원인: 호스트의 Windows 기본 코드페이지(예: cp949) 오디코딩 → 자가 UTF-8 재읽기 → 나레이션(Phase 0 R3·
-    blackbox §1 계열). **정확성 결함이 아니라 UX 노이즈**(source-bound 분석은 정상).
-  - **완화 후행**: SKILL.md에 "UTF-8 간주 + 인코딩/재읽기 내부 동작 비노출" 지침(별도 묶음·Codex review). BOM 금지.
-- 위 finding 외 B3b 관측치는 실행 시 기록.
+- **입력**: 2024 K-water 지속가능경영보고서(공개 지속가능경영보고서 = **공개자료 검증 모드**, 권장대로). PDF
+  126페이지. **원본·산출물 repo 미커밋.**
+- **흐름**: 사용자가 "이 보고서 검토해줘"로 스킬 호출 → 지침·카탈로그 로드 → PDF 텍스트 추출(126p) → 항목별
+  근거 대조 → 구조화 findings 생성 → validator preflight → 대표 문서(DOCX+HTML+MD) 생성. **end-to-end 완주.**
+- **산출물**: `2024_K-water_지속가능경영보고서_KSSB_공시근거_사전검토보고서.docx`(primary) + html/md, 사용자
+  Documents(repo-외부). 판정 10항목: **근거 확인 5 · 일부 근거 확인/보완 필요 4 · 조건부/적용대상 확인 필요 1**.
+  핵심 질문: Scope 3·감축목표 진척·경영진 보고 체계·기후 재무영향. validator **error 0 / warning 0**(quote 수정 후).
+  (원본·산출물 미커밋 — 파일 bytes/sha256은 로그에 미포함.)
+
+### B-관측: 긍정 (설계대로 작동)
+- **스킬 실제 호출·완주**: 실 공개 보고서에 대해 findings→validator→renderer/delivery 전 구간 실행, 대표 DOCX
+  생성. Skill-first 진입점이 실동작.
+- **출력 계약 충족**: DOCX 우선 + HTML/MD, 파일명 규칙, repo-외부 산출.
+- **source-bound 규율 실동작(핵심)**: 검증기 원문 재탐색이 **인용 3건의 다단/줄바꿈 추출 불일치를 실제로 검출**
+  → 에이전트가 §9 규율대로 **추출 텍스트에 실재하는 짧은 구간으로 교체** → warning 0. **재발견 안 되는 인용을
+  유지하지 않음(환각 인용 차단이 실동작).**
+- **보수적 판정**: confirmed 남발 없이 partial/조건부 활용. 질문이 실제 근거 공백(Scope 3 등)에 집중.
+- **공개자료 모드**: PII/저작권 리스크 회피(원본 미커밋).
+
+### B-관측: finding / rough edge (판정 아님 — Codex evidence review·후속)
+1. **[확인] 인코딩 모지바케 나레이션 재현**(§6-1): "안내 파일이 한글 인코딩 문제로 깨져 보여 UTF-8로 다시
+   읽겠다"가 실사용에서 재현. 자가 복구·source-bound 정상. **UX 노이즈**. → SKILL.md 완화 후행(별도 묶음, BOM 금지).
+2. **[신규] 플러그인 번들 밖 문서 참조**: 스킬이 `docs/findings_schema_contract.md`(repo root `docs/`) 등을
+   참조하나 **plugin `source.path=./src`라 `docs/`는 번들에 미포함** → 에이전트가 "계약 문서가 패키지에 포함
+   안 됨"을 관측하고 **번들된 `src/schemas`·validator·renderer로 우회**. 기능은 완주했으나 **설치 플러그인에서
+   dangling doc 참조**. → **B5 packaging**(계약 문서 번들 포함 또는 스킬의 `docs/` 참조 조정 검토).
+3. **[신규/환경 확인] Python 차단 + PDF 추출 즉흥**: "Python 실행이 이 환경에서 막혀 있어"(D92 Node-only 근거
+   재확인). core는 "텍스트 추출 가능 문서 전제·OCR/변환 미자동"인데 **실제 PDF 입력**에 부딪혀 에이전트가 **앱
+   런타임의 PDF.js를 찾아 즉흥 추출**(문서화된 `src/intake/runners` 경로 아님). 도구 탐색 시행착오·Windows
+   와일드카드 검색 실패 다수. → **PDF 입력 UX 러프 엣지**: 문서화된 입력 계약과 실제 사용자 행동(PDF 투입)
+   간극. 안내/가이드 명확화 검토(후속).
+4. **[minor 경계] 에이전트 최종 나레이션에 로컬 절대경로·계정명 노출**: delivery `user_summary`는 파일명만
+   (B3a 확인)이나, **에이전트 자신의 채팅 링크가 `C:\Users\<계정>\Documents\...` 형태로 노출**. 경계 문구가
+   에이전트 나레이션에도 적용됨을 상기. → minor(후속).
+5. **[minor] 항목 수 흔들림(9→10)**: 카탈로그 항목을 9로 세었다가 10으로 자가 정정, 최종 보고서는 10 사용.
+   일시적 추론 노이즈(출력은 정상).
+
+### B-요약 (관찰)
+실 공개 보고서 end-to-end가 **작동**하고 **source-bound 규율이 실제로 환각 인용을 차단**한 점이 핵심 긍정.
+반면 **(2) 번들 밖 문서 참조**·**(3) PDF 입력 UX**는 제출 전 다룰 실질 finding(주로 B5/후속), **(1)**은 §6-1
+재확인, (4)(5)는 minor. **판정(BLOCKED/PASS/FAIL)은 Codex evidence review 몫.**
 
 ## C. 한계 / 경계 (정직 표기)
 
@@ -76,6 +109,8 @@
 
 ## D. 다음 단계
 
-1. **B3b 실행(User)** → 본 문서 §B 채움(캡처 템플릿·UX rubric·산출물 계약 rubric).
-2. **Codex evidence review**(§A·§B 대조, 판정).
-3. 이후 **B5**(submission packaging readiness audit — policy Python-era preflight Node 정합 포함) → **B6**(final review).
+1. B3b 실행(User) — **완료(2026-07-09), §B 기록.**
+2. **Codex evidence review**(§A·§B 대조, 판정 — B3b finding (2)(3)의 경중 판단 포함).
+3. 이후 **B5**(submission packaging readiness audit — policy Python-era preflight Node 정합 + **B3b finding 2:
+   플러그인 번들 밖 문서 참조** 포함) → **B6**(final review).
+4. **후속/별도 묶음**: §6-1 인코딩 나레이션 SKILL.md 완화(BOM 금지), B3b finding 3(PDF 입력 UX) 안내 검토, finding 4·5(minor).
