@@ -126,14 +126,16 @@ Cycle 1 범위는 KSSB 4대 영역 MVP로 한정한다: **거버넌스 / 전략 
 
 1. **findings 생성 (스킬 = 판단 엔진)**: 위 4대 영역 절차로 항목별 판정·근거 앵커·부족정보·고객 질문·권고를
    `judgment_code`별 source-bound 필수 조건에 맞춰 구조화 findings로 만든다(단일 source of truth).
-2. **preflight 검증 (검증기 = detect-only 게이트)**: `src/validators/kssb_findings_validator.py`가 findings를
-   **재판정 없이** 점검한다 — 구조 필수 필드·source_id cross-reference·모드↔라벨 정합·source-bound 조건부 규칙·
-   빈 quote·질문 필수 6필드·금지 표현·내부 경로 노출. 검증기는 findings를 **고치지 않고 문제를 감지·보고만** 한다.
+2. **preflight 검증 (검증기 = detect-only 게이트)**: 런타임 `src/validators/kssb_findings_validator.cjs`가
+   findings를 **재판정 없이** 점검한다(Python `.py`는 golden parity reference — 제거·CLI 회귀 아님, D93③·D95) —
+   구조 필수 필드·source_id cross-reference·모드↔라벨 정합·source-bound 조건부 규칙·빈 quote·질문 필수 6필드·
+   금지 표현·내부 경로 노출. 검증기는 findings를 **고치지 않고 문제를 감지·보고만** 한다.
    error가 있으면 findings를 먼저 바로잡은 뒤 렌더한다.
-3. **렌더 (렌더러 = 형식 변환기)**: `src/renderers/kssb_report_renderer.py`가 동일 findings를 **재판정 없이**
-   대표 문서로 변환한다. 대표 문서 우선순위는 **DOCX → HTML → Markdown**이며, DOCX 생성이 제한돼도 HTML·Markdown fallback은 항상 생성된다(단일 소스 파생, 결정적 출력).
-4. **전달 (배선기 = 로그/사용자 분리)**: `src/renderers/kssb_report_delivery.py`가 위 2·3단계(preflight+렌더)를 잇고
-   **사용자-facing 요약**(대표 문서 파일명·표시 경로·preflight 건수·사람 검수·경계 고지)을 생성한다. 로컬 절대경로·계정명·임시경로·validator raw 출력·실행 로그는
+3. **렌더 (렌더러 = 형식 변환기)**: 런타임 `src/renderers/kssb_report_renderer.cjs`가 동일 findings를 **재판정 없이**
+   대표 문서로 변환한다(Python `.py`는 reference). 대표 문서 우선순위는 **DOCX → HTML → Markdown**이며, DOCX 생성이 제한돼도 HTML·Markdown fallback은 항상 생성된다(단일 소스 파생, 결정적 출력).
+4. **전달 (배선기 = 로그/사용자 분리)**: 런타임 `src/renderers/kssb_report_delivery.cjs`가 위 2·3단계(preflight+렌더)를 잇고
+   **사용자-facing 요약**(대표 문서 파일명·표시 경로·preflight 건수·사람 검수·경계 고지)을 생성한다(Python `.py`는 reference).
+   **preflight error ≥ 1이면 D94 hard stop**(산출물 미생성·findings 보완 안내로 통제된 중단). 로컬 절대경로·계정명·임시경로·validator raw 출력·실행 로그는
    사용자 결과에 노출하지 않고 내부 상세와 **분리**한다. 사용자-facing 산출 흐름은 **이 배선기 경로**를 사용한다.
 5. **사람 검수**: 산출물은 초안이며 컨설턴트가 검수·수정·확정한다. 확인 불가·상충 항목은 사람 검토로 넘긴다.
 
@@ -164,8 +166,8 @@ findings는 렌더 전 검증기 preflight(위 Workflow 2단계)에서 error 0�
 - DOCX 생성이 제한될 경우 fallback: `.html` → `.md`(우선순위 DOCX → HTML → Markdown). 배선기가 대표 문서(primary)를 지정한다.
 - 기본 사용자 흐름에서는 JSON/CSV/manifest/debug log/`_검토근거` 폴더를 **산출물로 요구하지 않는다.**
   (이는 향후 개발/검증/debug mode에서 내부 검증용으로만 사용할 수 있다.)
-- 대표 문서 생성·전달은 렌더러(`src/renderers/kssb_report_renderer.py`)와 전달 배선기(`src/renderers/kssb_report_delivery.py`,
-  표준 라이브러리 기반 내부 구성요소)가 findings를 재판정 없이 변환해 수행한다. 렌더 전 검증기가 findings를 detect-only로 preflight 점검한다(위 Workflow 절).
+- 대표 문서 생성·전달은 렌더러(런타임 `src/renderers/kssb_report_renderer.cjs`)와 전달 배선기(런타임 `src/renderers/kssb_report_delivery.cjs`,
+  내장 모듈 기반 내부 구성요소; Python `.py`는 golden parity reference — D93③·D95)가 findings를 재판정 없이 변환해 수행한다. 렌더 전 검증기가 findings를 detect-only로 preflight 점검한다(위 Workflow 절).
   사용자-facing 요약(파일명·표시 경로·사람 검수·경계 고지)은 **배선기 경로**로 생성하며, 실행 로그·내부 상세와 분리한다.
   본 스킬은 구조화 findings와 보고서 템플릿·출력 정책을 규정하는 판단 엔진이며, 사용자-facing 진입점은 스킬 하나다.
 - 사용자-facing 안내에 plugin/cache/sandbox 내부 경로·로컬 절대경로·계정명을 노출하지 않는다.
