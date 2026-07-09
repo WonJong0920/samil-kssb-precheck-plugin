@@ -15,7 +15,7 @@ KSSB 항목 구조, 판정 라벨 체계, 근거 앵커 규칙, 고객 질문 �
 ## 참고 엔진 위치 (read-only, 원본 수정 금지)
 
 ```
-D:\PrimeBell\AI_Projects\kssb-evidence-gap-auditor
+[REDACTED_LOCAL_PATH]  (개발자 로컬 보관 참고 원본 — 이 저장소·설치 번들에 포함되지 않으며, 위치는 개발 기록에만 해당)
 ```
 
 주요 참고 파일(원본):

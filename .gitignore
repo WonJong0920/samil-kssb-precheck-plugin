@@ -38,3 +38,11 @@ out/
 
 # trace manifest(opt-in delivery provenance artifact — 기본 산출물 아님, repo 미커밋)
 run_manifest.json
+
+# 패키지 아티팩트(외부 의존성 0 원칙 — 내장/표준 라이브러리만, packaging policy §1 E-분류: 존재 자체가 오염)
+node_modules/
+package.json
+package-lock.json
+
+# 제출 zip(제출 사이클에서만 생성 — repo 미커밋, packaging policy §1)
+submission.zip
