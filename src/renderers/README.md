@@ -4,12 +4,7 @@
 사용자-facing 진입점은 Skill 하나이며, 렌더러는 Skill이 만든 **구조화 findings**를
 **재판정 없이** 대표 DOCX/HTML/Markdown으로 바꾸는 단계일 뿐이다. 사용자는 Python/PATH를 의식하지 않는다.
 
-**런타임 경로는 Node 이식(`.cjs`, 아래)**이며, 아래 Python(`.py`) 2종은 **golden parity reference**로 유지한다
-(제거 아님 — D93 ③). Python:
-
-- `kssb_report_renderer.py` — **(reference)** findings → DOCX/HTML/Markdown 형식 변환기(재판정 없음).
-- `kssb_report_delivery.py` — **(reference)** findings → validator preflight(detect-only) → renderer → **사용자-facing 요약** 배선기.
-  사용자 요약과 내부 상세(전체 경로·validator 이슈)를 분리하고, 로컬 절대경로·계정명을 비노출한다. 전달 계약: `skills/samil-kssb-precheck/workflow_usage.md`(번들).
+**런타임 경로는 Node 이식(`.cjs`)**이며, Python(`.py`) 2종은 **golden parity reference**로 유지한다(제거 아님 — D93 ③).
 
 **Node 이식 2종 (런타임 — 2N-6 Phase 2 N2 HTML/MD → N4 DOCX — D92 Node 이식)**:
 - `kssb_report_renderer.cjs` — Python renderer의 **HTML/Markdown/DOCX 경로 충실 이식**. HTML/MD는
@@ -33,6 +28,11 @@
     로컬 경로/계정명/stack/timestamp 미포함. **D94 hard stop 시 미생성**, 생성 실패는 delivery 성공을 깨지 않고
     `manifest_error`(경로·stack 없는 짧은 사유)로만 남긴다. Node-only 신규 stage(포트 아님 — Python parity 비대상).
     기본 산출물이 아니므로 `.gitignore`로 방어한다.
+
+**Python reference 2종 (golden parity 기준 — D93 ③)**:
+- `kssb_report_renderer.py` — **(reference)** findings → DOCX/HTML/Markdown 형식 변환기(재판정 없음).
+- `kssb_report_delivery.py` — **(reference)** findings → validator preflight(detect-only) → renderer → **사용자-facing 요약** 배선기.
+  사용자 요약과 내부 상세(전체 경로·validator 이슈)를 분리하고, 로컬 절대경로·계정명을 비노출한다. 전달 계약: `skills/samil-kssb-precheck/workflow_usage.md`(번들).
 
 ## 포지셔닝
 

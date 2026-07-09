@@ -4,13 +4,13 @@
 `schemas/findings_schema_contract.md`(번들 계약 문서)가 "JSON Schema로 표현하지 못한 수동 검증 규칙"으로 남겨 둔 항목을
 표준 라이브러리만으로 자동 점검한다.
 
-**구현 2종 (2N-6 Phase 2 N1 — D92 Node 이식)**:
-- `kssb_findings_validator.py` — **Python reference (golden parity 기준)**. 기존 동작 무변경으로 유지.
-- `kssb_findings_validator.cjs` — **Node 이식**(내장 모듈만 — 외부 의존성·package.json 없음).
+**구현 2종 (2N-6 Phase 2 N1 — D92 Node 이식, 런타임 = Node)**:
+- `kssb_findings_validator.cjs` — **런타임(Node 이식)**(내장 모듈만 — 외부 의존성·package.json 없음).
   검증 규칙·이슈 코드·severity·location·검출 순서를 Python과 동일하게 유지하며,
   `tests/test_findings_validator_parity.test.cjs`가 동일 fixture로 두 구현을 대조한다.
   Python의 선택적 `jsonschema` 검증은 Node에 없다 — 기본 실행 시 Python의 "미설치 fallback"과
   동일 의미의 info(`schema.optional_skipped`)를 보고한다(표준 라이브러리 검증 범위 동등 — 방식 A).
+- `kssb_findings_validator.py` — **Python reference (golden parity 기준, D93③)**. 기존 동작 무변경으로 유지(제거·CLI 회귀 아님).
 
 ## 경계 (detect-only)
 
@@ -43,9 +43,12 @@
 > (설치 플러그인 루트에서는 `src/` 접두를 제거해 `validators/…`·`schemas/…`로 읽는다).
 
 ```
-python src/validators/kssb_findings_validator.py src/schemas/kssb_findings_example.json
-python src/validators/kssb_findings_validator.py findings.json --json
+# 런타임 (Node)
+node   src/validators/kssb_findings_validator.cjs src/schemas/kssb_findings_example.json
 node   src/validators/kssb_findings_validator.cjs findings.json --json
+
+# reference (Python — golden parity 대조용)
+python src/validators/kssb_findings_validator.py findings.json --json
 ```
 
 - 종료 코드(두 구현 공통): error가 하나라도 있으면 1, 없으면 0, findings 로드 실패는 2.
@@ -58,14 +61,16 @@ node   src/validators/kssb_findings_validator.cjs findings.json --json
 
 프로그램 사용:
 
-```python
-from kssb_findings_validator import validate_findings, load_findings
-issues = validate_findings(load_findings("findings.json"))  # list[Issue], findings 미변경
-```
-
 ```js
+// 런타임 (Node)
 const V = require("./src/validators/kssb_findings_validator.cjs");
 const issues = V.validateFindings(V.loadFindings("findings.json"));  // Issue[], findings 미변경
+```
+
+```python
+# reference (Python)
+from kssb_findings_validator import validate_findings, load_findings
+issues = validate_findings(load_findings("findings.json"))  # list[Issue], findings 미변경
 ```
 
 ## 의존성

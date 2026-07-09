@@ -22,16 +22,20 @@
 |---|---|---|
 | `src/.codex-plugin/plugin.json` | **A** | 필수 매니페스트(name·version·description·skills + install surface `interface`/`keywords`/`repository`). 제출 규격 핵심. |
 | `.agents/plugins/marketplace.json` | **A** | 로컬/Repo marketplace 정의(`source.path`=`./src`). Public Plugin Directory 등록이 아니다. |
-| `src/skills/samil-kssb-precheck/` | **A** | Skill 본체 `SKILL.md` + 보조 7종(catalog·judgment·evidence·question·report_template·checklist·prohibited). 사용자-facing 진입점. |
-| `src/schemas/` | **A** | findings 데이터 계약(JSON Schema) + 예시. |
-| `src/validators/` | **A** | 내부 detect-only 검증기(표준 라이브러리). |
-| `src/renderers/` | **A** | 내부 형식 변환기(표준 라이브러리). |
+| `src/skills/samil-kssb-precheck/` | **A** | Skill 본체 `SKILL.md` + 보조 8종(catalog·judgment·evidence·question·report_template·checklist·prohibited + **workflow_usage 번들 계약 사본** — B5-A). 사용자-facing 진입점. |
+| `src/schemas/` | **A** | findings 데이터 계약(JSON Schema) + 예시 + **findings_schema_contract 번들 계약 사본**(B5-A). |
+| `src/validators/` | **A** | 내부 detect-only 검증기 — **런타임 Node `.cjs` + reference Python `.py`**(내장/표준 라이브러리만). |
+| `src/renderers/` | **A** | 내부 형식 변환기·전달 배선기 — **런타임 Node `.cjs` + reference Python `.py`**(내장/표준 라이브러리만). |
+| `src/intake/` | **A** | core 밖 선택적 인테이크 어댑터·승인 기반 assisted runners(자동 실행 없음). |
+| `src/reference/` | **A** | 참고 엔진 검토 기록(read-only reference README). |
 | `docs/` | **A** | 설계·정책·현황·의사결정·완료 보고·workflow_usage·리뷰. |
 | `tests/` | **A** | 재사용 검증기·렌더러 점검(표준 라이브러리). |
 | `README.md` | **A** | 한국어 중심, 삼일 고지·제품 경계 포함. |
 | `logs/.gitkeep` | **A** | 로그 디렉터리 유지용(내용 아님). |
 | **원본 무편집 AI 대화 로그**(Claude Code·Codex·ChatGPT) | **B**(zip 포함은 필수, repo 커밋 여부는 §2 기준으로 제출 단계 결정) | Codex Cycle 1 Minor. 최종 zip에는 반드시 포함, repo 커밋은 민감성 검토 후 결정. |
-| 생성 DOCX/HTML 대표 문서 | **C**(필요 시 zip 포함은 §3 샘플 정책) | `.gitignore`로 repo 제외. findings에서 재생성 가능. |
+| 생성 DOCX/HTML/Markdown 대표 문서 | **C**(필요 시 zip 포함은 §3 샘플 정책) | `.gitignore`로 repo 제외. findings에서 재생성 가능. |
+| `run_manifest.json`(trace manifest) | **C** | Node delivery의 **opt-in(기본 off)** 내부 provenance artifact. 대표 문서 아님, `.gitignore` 방어, repo·zip 기본 미포함. |
+| `package.json`·`package-lock.json`·`node_modules/` | **E** | **외부 의존성 0 원칙**(Node 내장 모듈만 — D92). 존재 자체가 오염이므로 repo·zip 모두 금지. |
 | 실제 샘플 실행 산출물(문서·validator 결과·smoke 출력) | **B/C**(§3) | 저작권·식별정보 검토 후 제출 단계 결정. |
 | Codex install verification **evidence**(채운 결과 문서) | **B**(repo 커밋 vs zip-only는 제출 단계 민감정보 스캔 후 결정) | 로컬 경로·계정 식별정보·토큰 없어야 함(`docs/codex_install_verification.md` §11). 양식은 A. |
 | 원본 PDF·공개 샘플 원자료 | **E**(원칙) | 저작권·용량·재현성 문제. repo 미포함. zip 포함은 저작권 확인된 경우로 한정하되 원칙 제외. |
@@ -79,7 +83,11 @@ Codex Cycle 1 이후 남은 Minor(최종 `submission.zip`에 원본 무편집 AI
 ### 4.1 구조 / 매니페스트 / marketplace
 - [ ] `src/.codex-plugin/plugin.json` JSON 파싱 성공, `name`=`samil-kssb-precheck`, `version`, `description`, `skills`=`./skills/`.
 - [ ] `skills` 경로가 plugin root 기준 실제 `src/skills/samil-kssb-precheck/`와 일치.
-- [ ] `SKILL.md` + 보조 7종 존재.
+- [ ] `SKILL.md` + 보조 8종 존재(B5-A 번들 계약 사본 `workflow_usage.md` 포함; `src/schemas/findings_schema_contract.md`도 존재).
+- [ ] 번들 계약 사본 2종(`src/schemas/findings_schema_contract.md`·`src/skills/samil-kssb-precheck/workflow_usage.md`)이
+      개발 원본(`docs/findings_schema_contract.md`·`docs/workflow_usage.md`)과 **내용 드리프트 없는지** 확인(B5-A OBS-01 — 자동 가드 없음, 수동 대조).
+- [ ] `version` 결정 재확인 — **B5-C 결정: `0.1.0` 보수적 유지**(근거: `docs/b5c_packaging_policy_alignment_completion_report.md` §3).
+      제출 직전 설치 캐시 명확성 등 필요성이 확인되면 그때 근거와 함께 변경(자동 bump 금지, unsupported manifest field 추가 금지).
 - [ ] `.agents/plugins/marketplace.json` JSON 파싱 성공.
 - [ ] marketplace `plugins[].name`과 manifest `name`이 `samil-kssb-precheck`로 정합.
 - [ ] marketplace `source.path`(`./src`)가 실제 plugin root(=`.codex-plugin/plugin.json`·`skills/` 보유 폴더)를 가리킴.
@@ -96,13 +104,30 @@ Codex Cycle 1 이후 남은 Minor(최종 `submission.zip`에 원본 무편집 AI
 - [ ] `docs/` 설계·정책·완료 보고 포함, workflow_usage 최신.
 - [ ] 감사·인증·준수 확정처럼 보이는 신규 표현 없음.
 
-### 4.3 계약 / 검증 / 렌더
-- [ ] `python -m json.tool src/schemas/kssb_findings.schema.json` 성공.
-- [ ] `python -m json.tool src/schemas/kssb_findings_example.json` 성공.
-- [ ] `python src/validators/kssb_findings_validator.py src/schemas/kssb_findings_example.json` → error 0건, RC 0.
+### 4.3 계약 / 검증 / 렌더 (Node runtime-first)
+
+런타임 경로는 **Node `.cjs`**다(2N-6 Phase 2 N1~N4 — D92·D95). Python `.py`는 **golden parity reference**로서
+선택적 교차확인 항목이며, 최종 preflight 게이트는 Node 기준이다.
+
+**필수 — Node 런타임 게이트:**
+- [ ] `node --test tests/*.test.cjs` 전부 PASS(validator·delivery·renderer·DEI·parity 스위트).
+- [ ] `node src/validators/kssb_findings_validator.cjs src/schemas/kssb_findings_example.json` → error 0건, RC 0.
+- [ ] 대표 delivery 재확인: `node src/renderers/kssb_report_delivery.cjs src/schemas/kssb_findings_example.json -o <repo 밖 임시 폴더>`
+      → exit 0, 대표 문서 DOCX→HTML→Markdown 생성, 사용자 요약(stdout)에 로컬 절대경로·계정명·내부 경로 없음(생성물 미커밋).
+- [ ] **D94 hard stop 재확인**: preflight error가 있는 findings에서 exit 4·산출물 0·out-dir 미생성·sanitized 안내
+      (`docs/blackbox_protocol.md` §2-8 정합).
+- [ ] (선택·opt-in) `--manifest` 실행 시 `run_manifest.json` 생성을 **파일 존재/`deliver()` 반환값으로 명시 확인**
+      (exit 0 단독 판단 금지 — blackbox §4 OBS-01)하고, repo 미유입(`.gitignore`) 확인.
+- [ ] 스키마·예시 JSON 파싱 성공 —
+      `node -e "JSON.parse(require('fs').readFileSync('src/schemas/kssb_findings.schema.json','utf8'))"`
+      (예시 `kssb_findings_example.json` 동일 방식).
+- [ ] 대표 DOCX/HTML 재생성 시 결정성·Word 정상 열림 확인(생성물은 커밋하지 않음).
+
+**선택 — Python golden parity reference(교차확인용, 최종 게이트 아님 — D93③):**
 - [ ] `python tests/test_findings_validator.py` PASS.
 - [ ] `python tests/smoke_test_renderer.py` PASS.
-- [ ] 대표 DOCX/HTML 재생성 시 결정성·Word 정상 열림 확인(생성물은 커밋하지 않음).
+- [ ] `python src/validators/kssb_findings_validator.py src/schemas/kssb_findings_example.json` → Node 결과와 동일
+      (실행 시 `docs/blackbox_protocol.md` §1의 Python 절대경로·UTF-8 규약 준수).
 
 ### 4.4 표현 / 경로 스캔
 - [ ] 금지 표현(`prohibited_terms.md`) 스캔 통과(고지·경계 negation 문맥 제외).
