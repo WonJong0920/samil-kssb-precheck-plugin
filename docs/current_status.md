@@ -6,6 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 3-C — docs-first cleanup closure + Phase 3-B scope 확정**(문서 전용 — 코드·테스트·schema·
+  package 무변경. Codex integrated review **PASS**
+  (`docs/reviews/codex_phase3d_closure_phase3c_docs_first_cleanup_review.md` — Critical/Major 0·required fixes
+  없음, Minor **P3C-MIN-01**(fallback 문구 Markdown 누락)은 비차단) 후 집행). target commit `a86bd42`·review
+  commit `d134d53`. Phase 3-C docs-first cleanup = **runtime drift 문서 정렬**(completion_checklist·
+  report_template top-note를 Node 런타임/Python reference·D94·DOCX→HTML→MD), **human-review 검수 우선순위 표
+  문서 서식**(report_template §7-1 — 판정 자동화 아님·renderer 미구현·schema 불변), **P3D-MIN-01 stale `§6`
+  참조 정리**(→ `evidence_mapping_rules.md` §6)를 **docs-only**로 수행. **P3C-MIN-01**은 이번 사이클에서
+  fallback 문구 polish로 정리(DOCX primary·HTML/Markdown fallback·trace manifest는 opt-in 내부 provenance).
+  아울러 **Phase 3-B 구현 스코프를 문서로 확정**(구현 아님 — v1 rule·parity 방침·테스트 계획·금지 범위,
+  `docs/planning/phase3b_validator_detect_only_scope_plan.md`). **closure ≠ 제품 완성·2N-5 통과·OCR complete·
+  provider finalization·submission readiness, renderer/validator/schema 구현 아님.** 결정: **D98**. 보고:
+  `docs/phase3c_closure_and_phase3b_scope_plan_completion_report.md`.
+  **다음 = Phase 3-B scope plan Codex review → PASS 후 Phase 3-B scoped implementation cycle**(별도 승인·commit·review).
 - **Cycle 2N-6 Phase 3-D — 검증 프로토콜 Node 정렬 + trace manifest evidence 규약 문서화 closure**(문서 전용 —
   코드·테스트·schema·package 무변경. Codex Phase 3-D review **PASS**
   (`docs/reviews/codex_phase3d_validation_protocol_node_alignment_review.md` — Critical/Major 0·required fixes

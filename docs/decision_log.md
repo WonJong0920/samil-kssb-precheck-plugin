@@ -1425,6 +1425,34 @@
   `docs/planning/phase3a_validation_coverage_audit.md`, `docs/planning/phase3_validation_strengthening_plan.md`,
   `docs/decision_log.md` D93·D95·D96.
 
+## D98. 2N-6 Phase 3-C — docs-first cleanup closure(Codex integrated review PASS) + Phase 3-B scope 확정
+- **Date**: 2026-07-09
+- **Context**: Phase 3-C docs-first cleanup(target commit `a86bd42`, 2 commits) → **Codex integrated review
+  PASS**(review commit `d134d53`, `docs/reviews/codex_phase3d_closure_phase3c_docs_first_cleanup_review.md` —
+  Critical/Major 0·required fixes 없음, Minor P3C-MIN-01만 비차단). closure를 문서로 확정하고, Phase 3-B
+  구현 스코프를 문서로 확정(구현 아님). 코드 무변경(docs-only).
+- **Decision(closure + scope 확정)**:
+  ① **Phase 3-C를 docs-only closure**한다 — runtime drift 문서 정렬(completion_checklist·report_template를
+  Node 런타임/Python reference·D94·DOCX→HTML→MD), human-review 검수 우선순위 표 **문서 서식**
+  (report_template §7-1 — 판정 자동화 아님·renderer 미구현·schema 불변), P3D-MIN-01 stale `§6`를
+  `evidence_mapping_rules.md` §6로 정리.
+  ② **P3C-MIN-01**(completion_checklist "산출물"·report_template "파일 명명 규칙"의 fallback 문구 Markdown
+  누락)을 **문구 polish**로 정리 — DOCX primary·HTML/Markdown fallback·대표 문서 원칙 유지·JSON/CSV/manifest는
+  기본 산출물 아님·trace manifest는 opt-in 내부 provenance라는 경계 유지(구현 없음).
+  ③ **Phase 3-B scope 확정(구현 아님)** — validator detect-only rule 강화의 v1 rule selection·parity 방침·
+  테스트 계획·금지 범위를 `docs/planning/phase3b_validator_detect_only_scope_plan.md`로 확정. v1은 **좁은
+  Node-only additive warning 2건**(within-item 동일 quote 재사용·`missing_info` 공백-only 원소)만 권장하고,
+  정량 수치결합·quote normalization·intake 배선·source-less number 자동화는 **보류/후속 설계/사람 유지**로 분류.
+- **의미하지 않는 것**: docs-only 정렬·문서화·계획일 뿐 — 제품 완성·2N-5 전체 통과·OCR complete·provider
+  finalization·submission readiness·**Phase 3-B 구현 완료가 아니다.** renderer의 검수 표 자동 생성 승인도 아니다.
+- **다음 단계**: Phase 3-B scope plan **Codex review** → PASS 후에만 Phase 3-B 구현 프롬프트 작성(별도 commit·
+  별도 review, 구현 후 closure도 review 이후 기록).
+- **Status**: 문서 전용(docs-only) — 코드·테스트·스키마·런타임·package 무변경.
+- **Related Files**: `docs/current_status.md`, `docs/planning/phase3b_validator_detect_only_scope_plan.md`,
+  `docs/reviews/codex_phase3d_closure_phase3c_docs_first_cleanup_review.md`,
+  `src/skills/samil-kssb-precheck/completion_checklist.md`·`report_template.md`, `docs/blackbox_protocol.md`,
+  `docs/planning/phase3a_validation_coverage_audit.md`, `docs/decision_log.md` D93·D95·D96·D97.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.
