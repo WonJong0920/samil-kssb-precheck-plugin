@@ -58,7 +58,8 @@
 **PASS** — 아래 전부 충족:
 - (a) findings JSON이 스키마·검증기 preflight를 통과(error 0; warning은 기록하고 진행).
 - (b) findings의 evidence anchor가 **source-bound**: 무작위 표본 ≥5건의 quote가 입력 문서 원문에서
-  재발견됨(사람 확인 — 텍스트 추출 가능 문서 한정), OCR 유래 인용은 §6 표기 준수.
+  재발견됨(사람 확인 — 텍스트 추출 가능 문서 한정), OCR 유래 인용은 `evidence_mapping_rules.md` §6
+  (OCR 유래 표기·보수적 매핑 — confirmed 단독 승격 금지)을 준수.
   (Skill 세션의 자기 점검인 quote 재검수 — `evidence_mapping_rules.md` §9 — 와 validator의 opt-in
   `--source-text` quote 실재성 보조 점검(additive·기본 off·미발견=warning)은 **모두 이 사람 표본 확인을
   대체하지 않는다**.)

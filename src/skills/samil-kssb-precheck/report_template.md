@@ -4,9 +4,10 @@ Samil KSSB Precheck의 사용자-facing 산출물은 **컨설턴트 검수용 KS
 **구조화 findings에서 렌더러가 변환**해 생성한다. 렌더러는 findings를 **재판정하지 않고** 형식 변환만 한다.
 findings 계약은 `docs/findings_schema_contract.md`, 스키마는 `src/schemas/kssb_findings.schema.json`.
 
-> **참고**: 이 문서는 보고서의 **섹션 구성과 내용 규칙**을 규정한다. 실제 파일 생성 렌더러는
-> `src/renderers/kssb_report_renderer.py`에 구현되어 있으며(findings를 재판정 없이 DOCX/HTML로 변환),
-> 렌더 전 경량 검증은 `src/validators/kssb_findings_validator.py`가 담당한다.
+> **참고**: 이 문서는 보고서의 **섹션 구성과 내용 규칙**을 규정한다. 실제 파일 생성 렌더러의 **런타임 경로는
+> `src/renderers/kssb_report_renderer.cjs`**(findings를 재판정 없이 DOCX → HTML → Markdown으로 변환)이고,
+> 렌더 전 경량 검증의 런타임은 `src/validators/kssb_findings_validator.cjs`(detect-only)가 담당한다.
+> Python(`.py`)은 golden parity reference로 유지한다(제거·CLI 회귀 아님 — D93③·D95).
 
 ## 파일 명명 규칙 (출력 정책)
 
@@ -49,6 +50,28 @@ findings 계약은 `docs/findings_schema_contract.md`, 스키마는 `src/schemas
 - 근거 기반 분석의 한계(표현 차이로 인한 누락 가능, 신뢰도는 휴리스틱).
 - 확인 불가·상충 항목은 사람 검수 대상임을 명시.
 - 감사·인증·준수 판단 대체 아님 재확인.
+
+#### 7-1. 검수 우선순위 표 (human-review surface — 문서 서식)
+검수자가 **어느 항목을 왜 사람 판단으로 확인해야 하는지**를 한눈에 보도록, 아래 유형의 항목을 한 표로 모은다.
+이 표는 **판정 자동화가 아니라** 사람 검수 대상과 사유를 표면화하는 서식이다 — findings에서 파생하는 표시일 뿐
+**판정을 바꾸거나 새로 계산하지 않으며**, findings 스키마도 변경하지 않는다(렌더러 자동 생성 여부는 별도 판단).
+
+| 열 | 내용 |
+|---|---|
+| 항목ID · 영역 | 상위 finding_item에서 파생 |
+| 판정 라벨 | findings `judgment_label`(재계산 없음) |
+| 검수 사유(유형) | 아래 유형 중 해당 항목 |
+| 확인 대상 | 검수자가 사람 판단으로 확인할 것(원문 대조·상충 해소·부족정보·인용 실재성 등) |
+
+표에 표면화할 최소 유형:
+- **상충/해석 필요**(`conflict_or_interpretation_needed` — `human_review_note` 동반): 자동 해소 금지, 사람 판단.
+- **확인 불가**(`not_verifiable`): 미공시 단정 금지, `missing_info`·고객 질문 연결을 검수.
+- **일부 근거 확인, 보완 필요**(`partial_evidence_needs_supplement`): 보완이 필요한 근거·부족분을 검수.
+- **validator warning**: 예) 동일 인용 다항목 재사용(`evidence.duplicate_quote_reuse`), quote 실재성 opt-in
+  미발견(`quote.source_not_found` — additive·기본 off·warning, 사람 검수·독립 표본 확인 비대체). warning은
+  delivery 내부 상세(`--debug`)에 있으며, 이 표는 이를 **검수자 대면으로 표면화**하는 서식이다.
+
+이 표는 **검수 유도 신호**이지 판정·품질·감사/인증 결론이 아니다. 최종 판단은 컨설턴트가 수행한다.
 
 ## 내용 규칙
 
