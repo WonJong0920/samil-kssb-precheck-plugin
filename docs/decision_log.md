@@ -1394,6 +1394,37 @@
   `src/renderers/kssb_report_delivery.cjs`(구현 — commit `616ce88`), `tests/test_trace_manifest_node.test.cjs`,
   `docs/workflow_usage.md`, `src/renderers/README.md`, `.gitignore`, `docs/decision_log.md` D92·D93·D95.
 
+## D97. 2N-6 Phase 3-D — 검증 프로토콜 Node 정렬 + trace manifest evidence 규약 문서화 closure(Codex review PASS)
+- **Date**: 2026-07-09
+- **Context**: Phase 3-A audit(`docs/planning/phase3a_validation_coverage_audit.md`, Codex review PASS)의 §7
+  착수순서(3-D 우선)에 따라 Phase 3-D 수행(target commit `2652d3e`) → **Codex Phase 3-D review PASS**
+  (review commit `b0e325a`, `docs/reviews/codex_phase3d_validation_protocol_node_alignment_review.md` —
+  Critical/Major 0·required fixes 없음, Minor P3D-MIN-01만 비차단 carry-forward). closure를 문서로 확정.
+  코드 무변경(docs-only).
+- **Decision(closure)**:
+  ① **Phase 3-D를 docs-only closure**한다 — `docs/blackbox_protocol.md` 후반부 실행을 **Node core 런타임**
+  (dei_producer.cjs·kssb_report_delivery.cjs)으로 정렬하고, Python(`.py`)은 golden parity reference / 과거
+  2N-5R evidence 맥락으로 병기(제거·deprecation·CLI 회귀 아님 — D93③·D95). D94 hard stop을 Node delivery
+  경로에 명시하고 Python reference는 D94 미구현이라 판정 근거로 삼지 않는다고 명기.
+  ② **trace manifest evidence 규약을 delivery-segment 한정으로 문서화** — findings canonical hash·preflight
+  counts·산출물 basename/bytes/sha256·self-hash. OBS-01(exit 0 단독으로 capture 성공 단정 금지 → 파일 존재·
+  `deliver()` 반환·`--debug` 확인)·OBS-02(upstream intake/OCR/runner end-to-end provenance는 v1 범위 밖·후속
+  별도 사이클 후보) 반영. opt-in·기본 off·내부 provenance artifact 경계 유지.
+  ③ **quote 실재성 opt-in 경계 문서 보강** — validator `--source-text` 보조 점검이 additive·기본 off·미발견=
+  warning이며 사람 검수·독립 표본 확인을 대체하지 않는다고 workflow_usage §경계·blackbox §3-(b)에 명시.
+  정규화 강화·intake 배선·validator 구현 변경은 하지 않음(3-B/후속 대상).
+- **Minor 처리**: **P3D-MIN-01**(blackbox §3-(b)의 stale `§6` 참조)은 비차단이며 **Phase 3-C docs-first
+  cleanup**에서 `evidence_mapping_rules.md` §6(OCR 유래 표기·보수적 매핑)으로 명시 참조 정리한다(별도 review 대상).
+- **의미하지 않는 것**: docs-only 정렬·문서화일 뿐 — 제품 완성·2N-5 전체 통과·OCR complete·provider
+  finalization·submission readiness가 아니다. Phase 3-B validator 구현은 별도 범위·승인·review.
+- **다음 단계**: **Phase 3-C docs-first cleanup**(검수 표 서식·runtime drift·P3D-MIN-01) → Codex review.
+- **Status**: 문서 전용(docs-only) — 코드·테스트·스키마·런타임·package 무변경.
+- **Related Files**: `docs/blackbox_protocol.md`, `docs/workflow_usage.md`,
+  `docs/phase3d_validation_protocol_node_alignment_completion_report.md`,
+  `docs/reviews/codex_phase3d_validation_protocol_node_alignment_review.md`,
+  `docs/planning/phase3a_validation_coverage_audit.md`, `docs/planning/phase3_validation_strengthening_plan.md`,
+  `docs/decision_log.md` D93·D95·D96.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.

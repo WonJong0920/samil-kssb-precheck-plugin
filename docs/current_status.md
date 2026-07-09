@@ -6,6 +6,19 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **Cycle 2N-6 Phase 3-D — 검증 프로토콜 Node 정렬 + trace manifest evidence 규약 문서화 closure**(문서 전용 —
+  코드·테스트·schema·package 무변경. Codex Phase 3-D review **PASS**
+  (`docs/reviews/codex_phase3d_validation_protocol_node_alignment_review.md` — Critical/Major 0·required fixes
+  없음, Minor **P3D-MIN-01**(blackbox stale `§6` 참조)은 비차단 carry-forward) 후 집행). target commit `2652d3e`·
+  review commit `b0e325a`. `docs/blackbox_protocol.md` 후반부 실행을 **Node 런타임**(dei_producer.cjs·
+  kssb_report_delivery.cjs, D94 hard stop) 우선으로 정렬하고 Python은 golden parity reference로 병기(제거·CLI
+  회귀 아님 — D93③). **trace manifest를 delivery-segment 한정 evidence로 문서화**(findings canonical hash·
+  preflight counts·산출물 hash·self-hash, OBS-01=exit 0≠capture 성공→파일/API/`--debug` 확인·OBS-02=upstream
+  end-to-end는 v1 밖). **quote 실재성 opt-in 경계**(additive·기본 off·warning·사람 검수 비대체)를 workflow_usage·
+  blackbox §3-b에 명시. **closure ≠ 제품 완성·2N-5 통과·OCR complete·provider finalization·submission readiness.**
+  결정: **D97**. 보고: `docs/phase3d_validation_protocol_node_alignment_completion_report.md`.
+  **다음 = Phase 3-C docs-first cleanup**(검수 표 서식·runtime drift·P3D-MIN-01 정리) → 그 Codex review.
+  **Phase 3-B validator 구현은 별도 범위·별도 승인·별도 review 대상으로 유지.**
 - **Cycle 2N-6 Cycle C — trace manifest delivery-terminal stage 구현 closure**(문서 전용 — 코드·테스트·
   스키마·package 무변경. Codex implementation review **PASS**
   (`docs/reviews/codex_cycle2n_6_trace_manifest_implementation_review.md` — Critical/Major/Minor 0·
