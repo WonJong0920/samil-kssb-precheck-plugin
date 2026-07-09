@@ -25,6 +25,10 @@
 6. **외부 앱/CLI 상태를 바꾸는 작업은 사용자가 직접 수행한다.** 특히 **Codex app/CLI plugin install/enable 확인은 사용자 직접 검증 항목**이다
    (절차: `docs/codex_install_verification.md`, 기록: `docs/templates/CODEX_INSTALL_VERIFICATION_EVIDENCE_TEMPLATE.md`).
 7. 이후 모든 Claude/Codex 프롬프트에는 **먼저 `AGENTS.md`와 `docs/operating_principles.md`를 읽으라**는 지시를 포함한다.
+8. ChatGPT는 다음 작업 프롬프트를 쓰기 전 **GitHub의 현재 repo 상태와 `docs/chatgpt_coordination_workflow.md`를 직접 확인**한다.
+9. 프롬프트의 **필수 source-of-truth 문서는 최소화**한다. `AGENTS.md`·`docs/operating_principles.md`와 해당 작업에 직접 필요한 문서만 필수로 지정하고, 나머지 문서는 에이전트가 필요시 자율 탐색하게 한다.
+10. Claude Code 실행 프롬프트와 Codex 리뷰 프롬프트는 **세부 체크리스트가 아니라 목표·경계·산출물·검증 기준 중심**으로 작성한다. 구현·실행·리뷰 과정의 자율 판단 범위를 보장한다.
+11. 리뷰는 기계적 체크리스트 수행이 아니라 **독립적 repo/diff 검토**다. Codex가 필요한 추가 파일을 자율적으로 탐색하고, 상세 판단은 repo 리뷰 문서로 남긴다.
 
 ## 항상 유지하는 제품/분석 경계
 
