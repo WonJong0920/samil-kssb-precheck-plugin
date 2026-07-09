@@ -6,6 +6,20 @@
   ChatGPT=작업 분기 판단, User=외부 앱/CLI 상태 검증·최종 제출 판단. 모든 Claude/Codex 프롬프트는 두 문서를 먼저 읽는다.
 
 ## 현재 Cycle
+- **B6 제출 준비 편성(진행 중) — B5 packaging remediation + B5-Q P1 output quality 완료 후 최종 제출 리뷰 진입**:
+  - **B5 완료(각 Codex review PASS)**: **B5-A** 번들 자기완결(`a19756f` — 계약 2종 번들 사본·plugin-root 경로 정규화) →
+    **B5-B** Skill UX 가드레일(`4dc968b` — 인코딩/재읽기 비노출·경로/계정 나레이션 비노출·PDF 입력 기대·항목수 확정표현 금지) →
+    **B5-C** packaging policy Node-first(`f8db6c6` — §4.3 필수=Node 게이트/선택=Python reference·§1 분류표 현행화) →
+    **B5-D** 최종 번들 검증(`60ad2ae` — dangling 0·계약 사본 드리프트 0·artifact 유입 0·Node 게이트 365/365·D94 실증·
+    로컬 경로 1건 redaction·`.gitignore` 패키지/zip 방어 — review는 **B6 진입 가능** 판정).
+  - **B5-Q P1 완료(각 Codex review PASS)**: traceability 보강(`1bd28ee` — 소스 가정 라벨·AR 확정/초안 구분·sequencing) →
+    **P1-1** 인용 선택 지침(`35fef71` — 단일 연속 스팬·표/색인 비연속 인용 금지) → **P1-2** 수치 의미·열매핑(`4e930b5`) →
+    **P1-3** KSSB 맥락 문구(`3243724` — AR1 선택공시 단정/AR2 유예 hedge·특정 연도 미기재). **명시 defer**: UR1(렌더러
+    `수행=True` 표현)·QR3(validator 표 인용 휴리스틱)·GR4/GR5(준비도 EXTENDED) — 제출 후 후속 후보.
+  - **B6 편성(사용자 지시)**: `plugin.json` **version 0.1.0→0.2.0**(유보됐던 결정 실행 — 번들 표면 확정·설치 캐시 명확성),
+    README **검증 실적(실측 evidence) 섹션**·`docs/submission_demo_scenario.md`(5분 재현) 추가. 결정: **D101**.
+  - **남은 사용자 직접 항목**: 예선 제출 형식 확인·원본 로그 수집/민감성 스캔·Codex install verification evidence·
+    실제 `submission.zip` 생성(정책 §4 최종 preflight 후). **다음 = Codex B6 final submission review.**
 - **A안 제출 안정화 — B4 docs alignment + B3 실행환경/실사용 evidence closure**(문서 전용 — 코드·스킬 콘텐츠·
   매니페스트·schema 무변경. 남은 작업 검토(`docs/planning/post_phase3b_remaining_work_review.md`) A안 순서대로).
   - **B4**(SKILL.md runtime drift 정합 — `.py`→Node `.cjs` 런타임/Python golden reference, D94 명시): Codex

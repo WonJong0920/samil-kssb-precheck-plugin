@@ -1517,6 +1517,35 @@
   `docs/planning/b5_packaging_readiness_prep_notes.md`, `docs/planning/post_phase3b_remaining_work_review.md`,
   `docs/decision_log.md` D99.
 
+### D101 — B5·B5-Q 완료 closure + B6 제출 준비 편성(version 0.2.0·심사자 evidence·데모 시나리오)
+
+- **Date**: 2026-07-09
+- **Decision**:
+  1. **B5 packaging remediation 완료를 기록한다** — B5-A(번들 자기완결, `a19756f`)·B5-B(Skill UX 가드레일, `4dc968b`)·
+     B5-C(packaging policy Node-first, `f8db6c6`)·B5-D(최종 번들 검증, `60ad2ae`) 전부 Codex review **PASS**,
+     B5-D review가 **B6 진입 가능**을 판정(`docs/reviews/codex_b5d_final_bundle_verification_review.md`).
+  2. **B5-Q P1 output quality 완료를 기록한다** — enhancement plan CONDITIONAL PASS의 required fix를 traceability
+     보강(`1bd28ee`)으로 해소 후, P1-1 인용 선택 지침(`35fef71`)·P1-2 수치 의미/열매핑(`4e930b5`)·P1-3 KSSB 맥락
+     문구(`3243724`) 각각 Codex review **PASS**. **UR1·QR3·GR4/GR5는 명시적 defer**(제출 후 후속 후보 —
+     P1-3 review의 B6 진입 조건 "명시 defer" 충족).
+  3. **B6 제출 준비를 편성한다(사용자 지시)** — ① `plugin.json` **version 0.1.0→0.2.0**: B5-C/B5-D에서 "번들 표면
+     확정 후 1회 bump"로 유보했던 결정을 실행(B5-A/B·B5-Q P1로 설치 번들 콘텐츠가 실질 변경 — 설치 캐시 명확성.
+     unsupported manifest field 추가 없음, marketplace 무변경). ② README에 **검증 실적(실측 evidence) 섹션**
+     (126p 실보고서 완주·인용 17/18 원문 재발견·환각 인용 3건 차단·byte-identical·365 테스트 — 전부 repo 기록 실측,
+     no-overclaim 문구 병기) + ③ `docs/submission_demo_scenario.md`(5분 재현·3분 멘트 뼈대) 추가 — 해커톤 심사
+     기준("현업에서 통하는가")에 실측으로 답하는 전달층 보강.
+- **Why**: 해커톤 예선 마감(7/10) 임박. B5·B5-Q가 리뷰 게이트로 완결된 상태에서 제출에 남은 것은 (a) 유보된
+  version 결정 실행, (b) 심사자가 3분 안에 가치를 볼 수 있는 전달층, (c) B6 최종 리뷰였다. 산출물 품질·경계
+  규율은 변경하지 않고 메타데이터·전달 문서만 보강한다.
+- **Boundaries**: 런타임 코드·스키마·validator/renderer/delivery 로직·marketplace 무변경. README 수치는 전부
+  repo 문서 실측 인용(제품 완성·감사/인증 보증 주장 아님 명시). submission.zip 미생성(정책 §4 최종 preflight 후,
+  로그 수집·install verification은 사용자 직접).
+- **Status**: version bump 1건 외 docs-only. **다음 = Codex B6 final submission review** → 이후 사용자 최종
+  제출 판단(예선 제출 형식 확인 포함).
+- **Related Files**: `src/.codex-plugin/plugin.json`, `README.md`, `docs/submission_demo_scenario.md`,
+  `docs/b6_submission_readiness_completion_report.md`, `docs/reviews/codex_b5d_final_bundle_verification_review.md`,
+  `docs/reviews/codex_b5q_p1_3_kssb_context_wording_review.md`, `docs/decision_log.md` D100.
+
 ## 보류 항목(이후 결정)
 - 생성 아키텍처·렌더러 코드 위치·도입 시점(승인 후 확정).
 - 참고 엔진 재구현 범위.
