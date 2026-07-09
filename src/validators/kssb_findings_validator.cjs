@@ -299,6 +299,47 @@ function _checkQuoteReuse(f, issues) {
   }
 }
 
+// (additive, Phase 3-B v1 R1) 같은 항목 안의 evidence_anchors에서 동일 quote가 2회 이상 반복되면 warning.
+// cross-item `_checkQuoteReuse`(evidence.duplicate_quote_reuse)와 분리 — 그 규칙은 변경하지 않는다.
+// item+quote당 1건, 해당 quote의 첫 anchor 위치에 방출(첫 등장 순서 = 결정적). 빈 quote는 skip(anchor.quote_empty 담당).
+function _checkQuoteReuseWithinItem(f, issues) {
+  for (const [loc, item] of _iterItems(f)) {
+    const anchors = Array.isArray(item.evidence_anchors) ? item.evidence_anchors : [];
+    const firstIdxByQuote = new Map();
+    const countByQuote = new Map();
+    anchors.forEach((a, j) => {
+      if (!_isPlainObject(a)) return;
+      const quote = _s(a.quote).trim();
+      if (!quote) return; // 빈 quote는 anchor.quote_empty가 담당
+      if (!firstIdxByQuote.has(quote)) firstIdxByQuote.set(quote, j);
+      countByQuote.set(quote, (countByQuote.get(quote) || 0) + 1);
+    });
+    for (const [quote, cnt] of countByQuote) { // Map 삽입순 = 첫 등장순(결정적)
+      if (cnt < 2) continue;
+      const j = firstIdxByQuote.get(quote);
+      issues.push(new Issue("warning", "evidence.duplicate_quote_within_item",
+        `${loc}.evidence_anchors[${j}].quote`,
+        "동일 항목 안에서 같은 인용이 여러 evidence_anchors에 반복 사용되었습니다. 중복 근거인지 사람 검수가 필요합니다."));
+    }
+  }
+}
+
+// (additive, Phase 3-B v1 R2) missing_info 배열 원소가 공백문자만인 경우 warning.
+// missing_info=[]는 대상 아님(sourcebound rule이 담당). string 아닌 원소는 v1 대상 아님. customer_question은 미검사.
+function _checkMissingInfoBlank(f, issues) {
+  for (const [loc, item] of _iterItems(f)) {
+    const missing = item.missing_info;
+    if (!Array.isArray(missing)) continue;
+    missing.forEach((el, j) => {
+      if (typeof el === "string" && el.trim() === "") {
+        issues.push(new Issue("warning", "missing_info.blank_item",
+          `${loc}.missing_info[${j}]`,
+          "missing_info에 공백문자만 있는 항목이 있습니다. 실제 부족 정보 문구를 쓰거나 제거해야 합니다."));
+      }
+    });
+  }
+}
+
 function _checkItems(f, reviewMode, sourceIds, issues) {
   const labelMap = EXPECTED_LABEL[reviewMode] || {};
   for (const [loc, item] of _iterItems(f)) {
@@ -481,6 +522,8 @@ function validateFindings(findings, options = {}) {
   _checkAreaStructure(findings, issues);
   _checkItems(findings, reviewMode, sourceIds, issues);
   _checkQuoteReuse(findings, issues);
+  _checkQuoteReuseWithinItem(findings, issues); // Phase 3-B v1 R1 (additive warning)
+  _checkMissingInfoBlank(findings, issues);     // Phase 3-B v1 R2 (additive warning)
 
   const { terms, warn } = loadProhibitedTerms(prohibitedTermsPath);
   if (warn) issues.push(new Issue("warning", "prohibited.list_load", "(prohibited_terms)", warn));

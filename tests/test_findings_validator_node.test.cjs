@@ -223,6 +223,152 @@ test("valid example 중복 인용 warning 없음", () => {
   assert.ok(!warningCodes(base()).has("evidence.duplicate_quote_reuse"));
 });
 
+// --- Node 추가: Phase 3-B v1 detect-only warnings (R1 within-item quote / R2 missing_info blank) ---
+
+const R1_MSG = "동일 항목 안에서 같은 인용이 여러 evidence_anchors에 반복 사용되었습니다. 중복 근거인지 사람 검수가 필요합니다.";
+const R2_MSG = "missing_info에 공백문자만 있는 항목이 있습니다. 실제 부족 정보 문구를 쓰거나 제거해야 합니다.";
+
+function issuesByCode(f, code) {
+  return V.validateFindings(f).filter((i) => i.code === code);
+}
+function firstAnchoredItem(f) {
+  for (let ai = 0; ai < f.kssb_areas.length; ai++) {
+    const items = f.kssb_areas[ai].items;
+    for (let ii = 0; ii < items.length; ii++) {
+      const anchors = items[ii].evidence_anchors;
+      if (Array.isArray(anchors) && anchors.length >= 1
+          && typeof anchors[0].quote === "string" && anchors[0].quote.trim()) {
+        return { it: items[ii], loc: `kssb_areas[${ai}].items[${ii}]` };
+      }
+    }
+  }
+  return null;
+}
+function firstMissingInfoItem(f) {
+  for (let ai = 0; ai < f.kssb_areas.length; ai++) {
+    const items = f.kssb_areas[ai].items;
+    for (let ii = 0; ii < items.length; ii++) {
+      if (Array.isArray(items[ii].missing_info) && items[ii].missing_info.length >= 1) {
+        return { it: items[ii], loc: `kssb_areas[${ai}].items[${ii}]` };
+      }
+    }
+  }
+  return null;
+}
+
+test("R1: valid example → within-item 중복 quote warning 없음", () => {
+  assert.ok(!warningCodes(base()).has("evidence.duplicate_quote_within_item"));
+});
+
+test("R1: 같은 item 내 동일 quote 2회 → warning 1건(첫 anchor 위치·문구·warning-only)", () => {
+  const f = base();
+  const { it, loc } = firstAnchoredItem(f);
+  const a0 = it.evidence_anchors[0];
+  it.evidence_anchors.push({ source_id: a0.source_id, quote: a0.quote, page_or_section: "p.2", relevance_note: "재인용" });
+  const w = issuesByCode(f, "evidence.duplicate_quote_within_item");
+  assert.strictEqual(w.length, 1);
+  assert.strictEqual(w[0].severity, "warning");
+  assert.strictEqual(w[0].code, "evidence.duplicate_quote_within_item");
+  assert.strictEqual(w[0].location, `${loc}.evidence_anchors[0].quote`);
+  assert.strictEqual(w[0].message, R1_MSG);
+  assert.strictEqual([...codes(f)].length, 0); // warning-only, 신규 error 없음
+});
+
+test("R1: 같은 item 내 동일 quote 3회 → warning 여전히 1건(item+quote당 1건)", () => {
+  const f = base();
+  const { it } = firstAnchoredItem(f);
+  const a0 = it.evidence_anchors[0];
+  it.evidence_anchors.push({ source_id: a0.source_id, quote: a0.quote, page_or_section: "p.2" });
+  it.evidence_anchors.push({ source_id: a0.source_id, quote: a0.quote, page_or_section: "p.3" });
+  assert.strictEqual(issuesByCode(f, "evidence.duplicate_quote_within_item").length, 1);
+});
+
+test("R1: 한 item 내 서로 다른 두 quote가 각각 반복 → warning 2건(첫 등장순)", () => {
+  const f = base();
+  const { it, loc } = firstAnchoredItem(f);
+  const a0 = it.evidence_anchors[0];
+  const qA = a0.quote;
+  const qB = `${qA} (B 변형)`;
+  it.evidence_anchors = [
+    { source_id: a0.source_id, quote: qA },
+    { source_id: a0.source_id, quote: qA },
+    { source_id: a0.source_id, quote: qB },
+    { source_id: a0.source_id, quote: qB },
+  ];
+  const w = issuesByCode(f, "evidence.duplicate_quote_within_item");
+  assert.strictEqual(w.length, 2);
+  assert.strictEqual(w[0].location, `${loc}.evidence_anchors[0].quote`);
+  assert.strictEqual(w[1].location, `${loc}.evidence_anchors[2].quote`);
+});
+
+test("R1: within-item 반복이면서 cross-item은 아니면 duplicate_quote_reuse는 없음", () => {
+  const f = base();
+  const { it } = firstAnchoredItem(f);
+  const a0 = it.evidence_anchors[0];
+  it.evidence_anchors.push({ source_id: a0.source_id, quote: a0.quote });
+  assert.ok(warningCodes(f).has("evidence.duplicate_quote_within_item"));
+  assert.ok(!warningCodes(f).has("evidence.duplicate_quote_reuse"));
+});
+
+test("R2: valid example → missing_info.blank_item warning 없음", () => {
+  assert.ok(!warningCodes(base()).has("missing_info.blank_item"));
+});
+
+test("R2: missing_info 공백문자만 원소 → warning 1건(정확 위치·문구·warning-only)", () => {
+  const f = base();
+  const mi = firstMissingInfoItem(f);
+  assert.ok(mi, "missing_info 있는 item 필요");
+  const j = mi.it.missing_info.length;
+  mi.it.missing_info.push("   ");
+  const w = issuesByCode(f, "missing_info.blank_item");
+  assert.strictEqual(w.length, 1);
+  assert.strictEqual(w[0].severity, "warning");
+  assert.strictEqual(w[0].code, "missing_info.blank_item");
+  assert.strictEqual(w[0].location, `${mi.loc}.missing_info[${j}]`);
+  assert.strictEqual(w[0].message, R2_MSG);
+  assert.strictEqual([...codes(f)].length, 0); // warning-only
+});
+
+test("R2: 빈 문자열/탭/줄바꿈만 있는 원소도 검출", () => {
+  for (const blank of ["", "\t", "\n", " \t \n "]) {
+    const f = base();
+    const mi = firstMissingInfoItem(f);
+    mi.it.missing_info.push(blank);
+    assert.strictEqual(issuesByCode(f, "missing_info.blank_item").length, 1, `blank=${JSON.stringify(blank)}`);
+  }
+});
+
+test("R2: missing_info=[]는 R2 아님(기존 sourcebound가 담당)", () => {
+  const f = base();
+  let touched = false;
+  for (const a of f.kssb_areas) for (const it of a.items) {
+    if (it.judgment_code === "not_verifiable") { it.missing_info = []; touched = true; }
+  }
+  assert.ok(touched, "not_verifiable item 필요");
+  const issues = V.validateFindings(f);
+  assert.ok(!issues.some((i) => i.code === "missing_info.blank_item"));
+  assert.ok(issues.some((i) => i.code === "sourcebound.missing_info")); // 기존 규칙이 담당
+});
+
+test("R2: string 아닌 원소는 v1 대상 아님", () => {
+  const f = base();
+  const mi = firstMissingInfoItem(f);
+  mi.it.missing_info.push(123, null, {});
+  assert.ok(!warningCodes(f).has("missing_info.blank_item"));
+});
+
+test("detect-only: R1/R2 트리거 findings도 검증이 원본을 변경하지 않음", () => {
+  const f = base();
+  const { it } = firstAnchoredItem(f);
+  const a0 = it.evidence_anchors[0];
+  it.evidence_anchors.push({ source_id: a0.source_id, quote: a0.quote });
+  const mi = firstMissingInfoItem(f);
+  mi.it.missing_info.push("   ");
+  const snapshot = JSON.stringify(f);
+  V.validateFindings(f);
+  assert.strictEqual(JSON.stringify(f), snapshot);
+});
+
 // --- Node 추가: 구조/모드 경계 ---
 
 test("root가 객체 아님 → structure.root 단독 error", () => {
