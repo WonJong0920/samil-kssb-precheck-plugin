@@ -112,7 +112,10 @@ python tests/test_delivery_wiring.py      # reference 전달 배선 end-to-end �
 
 - 본 도구는 삼일회계법인의 공식 제품·내부 도구가 아니며, 감사·인증·준수 판단을 대체하지 않는다.
 - 확인 불가 항목을 미공시로 단정하지 않는다. 최종 판단은 컨설턴트가 수행한다.
-- quote 인용 실재성(입력 원문 일치)은 자동 검증 범위 밖이며 사람 검수 대상이다.
+- quote 인용 실재성(입력 원문 일치)은 자동 검증 범위 밖이며 사람 검수 대상이다. (validator에 **additive·기본
+  off**의 `--source-text` 보조 점검이 있어, 원문 텍스트가 명시 제공되면 공백정규화 substring 미발견을
+  **warning**으로 감지한다. 그러나 이는 **opt-in·warning 성격**이며 사람 검수·독립 표본 확인을 대체하지 않는다 —
+  원문 미제공 시 미실행, exact substring only, 발견=맥락정합 아님, 미발견=환각 아님.)
 - **core 워크플로우는 문서 변환·OCR을 자동 실행하지 않는다.** 문서 구조 판독과 스캔/혼합 PDF의 문자 인식(OCR)은
   core 밖 **승인 기반 로컬 보조 runner**(`src/intake/runners/` — 자동 실행 없음, 최소 경로)로만 제공되며,
   그 산출물은 근거 재료/검수용 보조 재료로만 합류한다. Hook/MCP·submission.zip은 현재 범위에 포함하지 않는다.
