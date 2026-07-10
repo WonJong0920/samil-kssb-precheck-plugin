@@ -45,4 +45,5 @@ package.json
 package-lock.json
 
 # 제출 zip(제출 사이클에서만 생성 — repo 미커밋, packaging policy §1)
-submission.zip
+# 로컬 패키징 산출물 전반 방어(예: "Samil KSSB Precheck Plugin.zip")
+*.zip
