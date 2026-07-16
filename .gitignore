@@ -47,3 +47,9 @@ package-lock.json
 # 제출 zip(제출 사이클에서만 생성 — repo 미커밋, packaging policy §1)
 # 로컬 패키징 산출물 전반 방어(예: "Samil KSSB Precheck Plugin.zip")
 *.zip
+
+# 공통 runner 리뷰 산출물 차단 (허브 설계 v11 M1, 2026-07-16)
+# — 리뷰 raw 로그·리뷰 문서는 개인 규칙·경로가 포함될 수 있어 git 추적 금지(로컬 정본).
+# tasks/next_task.md 등 계약 문서는 추적 대상(전체 tasks/ ignore 금지 — 설계 v11 §5).
+reports/*_raw.log
+reports/TC-*.md
